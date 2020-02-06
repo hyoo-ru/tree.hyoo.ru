@@ -1,6 +1,6 @@
 namespace $.$$ {
 
-	export class $mol_app_tree extends $.$mol_app_tree {
+	export class $hyoo_tree extends $.$hyoo_tree {
 
 		@ $mol_mem
 		compiled() {

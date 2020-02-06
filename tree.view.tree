@@ -1,4 +1,4 @@
-$mol_app_tree $mol_page
+$hyoo_tree $mol_page
 	title @ \View.Tree compiler
 	body /
 		<= Source $mol_textarea
