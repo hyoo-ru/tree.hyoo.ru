@@ -119,9 +119,8 @@ var $;
 var $;
 (function ($) {
     var _a;
-    class $mol_object2 extends Object {
+    class $mol_object2 {
         constructor(init) {
-            super();
             this[_a] = null;
             if (init)
                 init(this);
@@ -5971,7 +5970,7 @@ var $;
             source(next) {
                 let source = this.$.$mol_state_arg.value('source', next);
                 if (source == null)
-                    source = this.$.$mol_http.resource('mol/app/tree/tree.view.tree').text();
+                    source = this.$.$mol_http.resource('hyoo/tree/tree.view.tree').text();
                 return source;
             }
         }
