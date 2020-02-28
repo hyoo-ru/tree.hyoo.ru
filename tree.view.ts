@@ -15,7 +15,7 @@ namespace $.$$ {
 
 		source( next? : string ) {
 			let source = this.$.$mol_state_arg.value( 'source' , next )
-			if( source == null ) source = this.$.$mol_http.resource( 'mol/app/tree/tree.view.tree' ).text()
+			if( source == null ) source = this.$.$mol_http.resource( 'hyoo/tree/tree.view.tree' ).text()
 			return source
 		}
 
