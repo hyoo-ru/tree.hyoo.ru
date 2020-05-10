@@ -2,6 +2,17 @@ namespace $.$$ {
 
 	export class $hyoo_tree extends $.$hyoo_tree {
 
+		compile() {
+			return this.$.$mol_state_arg.value( 'compile' ) === ''
+		}
+
+		pages() {
+			return [
+				this.Source() ,
+				... this.compile() ? [ this.Result() ] : []
+			]
+		}
+
 		@ $mol_mem
 		compiled() {
 			return $mol_view_tree_compile( $mol_tree.fromString( this.source() , 'view.tree' ) )

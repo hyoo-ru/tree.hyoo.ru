@@ -3,9 +3,9 @@
 }
 
 [hyoo_tree_source] {
-	flex: 50% 1 1;
-	white-space: pre;
-	font-family: var(--mol_skin_font_monospace);
+	flex: 1000 0 40rem;
+	display: flex;
+	flex-direction: column;
 }
 
 [hyoo_tree_source_view] {
@@ -13,7 +13,7 @@
 }
 
 [hyoo_tree_result] {
-	flex: 50% 1 1;
+	flex: 1000 0 40rem;
 	outline: 0 0 0 1px var(--mol_theme_line);
 	display: flex;
 	flex-direction: column;
