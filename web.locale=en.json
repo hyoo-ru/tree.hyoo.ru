@@ -1,4 +1,6 @@
 {
-	"$hyoo_tree_source_hint": "view.tree source",
-	"$hyoo_tree_title": "View.Tree compiler"
+	"$hyoo_tree_Result": "Compiled",
+	"$hyoo_tree_Source": "View.Tree",
+	"$hyoo_tree_compile_label": "Compile",
+	"$hyoo_tree_source_hint": "view.tree source"
 }
