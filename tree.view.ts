@@ -15,7 +15,10 @@ namespace $.$$ {
 
 		@ $mol_mem
 		compiled() {
-			return $mol_view_tree_compile( $mol_tree.fromString( this.source() , 'view.tree' ) )
+			const data = this.source()
+			const node = $mol_tree2.fromString( data , $mol_span.entire('view.tree', data.length) )
+
+			return this.$.$mol_view_tree2_compile( node )
 		}
 
 		result() {
@@ -25,9 +28,7 @@ namespace $.$$ {
 		}
 
 		source( next? : string ) {
-			let source = this.$.$mol_state_arg.value( 'source' , next )
-			if( source == null ) source = this.$.$mol_fetch.text( 'hyoo/tree/tree.view.tree' )
-			return source
+			return this.$.$mol_state_arg.value( 'source' , next ) ?? this.$.$mol_fetch.text( 'hyoo/tree/tree.view.tree' )
 		}
 
 	}
