@@ -2168,6 +2168,311 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    class $mol_span extends $mol_object2 {
+        readonly uri: string;
+        readonly row: number;
+        readonly col: number;
+        readonly length: number;
+        constructor(uri: string, row: number, col: number, length: number);
+        static unknown: $mol_span;
+        static begin(uri: string): $mol_span;
+        static entire(uri: string, length: number): $mol_span;
+        toString(): string;
+        toJSON(): {
+            uri: string;
+            row: number;
+            col: number;
+            length: number;
+        };
+        error(message: string, Class?: ErrorConstructor): Error;
+        span(row: number, col: number, length: number): $mol_span;
+        after(length: number): $mol_span;
+        slice(begin: number, end: number): $mol_span;
+    }
+}
+
+declare namespace $ {
+    type $mol_tree2_path = Array<string | number | null>;
+    type $mol_tree2_hack<Context> = (input: $mol_tree2, belt: $mol_tree2_belt<Context>, context: Context) => readonly $mol_tree2[];
+    type $mol_tree2_belt<Context> = Record<string, $mol_tree2_hack<Context>>;
+    class $mol_tree2 extends $mol_object2 {
+        readonly type: string;
+        readonly value: string;
+        readonly kids: readonly $mol_tree2[];
+        readonly span: $mol_span;
+        constructor(type: string, value: string, kids: readonly $mol_tree2[], span: $mol_span);
+        static list(kids: readonly $mol_tree2[], span?: $mol_span): $mol_tree2;
+        list(kids: readonly $mol_tree2[]): $mol_tree2;
+        static data(value: string, kids?: readonly $mol_tree2[], span?: $mol_span): $mol_tree2;
+        data(value: string, kids?: readonly $mol_tree2[]): $mol_tree2;
+        static struct(type: string, kids?: readonly $mol_tree2[], span?: $mol_span): $mol_tree2;
+        struct(type: string, kids?: readonly $mol_tree2[]): $mol_tree2;
+        clone(kids: readonly $mol_tree2[]): $mol_tree2;
+        text(): string;
+        static fromString(str: string, span?: $mol_span): $mol_tree2;
+        toString(prefix?: string): string;
+        insert(value: $mol_tree2, ...path: $mol_tree2_path): $mol_tree2;
+        select(...path: $mol_tree2_path): $mol_tree2;
+        filter(path: string[], value?: string): $mol_tree2;
+        hack<Context = never>(belt: $mol_tree2_belt<Context>, context?: Context): $mol_tree2[];
+        error(message: string, Class?: ErrorConstructor): Error;
+    }
+    class $mol_tree2_empty extends $mol_tree2 {
+        constructor();
+    }
+}
+
+declare namespace $ {
+    function $mol_view_tree2_child(this: $mol_ambient_context, tree: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_classes(defs: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    type $mol_view_tree2_locales = Record<string, string>;
+    class $mol_view_tree2_context extends $mol_object2 {
+        protected parents: readonly $mol_view_tree2_prop[];
+        protected locales: $mol_view_tree2_locales;
+        protected methods: $mol_tree2[];
+        readonly types: boolean;
+        protected added_nodes: Map<string, {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        }>;
+        protected array?: $mol_tree2 | undefined;
+        constructor($: $mol_ambient_context, parents: readonly $mol_view_tree2_prop[], locales: $mol_view_tree2_locales, methods: $mol_tree2[], types?: boolean, added_nodes?: Map<string, {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        }>, array?: $mol_tree2 | undefined);
+        protected clone(prefixes: readonly $mol_view_tree2_prop[], array?: $mol_tree2): $mol_view_tree2_context;
+        parent(prefix: $mol_view_tree2_prop): $mol_view_tree2_context;
+        root(): $mol_view_tree2_context;
+        locale_disable(array: $mol_tree2): $mol_view_tree2_context;
+        get_method({ name, src, key, next }: $mol_view_tree2_prop): {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        } | undefined;
+        check_scope_vars({ name, key, next }: $mol_view_tree2_prop): undefined;
+        index(owner: $mol_view_tree2_prop): number;
+        method(index: number, method: $mol_tree2): void;
+        protected locale_nodes: Map<string, $mol_tree2>;
+        locale(operator: $mol_tree2): $mol_tree2;
+    }
+}
+
+declare namespace $ {
+    class $mol_view_tree2_error extends Error {
+        readonly spans: readonly $mol_span[];
+        constructor(message: string, spans: readonly $mol_span[]);
+        toJSON(): {
+            message: string;
+            spans: readonly $mol_span[];
+        };
+    }
+    class $mol_view_tree2_error_suggestions {
+        readonly suggestions: readonly string[];
+        constructor(suggestions: readonly string[]);
+        toString(): string;
+        toJSON(): readonly string[];
+    }
+    function $mol_view_tree2_error_str(strings: readonly string[], ...parts: readonly ($mol_span | readonly $mol_span[] | string | number | $mol_view_tree2_error_suggestions)[]): $mol_view_tree2_error;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_serialize(this: $mol_ambient_context, node: $mol_tree2, prefix?: string, parent_is_inline?: boolean): string;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_class_props(this: $mol_ambient_context, klass: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_class_super(this: $mol_ambient_context, klass: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    type $mol_view_tree2_prop = ReturnType<typeof $mol_view_tree2_prop_split>;
+    function $mol_view_tree2_prop_name(this: $mol_ambient_context, prop: $mol_tree2): string;
+    function $mol_view_tree2_prop_key(this: $mol_ambient_context, prop: $mol_tree2): string | undefined;
+    function $mol_view_tree2_prop_next(this: $mol_ambient_context, prop: $mol_tree2): string | undefined;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_prop_quote(name: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_prop_split(this: $mol_ambient_context, src: $mol_tree2): {
+        src: $mol_tree2;
+        name: $mol_tree2;
+        key: $mol_tree2 | undefined;
+        next: $mol_tree2 | undefined;
+    };
+}
+
+declare namespace $ {
+    function $mol_view_tree2_bind_both_parts(this: $mol_ambient_context, operator: $mol_tree2): {
+        owner_parts: {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        };
+        default_value: $mol_tree2 | undefined;
+    };
+}
+
+declare namespace $ {
+    function $mol_view_tree2_bind_left_parts(this: $mol_ambient_context, operator: $mol_tree2, having_parts?: $mol_view_tree2_prop): {
+        default_value: $mol_tree2 | undefined;
+        owner_call_parts: {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        };
+        owner_parts: {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        };
+    };
+}
+
+declare namespace $ {
+    function $mol_view_tree2_bind_right_parts(this: $mol_ambient_context, operator: $mol_tree2, having_parts: $mol_view_tree2_prop, factory: $mol_view_tree2_prop): {
+        owner_parts: {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        };
+    };
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_bind_both(this: $mol_ambient_context, operator: $mol_tree2, context: $mol_view_tree2_context): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_bind_left(this: $mol_ambient_context, operator: $mol_tree2, context: $mol_view_tree2_context, having_parts?: $mol_view_tree2_prop): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_bind_right(this: $mol_ambient_context, operator: $mol_tree2, having_parts: $mol_view_tree2_prop, factory: $mol_view_tree2_prop, context: $mol_view_tree2_context): undefined;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_array(this: $mol_ambient_context, operator: $mol_tree2, context: $mol_view_tree2_context, super_method?: $mol_view_tree2_prop | undefined): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_array_body(this: $mol_ambient_context, operator: $mol_tree2, parent_context: $mol_view_tree2_context, super_method?: $mol_view_tree2_prop): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_method_body(this: $mol_ambient_context, having_parts: $mol_view_tree2_prop, parent_context: $mol_view_tree2_context): undefined;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_method(this: $mol_ambient_context, owner_parts: $mol_view_tree2_prop, body: $mol_tree2, types?: boolean): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_value_type(this: $mol_ambient_context, val: $mol_tree2): "locale" | "string" | "object" | "number" | "null" | "list" | "bool" | "dict" | "get" | "bind" | "put";
+}
+
+declare namespace $ {
+    function $mol_view_tree2_value(this: $mol_ambient_context, value: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_class(this: $mol_ambient_context, klass: $mol_tree2, locales: $mol_view_tree2_locales): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_comment(this: $mol_ambient_context, item: $mol_tree2): $mol_tree2;
+    function $mol_view_tree2_ts_comment_doc(this: $mol_ambient_context, item: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_compile(this: $mol_ambient_context, tree2_module: $mol_tree2): {
+        script: string;
+        locales: Record<string, string>;
+    };
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_dictionary(this: $mol_ambient_context, dictionary: $mol_tree2, dictionary_context: $mol_view_tree2_context, super_method?: $mol_view_tree2_prop): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_factory(this: $mol_ambient_context, klass: $mol_tree2, factory: $mol_view_tree2_prop, factory_context: $mol_view_tree2_context): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_function_declaration({ name, key, next }: Pick<$mol_view_tree2_prop, 'name' | 'key' | 'next'>, types?: boolean): $mol_tree2;
+    function $mol_view_tree2_ts_function_call({ name, key, next }: Pick<$mol_view_tree2_prop, 'name' | 'key' | 'next'>): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_locale(operator: $mol_tree2, context: $mol_view_tree2_context): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_module(this: $mol_ambient_context, tree2_module: $mol_tree2, locales: $mol_view_tree2_locales): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_spread(this: $mol_ambient_context, spread_prop: $mol_tree2): $mol_tree2;
+    class $mol_view_tree2_ts_spread_factory extends $mol_object2 {
+        protected prop_parts?: {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        } | undefined;
+        protected super_spread: $mol_tree2 | undefined;
+        constructor($: $mol_ambient_context, prop_parts?: {
+            src: $mol_tree2;
+            name: $mol_tree2;
+            key: $mol_tree2 | undefined;
+            next: $mol_tree2 | undefined;
+        } | undefined);
+        create(prop: $mol_tree2): $mol_tree2;
+    }
+}
+
+declare namespace $ {
+    function $mol_view_tree2_ts_value(this: $mol_ambient_context, src: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+}
+
+declare namespace $.$$ {
+    class $hyoo_tree extends $.$hyoo_tree {
+        compile(): boolean;
+        pages(): $mol_page[];
+        compiled(): {
+            script: string;
+            locales: Record<string, string>;
+        };
+        result(): string;
+        source(next?: string): string;
+    }
+}
+
+declare namespace $ {
     class $mol_view_tree_test_attributes_super extends $mol_view {
         some(): {
             a: number;
@@ -2273,22 +2578,4 @@ declare namespace $ {
             [key: string]: string;
         };
     };
-}
-
-declare namespace $ {
-}
-
-declare namespace $.$$ {
-    class $hyoo_tree extends $.$hyoo_tree {
-        compile(): boolean;
-        pages(): $mol_page[];
-        compiled(): {
-            script: string;
-            locales: {
-                [key: string]: string;
-            };
-        };
-        result(): string;
-        source(next?: string): string;
-    }
 }
