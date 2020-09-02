@@ -18,7 +18,7 @@ namespace $.$$ {
 			const data = this.source()
 			const node = $mol_tree2.fromString( data , $mol_span.entire('view.tree', data.length) )
 
-			return this.$.$mol_view_tree2_compile( node )
+			return this.$.$mol_view_tree2_ts_compile( node )
 		}
 
 		result() {
