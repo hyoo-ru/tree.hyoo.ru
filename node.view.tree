@@ -47,22 +47,6 @@ $mol_button $mol_view
 		<= title
 	Speck $mol_speck
 
-$mol_page $mol_view
-	sub /
-		<= Head $mol_view
-			sub <= head /
-				<= Title $mol_button
-					sub /
-						<= title
-					event_click?val <=> event_top?val null
-				<= Tools $mol_view
-					sub <= tools /$mol_view_content
-		<= Body $mol_scroll
-			scroll_top?val <=> body_scroll_top?val 0
-			sub <= body /$mol_view_content
-		<= Foot $mol_view
-			sub <= foot /$mol_view
-
 $mol_button_typed $mol_button
 
 $mol_button_minor $mol_button_typed
@@ -349,6 +333,22 @@ $mol_textarea $mol_view
 			enabled <= enabled true
 		<= View $mol_text
 			text <= text \
+
+$mol_page $mol_view
+	sub /
+		<= Head $mol_view
+			sub <= head /
+				<= Title $mol_button
+					sub /
+						<= title
+					event_click?val <=> event_top?val null
+				<= Tools $mol_view
+					sub <= tools /$mol_view_content
+		<= Body $mol_scroll
+			scroll_top?val <=> body_scroll_top?val 0
+			sub <= body /$mol_view_content
+		<= Foot $mol_view
+			sub <= foot /$mol_view
 
 $mol_icon_cross $mol_icon path \M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z
 
