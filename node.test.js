@@ -4801,7 +4801,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/string/string.view.css", "[mol_string] {\n\tbox-sizing: border-box;\n\toutline-offset: 0;\n\tborder: none;\n\tborder-radius: var(--mol_skin_round);\n\twhite-space: nowrap;\n\toverflow: hidden;\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tposition: relative;\n\tz-index: 0;\n\tfont: inherit;\n\tflex: 0 1 auto;\n\tbackground: var(--mol_theme_field);\n\tcolor: var(--mol_theme_text);\n\tbox-shadow: inset 0 0 0 .5px var(--mol_theme_line);\n}\n\n[mol_string]:disabled {\n\tbackground-color: transparent;\n}\n\n[mol_string]:focus {\n\toutline: none;\n\tz-index: 1;\n\tbox-shadow: inset 0 0 0 .5px var(--mol_theme_focus);\n}\n\n[mol_string]::-ms-clear {\n\tdisplay: none;\n}\n");
+    $.$mol_style_attach("mol/string/string.view.css", "[mol_string] {\n\tbox-sizing: border-box;\n\toutline-offset: 0;\n\tborder: none;\n\tborder-radius: var(--mol_skin_round);\n\twhite-space: nowrap;\n\toverflow: hidden;\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tposition: relative;\n\tz-index: 0;\n\tfont: inherit;\n\tflex: 0 1 auto;\n\tbackground: var(--mol_theme_field);\n\tcolor: var(--mol_theme_text);\n\tbox-shadow: inset 0 0 0 1px var(--mol_theme_line);\n}\n\n[mol_string]:disabled {\n\tbackground-color: transparent;\n}\n\n[mol_string]:focus {\n\toutline: none;\n\tz-index: 1;\n\tbox-shadow: inset 0 0 0 1px var(--mol_theme_focus);\n}\n\n[mol_string]::-ms-clear {\n\tdisplay: none;\n}\n");
 })($ || ($ = {}));
 //string.view.css.js.map
 ;
@@ -5664,7 +5664,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/grid/grid.view.css", "[mol_grid] {\n\tdisplay: block;\n\tflex: 1 1 auto;\n\tposition: relative;\n}\n\n[mol_grid_gap] {\n\tposition: absolute;\n\tpadding: .1px;\n\ttop: 0;\n\ttransform: translateZ(0);\n}\n\n[mol_grid_table] {\n\tborder-spacing: 0;\n\tdisplay: table-row-group;\n\tposition: relative;\n}\n\n[mol_grid_table] > * {\n\tdisplay: table-row;\n\ttransition: none;\n}\n\n[mol_grid_head] > * ,\n[mol_grid_table] > * > * {\n\tdisplay: table-cell;\n\tpadding: var(--mol_gap_text);\n\twhite-space: nowrap;\n\tvertical-align: middle;\n\tbox-shadow: inset 0 0 0 .5px var(--mol_theme_line);\n}\n\n[mol_grid_head] {\n\tdisplay: table-row;\n\ttransform: none !important;\n}\n\n[mol_grid_head] > * {\n\tbackground: var(--mol_theme_back);\n}\n\n[mol_grid_cell_number] {\n\ttext-align: right;\n}\n\n[mol_grid_col_head] {\n\tfont-weight: inherit;\n\ttext-align: inherit;\n\tdisplay: table-cell;\n}\n\n[mol_grid_cell_dimmer] {\n\tdisplay: inline-block;\n\tvertical-align: inherit;\n}\n");
+    $.$mol_style_attach("mol/grid/grid.view.css", "[mol_grid] {\n\tdisplay: block;\n\tflex: 1 1 auto;\n\tposition: relative;\n}\n\n[mol_grid_gap] {\n\tposition: absolute;\n\tpadding: .1px;\n\ttop: 0;\n\ttransform: translateZ(0);\n}\n\n[mol_grid_table] {\n\tborder-spacing: 0;\n\tdisplay: table-row-group;\n\tposition: relative;\n}\n\n[mol_grid_table] > * {\n\tdisplay: table-row;\n\ttransition: none;\n}\n\n[mol_grid_head] > * ,\n[mol_grid_table] > * > * {\n\tdisplay: table-cell;\n\tpadding: var(--mol_gap_text);\n\twhite-space: nowrap;\n\tvertical-align: middle;\n\tbox-shadow: inset 0 0 0 1px var(--mol_theme_line);\n}\n\n[mol_grid_head] {\n\tdisplay: table-row;\n\ttransform: none !important;\n}\n\n[mol_grid_head] > * {\n\tbackground: var(--mol_theme_back);\n}\n\n[mol_grid_cell_number] {\n\ttext-align: right;\n}\n\n[mol_grid_col_head] {\n\tfont-weight: inherit;\n\ttext-align: inherit;\n\tdisplay: table-cell;\n}\n\n[mol_grid_cell_dimmer] {\n\tdisplay: inline-block;\n\tvertical-align: inherit;\n}\n");
 })($ || ($ = {}));
 //grid.view.css.js.map
 ;
@@ -6814,6 +6814,7 @@ var $;
         }
         Head() {
             const obj = new this.$.$mol_view();
+            obj.minimal_height = () => 64;
             obj.sub = () => this.head();
             return obj;
         }
@@ -7463,7 +7464,6 @@ var $;
 "use strict";
 var $;
 (function ($_1) {
-    const err = $_1.$mol_view_tree2_error_str;
     class $mol_view_tree2_context extends $_1.$mol_object2 {
         constructor($, parents, locales, methods, types = true, added_nodes = new Map(), array) {
             super();
@@ -7498,13 +7498,13 @@ var $;
             if (!prev)
                 return;
             if ((prev.key && !key) || (!prev.key && key) || (prev.next && !next) || (!prev.next && next))
-                return this.$.$mol_fail(err `Method ${src.type} at ${src.span} is not same as ${prev.src.type} at ${prev.src.span}`);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Method ${src.type} at ${src.span} is not same as ${prev.src.type} at ${prev.src.span}`);
             const current_default = src.kids.length > 0 ? src.kids[0] : undefined;
             const prev_default = prev.src.kids.length > 0 ? prev.src.kids[0] : undefined;
             if ((current_default === null || current_default === void 0 ? void 0 : current_default.type) === '-')
                 return prev;
             if ((prev_default === null || prev_default === void 0 ? void 0 : prev_default.toString()) !== (current_default === null || current_default === void 0 ? void 0 : current_default.toString()))
-                return this.$.$mol_fail(err `Method ${name.value} at ${(_a = current_default === null || current_default === void 0 ? void 0 : current_default.span) !== null && _a !== void 0 ? _a : name.span} already defined with another default value at ${(_b = prev_default === null || prev_default === void 0 ? void 0 : prev_default.span) !== null && _b !== void 0 ? _b : prev.name.span}`);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Method ${name.value} at ${(_a = current_default === null || current_default === void 0 ? void 0 : current_default.span) !== null && _a !== void 0 ? _a : name.span} already defined with another default value at ${(_b = prev_default === null || prev_default === void 0 ? void 0 : prev_default.span) !== null && _b !== void 0 ? _b : prev.name.span}`);
             return prev;
         }
         check_scope_vars({ name, key, next }) {
@@ -7520,12 +7520,12 @@ var $;
                     finded_next = parent.next;
             }
             if (key && !finded_key)
-                return this.$.$mol_fail(err `Key ${key.value} at ${key.span} not found at ${this.parents.map(parent => parent.src.span)}`);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Key ${key.value} at ${key.span} not found at ${this.parents.map(parent => parent.src.span)}`);
             if (next && !finded_next)
-                return this.$.$mol_fail(err `Next ${next.value} at ${next.span} not found at ${this.parents.map(parent => parent.src.span)}`);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Next ${next.value} at ${next.span} not found at ${this.parents.map(parent => parent.src.span)}`);
             const first_method = parents.length > 1 ? parents[1] : undefined;
             if (name.value === (first_method === null || first_method === void 0 ? void 0 : first_method.name.value))
-                return this.$.$mol_fail(err `Method ${name.value} at ${name.span} already defined at ${first_method.name.span}`);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Method ${name.value} at ${name.span} already defined at ${first_method.name.span}`);
         }
         index(owner) {
             this.added_nodes.set(owner.name.value, owner);
@@ -7540,9 +7540,9 @@ var $;
             const parents = this.parents;
             const val = operator.kids.length === 1 ? operator.kids[0] : undefined;
             if (!val)
-                return this.$.$mol_fail(err `Need a one child at ${operator.span}, use \`some @ \\localized value\``);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Need a one child at ${operator.span}, use \`some @ \\localized value\``);
             if (this.array)
-                return this.$.$mol_fail(err `Can\'t use \`@\` at ${operator.span} inside array at ${this.array.span}`);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Can\'t use \`@\` at ${operator.span} inside array at ${this.array.span}`);
             let key = '';
             const body = [];
             const last = parents.length > 0 ? parents[parents.length - 1] : undefined;
@@ -7556,7 +7556,7 @@ var $;
             }
             const prev = this.locale_nodes.get(key);
             if (prev)
-                return this.$.$mol_fail(err `Locale key \`${key}\` at ${operator.span} conflicts with same at ${prev.span}`);
+                return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Locale key \`${key}\` at ${operator.span} conflicts with same at ${prev.span}`);
             this.locale_nodes.set(key, val);
             this.locales[key] = val.value;
             return $_1.$mol_tree2.struct('inline', body);
