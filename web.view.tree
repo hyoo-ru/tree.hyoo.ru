@@ -399,7 +399,7 @@ $hyoo_tree $mol_book2
 			body /
 				<= Result_text $mol_text
 					text <= result \
-		
+
 $mol_view_tree_test_attributes_super $mol_view
 	some *
 		a 0
