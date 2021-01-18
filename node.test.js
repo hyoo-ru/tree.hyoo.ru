@@ -5215,6 +5215,9 @@ var $;
         letter_width() {
             return 8;
         }
+        width_limit() {
+            return Infinity;
+        }
     }
     $.$mol_paragraph = $mol_paragraph;
 })($ || ($ = {}));
@@ -5241,8 +5244,11 @@ var $;
                 }
                 return width;
             }
+            width_limit() {
+                return this.$.$mol_window.size().width;
+            }
             minimal_width() {
-                return Math.max(Math.min(this.$.$mol_window.size().width, this.maximal_width()), this.letter_width());
+                return Math.max(Math.min(this.width_limit(), this.maximal_width()), this.letter_width());
             }
             minimal_height() {
                 return Math.max(1, Math.ceil(this.maximal_width() / this.minimal_width())) * this.line_height();
@@ -6744,6 +6750,7 @@ var $;
         View() {
             const obj = new this.$.$mol_text_code();
             obj.text = () => this.value();
+            obj.render_visible_only = () => false;
             return obj;
         }
     }
@@ -6766,7 +6773,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/textarea/textarea.view.css", "[mol_textarea] {\n\tflex: 1 0 auto;\n\tdisplay: flex;\n\tflex-direction: column;\n\tposition: relative;\n\tz-index: 0;\n\tvertical-align: top;\n\tmin-width: max-content;\n\tmin-height: max-content;\n}\n\n[mol_textarea_view] {\n\tpointer-events: none;\n\tz-index: 1;\n\twhite-space: pre;\n}\n\n[mol_textarea_edit] {\n\tfont-family: monospace;\n\tz-index: -1 !important;\n\tpadding: var(--mol_gap_text);\n\tposition: absolute;\n\tleft: 0;\n\ttop: 0;\n\twidth: 100%;\n\theight: 100%;\n\tcolor: transparent;\n\tcaret-color: var(--mol_theme_text);\n\tresize: none;\n\twhite-space: pre;\n\ttab-size: 4;\n\toverflow-anchor: none;\n}\n");
+    $.$mol_style_attach("mol/textarea/textarea.view.css", "[mol_textarea] {\n\tflex: 1 0 auto;\n\tdisplay: flex;\n\tflex-direction: column;\n\tposition: relative;\n\tz-index: 0;\n\tvertical-align: top;\n\tmin-height: max-content;\n\twhite-space: pre-wrap;\n}\n\n[mol_textarea_view] {\n\tpointer-events: none;\n\tz-index: 1;\n\twhite-space: inherit;\n}\n\n[mol_textarea_edit] {\n\tfont-family: monospace;\n\tz-index: -1 !important;\n\tpadding: var(--mol_gap_text);\n\tposition: absolute;\n\tleft: 0;\n\ttop: 0;\n\twidth: 100%;\n\theight: 100%;\n\tcolor: transparent;\n\tcaret-color: var(--mol_theme_text);\n\tresize: none;\n\twhite-space: inherit;\n\ttab-size: 4;\n\toverflow-anchor: none;\n}\n");
 })($ || ($ = {}));
 //textarea.view.css.js.map
 ;
@@ -7148,6 +7155,9 @@ var $;
         static begin(uri) {
             return new $mol_span(uri, 0, 0, 0);
         }
+        static end(uri, length) {
+            return new $mol_span(uri, 0, length, length);
+        }
         static entire(uri, length) {
             return new $mol_span(uri, 0, 0, length);
         }
@@ -7175,10 +7185,9 @@ var $;
             let len = this.length;
             if (begin < 0 || begin > len)
                 this.$.$mol_fail(`Begin value '${begin}' out of range ${this}`);
-            len = len - begin;
             if (end < 0 || end > len)
                 this.$.$mol_fail(`End value '${end}' out of range ${this}`);
-            return this.span(this.row, this.col + begin, end);
+            return this.span(this.row, this.col + begin, end - begin);
         }
     }
     $mol_span.unknown = $mol_span.begin('');
@@ -11744,13 +11753,13 @@ var $;
         },
         'slice span - regular'($) {
             const span = new $_1.$mol_span('test.ts', 1, 3, 5);
-            const child = span.slice(1, 3);
+            const child = span.slice(1, 4);
             $_1.$mol_assert_equal(child.row, 1);
             $_1.$mol_assert_equal(child.col, 4);
             $_1.$mol_assert_equal(child.length, 3);
             const child2 = span.slice(2, 2);
             $_1.$mol_assert_equal(child2.col, 5);
-            $_1.$mol_assert_equal(child2.length, 2);
+            $_1.$mol_assert_equal(child2.length, 0);
         },
         'slice span - out of range'($) {
             const span = new $_1.$mol_span('test.ts', 1, 3, 5);
@@ -11795,8 +11804,8 @@ var $;
         'hack'() {
             const res = $.$mol_tree2.fromString(`foo bar xxx\n`)
                 .hack({
-                '': (tree, context) => [tree.clone(tree.hack(context))],
-                'bar': (tree, context) => [tree.struct('777', tree.hack(context))],
+                '': (tree, belt) => [tree.clone(tree.hack(belt))],
+                'bar': (tree, belt) => [tree.struct('777', tree.hack(belt))],
             });
             $.$mol_assert_equal(res.toString(), 'foo 777 xxx\n');
         },

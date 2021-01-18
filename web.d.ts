@@ -1805,12 +1805,14 @@ declare namespace $ {
     class $mol_paragraph extends $mol_view {
         line_height(): number;
         letter_width(): number;
+        width_limit(): number;
     }
 }
 
 declare namespace $.$$ {
     class $mol_paragraph extends $.$mol_paragraph {
         maximal_width(): number;
+        width_limit(): number;
         minimal_width(): number;
         minimal_height(): number;
     }
@@ -2332,6 +2334,7 @@ declare namespace $ {
         constructor(uri: string, row: number, col: number, length: number);
         static unknown: $mol_span;
         static begin(uri: string): $mol_span;
+        static end(uri: string, length: number): $mol_span;
         static entire(uri: string, length: number): $mol_span;
         toString(): string;
         toJSON(): {
