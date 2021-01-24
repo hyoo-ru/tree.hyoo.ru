@@ -60,6 +60,7 @@ namespace $.$$ {
 			if( res instanceof Promise ) $mol_fail_hidden( res )
 			if( typeof res === 'string' ) return res
 			if( !Reflect.getPrototypeOf( Reflect.getPrototypeOf( res ) ) ) return JSON.stringify( res, null, '\t' )
+			if( Array.isArray( res ) ) return JSON.stringify( res, null, '\t' )
 			return String( res )
 		}
 
