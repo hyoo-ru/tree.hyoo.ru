@@ -1,7 +1,8 @@
 {
-	"$hyoo_tree_Result_title": "Compiled",
-	"$hyoo_tree_Source_title": "View.Tree",
-	"$hyoo_tree_compile_label": "Compile",
+	"$hyoo_tree_Source_title": "Tree pipeline",
+	"$hyoo_tree_Transform_hint": "Search transform..",
 	"$hyoo_tree_source_hint": "view.tree source",
-	"$mol_lights_toggle_hint": "Toggle lights"
+	"$mol_lights_toggle_hint": "Toggle lights",
+	"$mol_select_hint": "Search..",
+	"$mol_select_no_options_message": "No options"
 }
