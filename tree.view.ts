@@ -4,8 +4,7 @@ namespace $.$$ {
 
 		@ $mol_mem
 		pipeline( next?: string[] ) {
-			return ( this.$.$mol_state_arg.value( 'pipeline', next && next.join( '~' ) )
-				?? '$mol_tree2_from_string' ).split( '~' ).filter( Boolean )
+			return ( this.$.$mol_state_arg.value( 'pipeline', next && next.join( '~' ) ) ?? '' ).split( '~' ).filter( Boolean )
 		}
 
 		@ $mol_mem
