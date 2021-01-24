@@ -1,5 +1,6 @@
 {
-	"$hyoo_tree_Source_title": "Tree pipeline",
+	"$hyoo_tree_Presets_title": "Presets",
+	"$hyoo_tree_Source_title": "Tree pipeline source",
 	"$hyoo_tree_Transform_hint": "Search transform..",
 	"$hyoo_tree_source_hint": "view.tree source",
 	"$mol_lights_toggle_hint": "Toggle lights",
