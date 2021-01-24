@@ -3,23 +3,28 @@
 }
 
 [hyoo_tree_source] {
-	flex: 1000 0 40rem;
+	flex: 1 0 auto;
+	max-width: 80rem;
 	display: flex;
 	flex-direction: column;
 }
 
-[hyoo_tree_source_view] {
-	flex: 33% 1 1;
+[hyoo_tree_source_body] {
+	padding: var(--mol_gap_block);
 }
 
 [hyoo_tree_result] {
-	flex: 1000 0 40rem;
+	flex: 1 0 auto;
+	max-width: 80rem;
 	outline: 0 0 0 1px var(--mol_theme_line);
 	display: flex;
 	flex-direction: column;
 }
 
-[hyoo_tree_result_text] {
-	flex: auto 1 0;
+[hyoo_tree_result_head] {
+	justify-content: space-between;
 }
 
+[hyoo_tree_result_body] {
+	padding: var(--mol_gap_block);
+}

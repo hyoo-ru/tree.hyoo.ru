@@ -1,28 +1,39 @@
 $hyoo_tree $mol_book2
 	plugins /
 		<= Theme $mol_theme_auto
+	Placeholder null
 	pages /
 		<= Source $mol_page
-			title @ \View.Tree
+			title @ \Tree pipeline
 			tools /
 				<= Lights $mol_lights_toggle
-				<= Compile $mol_link 
-					sub /
-						<= compile_label @ \Compile
-					arg *
-						compile \
 			body /
 				<= Source_text $mol_textarea
 					value?val <=> source?val \
 					hint <= source_hint @ \view.tree source
-		<= Result $mol_page
-			title @ \Compiled
-			tools /
-				<= Close $mol_link 
-					sub /
-						<= Close_icon $mol_icon_cross
-					arg *
-						compile null
-			body /
-				<= Result_text $mol_text
-					text <= result \
+	Result!index $mol_page
+		Title null
+		head <= result_head!index /
+			<= Transform!index $mol_select
+				hint @ \Search transform..
+				value?val <=> transform!index?val \$mol_tree2_from_string
+				options /
+					\$hyoo_marked_tree_from_line
+					\$hyoo_marked_tree_to_js
+					\$mol_view_tree2_to_text
+					\$mol_tree2_from_string
+					\$mol_tree2_from_json
+					\$mol_json_from_string
+					\$mol_json_to_string
+					\$mol_tree2_js_to_text
+					\$mol_tree2_text_to_string
+					\$mol_tree2_text_to_sourcemap
+					\$mol_tree2_text_to_sourcemap_vis
+			<= Close!index $mol_button_minor 
+				sub /
+					<= Close_icon!index $mol_icon_cross
+				click?event <=> close!index?event null
+		body /
+			<= Result_text!index $mol_text_code
+				render_visible_only false
+				text <= result_text!index null
