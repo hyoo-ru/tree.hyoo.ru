@@ -2,6 +2,10 @@
 	display: flex;
 }
 
+[hyoo_tree_presets_list] {
+	padding: var(--mol_gap_block);
+}
+
 [hyoo_tree_source] {
 	flex: 1 0 auto;
 	max-width: 80rem;
