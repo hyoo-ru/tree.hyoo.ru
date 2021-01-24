@@ -7,6 +7,8 @@ $hyoo_tree $mol_book2
 			title @ \Presets
 			tools /
 				<= Lights $mol_lights_toggle
+				<= Github $mol_link_source
+					uri \https://github.com/hyoo-ru/tree.hyoo.ru/
 			body /
 				<= Presets_list $mol_list
 					rows /
