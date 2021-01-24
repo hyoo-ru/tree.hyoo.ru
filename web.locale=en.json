@@ -4,6 +4,7 @@
 	"$hyoo_tree_Transform_hint": "Search transform..",
 	"$hyoo_tree_source_hint": "view.tree source",
 	"$mol_lights_toggle_hint": "Toggle lights",
+	"$mol_link_source_hint": "Source code",
 	"$mol_select_hint": "Search..",
 	"$mol_select_no_options_message": "No options"
 }

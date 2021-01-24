@@ -1569,6 +1569,20 @@ declare namespace $.$$ {
 }
 
 declare namespace $ {
+    class $mol_icon_github_circle extends $mol_icon {
+        path(): string;
+    }
+}
+
+declare namespace $ {
+    class $mol_link_source extends $mol_link {
+        hint(): string;
+        sub(): readonly any[];
+        Icon(): $mol_icon_github_circle;
+    }
+}
+
+declare namespace $ {
     class $mol_list extends $mol_view {
         render_visible_only(): boolean;
         render_over(): number;
@@ -2850,6 +2864,7 @@ declare namespace $ {
         Result(index: any): $$.$mol_page;
         Theme(): $$.$mol_theme_auto;
         Lights(): $$.$mol_lights_toggle;
+        Github(): $mol_link_source;
         View(): $$.$mol_link;
         JSON(): $$.$mol_link;
         MT(): $$.$mol_link;
