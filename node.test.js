@@ -9934,7 +9934,7 @@ var $;
         class $hyoo_tree extends $.$hyoo_tree {
             pipeline(next) {
                 var _a;
-                return ((_a = this.$.$mol_state_arg.value('pipeline', next && next.join('~'))) !== null && _a !== void 0 ? _a : '$mol_tree2_from_string').split('~').filter(Boolean);
+                return ((_a = this.$.$mol_state_arg.value('pipeline', next && next.join('~'))) !== null && _a !== void 0 ? _a : '').split('~').filter(Boolean);
             }
             pages() {
                 return [
