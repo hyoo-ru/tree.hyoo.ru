@@ -9986,6 +9986,8 @@ var $;
                     return res;
                 if (!Reflect.getPrototypeOf(Reflect.getPrototypeOf(res)))
                     return JSON.stringify(res, null, '\t');
+                if (Array.isArray(res))
+                    return JSON.stringify(res, null, '\t');
                 return String(res);
             }
             close(index) {
