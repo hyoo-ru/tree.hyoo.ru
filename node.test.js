@@ -9992,6 +9992,8 @@ var $;
                     $.$mol_fail_hidden(res);
                 if (typeof res === 'string')
                     return res;
+                if (Object(res) !== res)
+                    return String(res);
                 if (!Reflect.getPrototypeOf(Reflect.getPrototypeOf(res)))
                     return JSON.stringify(res, null, '\t');
                 if (Array.isArray(res))
