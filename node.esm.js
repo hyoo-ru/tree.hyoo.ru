@@ -8364,16 +8364,20 @@ var $;
     }
     function $hyoo_marked_tree_to_js(mt) {
         return mt.list([
-            mt.struct('{;}', mt.hack({
-                'strong': hack_inline('strong'),
-                'emphasis': hack_inline('em'),
-                'insertion': hack_inline('ins'),
-                'deletion': hack_inline('del'),
-                'code': hack_inline('code'),
-                'link': hack_inline('a', 'href'),
-                'embed': hack_inline('object', 'data'),
-                '': hack_text,
-            }))
+            mt.struct('function', [
+                mt.struct('make_dom'),
+                mt.struct('(,)', [mt.struct('parent'),]),
+                mt.struct('{;}', mt.hack({
+                    'strong': hack_inline('strong'),
+                    'emphasis': hack_inline('em'),
+                    'insertion': hack_inline('ins'),
+                    'deletion': hack_inline('del'),
+                    'code': hack_inline('code'),
+                    'link': hack_inline('a', 'href'),
+                    'embed': hack_inline('object', 'data'),
+                    '': hack_text,
+                })),
+            ]),
         ]);
     }
     $.$hyoo_marked_tree_to_js = $hyoo_marked_tree_to_js;
@@ -9991,7 +9995,7 @@ var $;
                 const func = this.pipeline()[index];
                 if (!func)
                     return '';
-                return this.$[func](index ? this.result(index - 1) : this.source(), index ? undefined : $.$mol_span.entire('source1', this.source()));
+                return this.$[func](index ? this.result(index - 1) : this.source(), index ? undefined : $.$mol_span.entire('source', this.source()));
             }
             result_text(index) {
                 const res = $.$mol_try(() => this.result(index));
