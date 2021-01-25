@@ -9405,6 +9405,40 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    const keywords = new Set([
+        '',
+        '.byte',
+        '.sequence',
+        '.set_of',
+        '.optional',
+        '.list_of',
+        '.any_of',
+        '.except',
+        '.with_delimiter',
+    ]);
+    function $mol_tree2_grammar_check(grammar) {
+        function visit(node) {
+            check: {
+                if (keywords.has(node.type))
+                    break check;
+                if (grammar.select(node.type).kids.length)
+                    break check;
+                $.$mol_fail(node.error(`wrong pattern name`));
+            }
+            for (const kid of node.kids) {
+                visit(kid);
+            }
+        }
+        visit(grammar);
+        return grammar;
+    }
+    $.$mol_tree2_grammar_check = $mol_tree2_grammar_check;
+})($ || ($ = {}));
+//check.js.map
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_tree2_js_to_text(js) {
         function sequence(open, separator, close) {
             return (input, context) => [
@@ -9772,12 +9806,19 @@ var $;
             obj.uri = () => "#source=foo**%3B%3B%2B%2Bbar%2B%2B%3B%3B**%2B%2B777%2B%2B/pipeline=%24hyoo_marked_tree_from_line~%24hyoo_marked_tree_to_js~%24mol_tree2_js_to_text~%24mol_tree2_text_to_sourcemap_vis";
             return obj;
         }
+        Grammar() {
+            const obj = new this.$.$mol_link();
+            obj.title = () => "grammar.tree check";
+            obj.uri = () => "#source=tree%20.optional%20.list_of%20line%0A%0Aline%20.sequence%0A%09.optional%20indent%0A%09.optional%20nodes%0A%09new_line%0A%0Anodes%20.sequence%0A%09.optional%20.list_of%20struct%0A%09.optional%20data%0A%09.with_delimiter%20space%0A%0Astruct%20.list_of%20.byte%0A%09.except%20special%0A%0Adata%20.sequence%0A%09data_prefix%0A%09.optional%20.list_of%20.byte%0A%09%09.except%20new_line%0A%0Aspecial%20.any_of%0A%09new_line%0A%09data_prefix%0A%09indent%0A%09space%0A%0Anew_line%20.byte%20%5C0A%0Aindent%20.list_of%20.byte%20%5C09%0Adata_prefix%20.byte%20%5C5C%0Aspace%20.byte%20%5C20%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_grammar_check";
+            return obj;
+        }
         Presets_list() {
             const obj = new this.$.$mol_list();
             obj.rows = () => [
                 this.View(),
                 this.JSON(),
-                this.MT()
+                this.MT(),
+                this.Grammar()
             ];
             return obj;
         }
@@ -9832,6 +9873,7 @@ var $;
                 "$mol_tree2_from_json",
                 "$mol_json_from_string",
                 "$mol_json_to_string",
+                "$mol_tree2_grammar_check",
                 "$mol_tree2_js_to_text",
                 "$mol_tree2_text_to_string",
                 "$mol_tree2_text_to_sourcemap",
@@ -9893,6 +9935,9 @@ var $;
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "MT", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_tree.prototype, "Grammar", null);
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "Presets_list", null);
@@ -9992,10 +10037,11 @@ var $;
                 return (_a = pipeline[index]) !== null && _a !== void 0 ? _a : null;
             }
             result(index) {
+                var _a;
                 const func = this.pipeline()[index];
                 if (!func)
                     return '';
-                return this.$[func](index ? this.result(index - 1) : this.source(), index ? undefined : $.$mol_span.entire('source', this.source()));
+                return (_a = this.$[func](index ? this.result(index - 1) : this.source(), index ? undefined : $.$mol_span.entire('source', this.source()))) !== null && _a !== void 0 ? _a : null;
             }
             result_text(index) {
                 const res = $.$mol_try(() => this.result(index));

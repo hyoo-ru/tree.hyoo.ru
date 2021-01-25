@@ -2833,6 +2833,10 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_tree2_grammar_check(grammar: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
     function $mol_tree2_js_to_text(this: $, js: $mol_tree2): $mol_tree2;
 }
 
@@ -2875,6 +2879,7 @@ declare namespace $ {
         View(): $$.$mol_link;
         JSON(): $$.$mol_link;
         MT(): $$.$mol_link;
+        Grammar(): $$.$mol_link;
         Presets_list(): $$.$mol_list;
         Presets(): $$.$mol_page;
         source(val?: any): any;
