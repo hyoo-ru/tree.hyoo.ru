@@ -2914,6 +2914,7 @@ declare namespace $ {
         Xml(): $$.$mol_link;
         Mt(): $$.$mol_link;
         Grammar(): $$.$mol_link;
+        Span(): $$.$mol_link;
         Presets_list(): $$.$mol_list;
         Presets(): $$.$mol_page;
         source(val?: any): any;
