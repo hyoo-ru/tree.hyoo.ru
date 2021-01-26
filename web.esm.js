@@ -9254,6 +9254,100 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    const mapping = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        '&': '&amp;',
+    };
+    function $mol_html_encode(text) {
+        return text.replace(/[&<">]/gi, str => mapping[str]);
+    }
+    $.$mol_html_encode = $mol_html_encode;
+})($ || ($ = {}));
+//encode.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function attrs_belt(separator) {
+        return {
+            '': (input) => [
+                input.data(' '),
+                input.data($.$mol_html_encode(input.type)),
+                ...input.value ? [
+                    input.data('"'),
+                    input.data($.$mol_html_encode(input.value)),
+                    input.data('"'),
+                ] : [],
+                ...input.hack({
+                    '': (input) => {
+                        if (!input.type)
+                            return [
+                                input.data(separator),
+                                input.data('"'),
+                                input.data($.$mol_html_encode(input.text())),
+                                input.data('"'),
+                            ];
+                        $.$mol_fail(input.error('Wrong attribute value'));
+                    },
+                }),
+            ],
+        };
+    }
+    function $mol_tree2_xml_to_text(xml) {
+        return xml.list([
+            xml.struct('line', xml.hack({
+                '@': (input, belt) => [],
+                '--': (input, belt) => [
+                    input.data('<!-- '),
+                    ...input.hack(belt),
+                    input.data(' -->'),
+                ],
+                '?': (input, belt) => [
+                    input.data('<?'),
+                    input.kids[0].data(input.kids[0].type),
+                    ...input.kids[0].hack(attrs_belt('=')),
+                    input.data('?>'),
+                ],
+                '!': (input, belt) => [
+                    input.data('<!'),
+                    input.kids[0].data(input.kids[0].type),
+                    ...input.kids[0].hack(attrs_belt(' ')),
+                    input.data('>'),
+                ],
+                '': (input, belt) => {
+                    if (!input.type)
+                        return [
+                            input.data($.$mol_html_encode(input.text())),
+                        ];
+                    const attrs = input.select('@', '').hack(attrs_belt('='));
+                    const content = input.hack(belt);
+                    return [
+                        input.data(`<`),
+                        input.data(input.type),
+                        ...attrs,
+                        ...content.length ? [
+                            input.data(`>`),
+                            ...content,
+                            input.data(`</`),
+                            input.data(input.type),
+                            input.data(`>`),
+                        ] : [
+                            input.data(` />`),
+                        ]
+                    ];
+                },
+            })),
+        ]);
+    }
+    $.$mol_tree2_xml_to_text = $mol_tree2_xml_to_text;
+})($ || ($ = {}));
+//text.js.map
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_tree2_js_to_text(js) {
         function sequence(open, separator, close) {
             return (input, context) => [
@@ -9609,13 +9703,19 @@ var $;
             obj.uri = () => "#source=%24my_app%20%24mol_page%0A%09title%20%40%20%5CExample%0A%09params%20*%20foo%20<%3D%20changable%3Fval%20%2Fstring%0A%09body%20%2F%0A%09%09<%3D%20Info%20%24my_widget%0A%09%09%09empty%20%40%20%5CNo%20content%0A%09%09%09value%3Fval%20<%3D>%20info_value%3Fval%20NaN%0A%09%09%09kids%20<%3D%20info_kids%20%2F%24mol_view_content%0A/pipeline=%24mol_tree2_from_string~%24mol_view_tree2_to_text~%24mol_tree2_text_to_string";
             return obj;
         }
-        JSON() {
+        Json() {
             const obj = new this.$.$mol_link();
             obj.title = () => "JSON ⇒ json.tree";
             obj.uri = () => "#source=%7B%0A%09\"foo\"%3A%20%5B%0A%09%09\"bar\"%2C%0A%09%09true%2C%0A%09%09777%2C%0A%09%09null%0A%09%5D%2C%0A%09\"foo%5Cnbar\"%3A\"xxx%5Cnyy\"%0A%7D/pipeline=%24mol_json_from_string~%24mol_tree2_from_json";
             return obj;
         }
-        MT() {
+        Xml() {
+            const obj = new this.$.$mol_link();
+            obj.title = () => "xml.tree ⇒ XML";
+            obj.uri = () => "#source=!%20doctype%20html%0A%3F%20xml%20version%20%5C1.0%0A--%20%5Centry%20point%0Ahtml%0A%09meta%20%40%20charset%20%5Cutf-8%0A%09link%0A%09%09%40%20href%20%5Cweb.css%0A%09%09%40%20rel%20%5Cstylesheet%0A%09script%20%40%20src%20%5Cweb.js%0A%09body%0A%09%09div%20%40%20mol_view_root%20%5C%24my_app%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_xml_to_text~%24mol_tree2_text_to_string";
+            return obj;
+        }
+        Mt() {
             const obj = new this.$.$mol_link();
             obj.title = () => "MarkedText ⇒ JS + SM";
             obj.uri = () => "#source=foo**%3B%3B%2B%2Bbar%2B%2B%3B%3B**%2B%2B777%2B%2B/pipeline=%24hyoo_marked_tree_from_line~%24hyoo_marked_tree_to_js~%24mol_tree2_js_to_text~%24mol_tree2_text_to_sourcemap_vis";
@@ -9631,8 +9731,9 @@ var $;
             const obj = new this.$.$mol_list();
             obj.rows = () => [
                 this.View(),
-                this.JSON(),
-                this.MT(),
+                this.Json(),
+                this.Xml(),
+                this.Mt(),
                 this.Grammar()
             ];
             return obj;
@@ -9689,6 +9790,7 @@ var $;
                 "$mol_json_from_string",
                 "$mol_json_to_string",
                 "$mol_tree2_grammar_check",
+                "$mol_tree2_xml_to_text",
                 "$mol_tree2_js_to_text",
                 "$mol_tree2_text_to_string",
                 "$mol_tree2_text_to_sourcemap",
@@ -9746,10 +9848,13 @@ var $;
     ], $hyoo_tree.prototype, "View", null);
     __decorate([
         $.$mol_mem
-    ], $hyoo_tree.prototype, "JSON", null);
+    ], $hyoo_tree.prototype, "Json", null);
     __decorate([
         $.$mol_mem
-    ], $hyoo_tree.prototype, "MT", null);
+    ], $hyoo_tree.prototype, "Xml", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_tree.prototype, "Mt", null);
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "Grammar", null);
