@@ -2365,14 +2365,17 @@ declare namespace $ {
         data(value: string, kids?: readonly $mol_tree2[]): $mol_tree2;
         static struct(type: string, kids?: readonly $mol_tree2[], span?: $mol_span): $mol_tree2;
         struct(type: string, kids?: readonly $mol_tree2[]): $mol_tree2;
-        clone(kids: readonly $mol_tree2[]): $mol_tree2;
+        clone(kids: readonly $mol_tree2[], span?: $mol_span): $mol_tree2;
         text(): string;
-        static fromString(str: string, span?: $mol_span): $mol_tree2;
+        static fromString(str: string, uri?: string): $mol_tree2;
         toString(): string;
         insert(value: $mol_tree2, ...path: $mol_tree2_path): $mol_tree2;
         select(...path: $mol_tree2_path): $mol_tree2;
         filter(path: string[], value?: string): $mol_tree2;
-        hack<Context = never>(belt: $mol_tree2_belt<Context>, context?: Context): $mol_tree2[];
+        hack<Context extends {
+            span?: $mol_span;
+            [key: string]: unknown;
+        } = {}>(belt: $mol_tree2_belt<Context>, context?: Context): $mol_tree2[];
         error(message: string, Class?: ErrorConstructor): Error;
     }
     class $mol_tree2_empty extends $mol_tree2 {
@@ -2390,7 +2393,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_tree2_from_string(this: $, str: string, span?: $mol_span): $mol_tree2;
+    function $mol_tree2_from_string(this: $, str: string, uri?: string): $mol_tree2;
 }
 
 declare namespace $ {
@@ -2435,11 +2438,11 @@ declare namespace $ {
         plugins(): readonly $mol_plugin[];
         sub(): readonly any[];
         keydown(event?: any): any;
-        Meter(): $$.$mol_meter;
         top(): number;
         bottom(): number;
         left(): number;
         right(): number;
+        Meter(): $$.$mol_meter;
         Anchor(): any;
         align(): string;
         bubble_content(): readonly (string | number | boolean | $mol_view | Node)[];
@@ -2679,14 +2682,10 @@ declare namespace $ {
         } | undefined;
         check_scope_vars({ name, key, next }: $mol_view_tree2_prop): undefined;
         index(owner: $mol_view_tree2_prop): number;
-        method(index: number, method: $mol_tree2): void;
+        method(index: number, method: $mol_tree2[]): void;
         protected locale_nodes: Map<string, $mol_tree2>;
         locale(operator: $mol_tree2): $mol_tree2;
     }
-}
-
-declare namespace $ {
-    function $mol_view_tree2_serialize(this: $, node: $mol_tree2, prefix?: string, parent_is_inline?: boolean): string;
 }
 
 declare namespace $ {
@@ -2694,7 +2693,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_view_tree2_class_props(this: $, klass: $mol_tree2): $mol_tree2;
+    function $mol_view_tree2_class_props(this: $, klass: $mol_tree2): $mol_tree2[];
 }
 
 declare namespace $ {
@@ -2759,11 +2758,11 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_bind_both(this: $, operator: $mol_tree2, context: $mol_view_tree2_context): $mol_tree2;
+    function $mol_view_tree2_ts_bind_both(this: $, operator: $mol_tree2, context: $mol_view_tree2_context): $mol_tree2[];
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_bind_left(this: $, operator: $mol_tree2, context: $mol_view_tree2_context, having_parts?: $mol_view_tree2_prop): $mol_tree2;
+    function $mol_view_tree2_ts_bind_left(this: $, operator: $mol_tree2, context: $mol_view_tree2_context, having_parts?: $mol_view_tree2_prop): $mol_tree2[];
 }
 
 declare namespace $ {
@@ -2779,8 +2778,8 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_comment(this: $, item: $mol_tree2): $mol_tree2;
-    function $mol_view_tree2_ts_comment_doc(this: $, item: $mol_tree2): $mol_tree2;
+    function $mol_view_tree2_ts_comment(this: $, item: $mol_tree2): $mol_tree2[];
+    function $mol_view_tree2_ts_comment_doc(this: $, item: $mol_tree2): $mol_tree2[];
 }
 
 declare namespace $ {
@@ -2824,15 +2823,15 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_locale(operator: $mol_tree2, context: $mol_view_tree2_context): $mol_tree2;
+    function $mol_view_tree2_ts_locale(operator: $mol_tree2, context: $mol_view_tree2_context): $mol_tree2[];
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_value(this: $, src: $mol_tree2): $mol_tree2;
+    function $mol_view_tree2_ts_value(this: $, src: $mol_tree2): $mol_tree2[];
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_dictionary(this: $, dictionary: $mol_tree2, dictionary_context: $mol_view_tree2_context, super_method?: $mol_view_tree2_prop): $mol_tree2;
+    function $mol_view_tree2_ts_dictionary(this: $, dictionary: $mol_tree2, dictionary_context: $mol_view_tree2_context, super_method?: $mol_view_tree2_prop): $mol_tree2[];
 }
 
 declare namespace $ {
@@ -2976,8 +2975,8 @@ declare namespace $ {
 
 declare namespace $ {
     class $mol_view_tree_test_binding_right extends $mol_view {
-        Test(): $mol_view_tree_test_binding_right_test;
         outer_width(v?: any): any;
+        Test(): $mol_view_tree_test_binding_right_test;
     }
     class $mol_view_tree_test_binding_right_test extends $mol_view {
         width(val?: any): any;
@@ -3028,7 +3027,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_array(this: $, operator: $mol_tree2, context: $mol_view_tree2_context, super_method?: $mol_view_tree2_prop | undefined): $mol_tree2;
+    function $mol_view_tree2_ts_array(this: $, operator: $mol_tree2, context: $mol_view_tree2_context, super_method?: $mol_view_tree2_prop | undefined): $mol_tree2[];
 }
 
 declare namespace $ {
@@ -3036,5 +3035,5 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_view_tree2_ts_method(this: $, owner_parts: $mol_view_tree2_prop, body: $mol_tree2, types?: boolean): $mol_tree2;
+    function $mol_view_tree2_ts_method(this: $, owner_parts: $mol_view_tree2_prop, body: $mol_tree2, types?: boolean): $mol_tree2[];
 }

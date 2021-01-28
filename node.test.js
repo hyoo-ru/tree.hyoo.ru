@@ -7183,8 +7183,8 @@ var $;
         struct(type, kids = []) {
             return $mol_tree2.struct(type, kids, this.span);
         }
-        clone(kids) {
-            return new $mol_tree2(this.type, this.value, kids, this.span);
+        clone(kids, span = this.span) {
+            return new $mol_tree2(this.type, this.value, kids, span);
         }
         text() {
             var values = [];
@@ -7195,8 +7195,8 @@ var $;
             }
             return this.value + values.join('\n');
         }
-        static fromString(str, span = $.$mol_span.unknown) {
-            return this.$.$mol_tree2_from_string(str, span);
+        static fromString(str, uri = 'unknown') {
+            return this.$.$mol_tree2_from_string(str, uri);
         }
         toString() {
             return this.$.$mol_tree2_to_string(this);
@@ -7267,11 +7267,13 @@ var $;
             });
             return this.clone(sub);
         }
-        hack(belt, context) {
+        hack(belt, context = {}) {
             return [].concat(...this.kids.map(child => {
-                const handle = belt[Reflect.ownKeys(belt).includes(child.type) ? child.type : ''];
+                let handle = belt[Reflect.ownKeys(belt).includes(child.type) ? child.type : ''];
                 if (!handle) {
-                    this.$.$mol_fail(child.error(`Hack not found.\nAllowed: ${Object.keys(belt)}`));
+                    handle = (input, belt, context) => [
+                        input.clone(input.hack(belt, context), context.span)
+                    ];
                 }
                 return handle(child, belt, context);
             }));
@@ -7280,6 +7282,9 @@ var $;
             return this.span.error(`${message}\n${this}`, Class);
         }
     }
+    __decorate([
+        $.$mol_deprecated('Use $mol_tree2_from_string')
+    ], $mol_tree2, "fromString", null);
     $.$mol_tree2 = $mol_tree2;
     class $mol_tree2_empty extends $mol_tree2 {
         constructor() {
@@ -7308,7 +7313,8 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_tree2_from_string(str, span = $.$mol_span.unknown) {
+    function $mol_tree2_from_string(str, uri = 'unknown') {
+        const span = $.$mol_span.entire(uri, str);
         var root = $.$mol_tree2.list([], span);
         var stack = [root];
         var pos = 0, row = 0, min_indent = 0;
@@ -7563,10 +7569,6 @@ var $;
                 return event;
             return null;
         }
-        Meter() {
-            const obj = new this.$.$mol_meter();
-            return obj;
-        }
         top() {
             return this.Meter().top();
         }
@@ -7578,6 +7580,10 @@ var $;
         }
         right() {
             return this.Meter().right();
+        }
+        Meter() {
+            const obj = new this.$.$mol_meter();
+            return obj;
         }
         Anchor() {
             return null;
@@ -8407,32 +8413,32 @@ var $;
 (function ($) {
     function $mol_tree2_js_to_text(js) {
         function sequence(open, separator, close) {
-            return (input, context) => [
+            return (input, belt) => [
                 ...open ? [input.data(open)] : [],
                 ...[].concat(...input.kids.map((kid, index) => [
                     ...(index && separator) ? [kid.data(separator)] : [],
-                    ...kid.list([kid]).hack(context),
+                    ...kid.list([kid]).hack(belt),
                 ])),
                 ...close ? [input.data(close)] : [],
             ];
         }
         function duplet(open, separator, close) {
-            return (input, context) => [
+            return (input, belt) => [
                 ...open ? [input.data(open)] : [],
-                ...input.list(input.kids.slice(0, 1)).hack(context),
+                ...input.list(input.kids.slice(0, 1)).hack(belt),
                 ...(separator && input.kids.length > 1) ? [input.data(separator)] : [],
-                ...input.list(input.kids.slice(1, 2)).hack(context),
+                ...input.list(input.kids.slice(1, 2)).hack(belt),
                 ...close ? [input.data(close)] : [],
             ];
         }
         function triplet(open, separator12, separator23, close) {
-            return (input, context) => [
+            return (input, belt) => [
                 ...open ? [input.data(open)] : [],
-                ...input.list(input.kids.slice(0, 1)).hack(context),
+                ...input.list(input.kids.slice(0, 1)).hack(belt),
                 ...(separator12 && input.kids.length > 1) ? [input.data(separator12)] : [],
-                ...input.list(input.kids.slice(1, 2)).hack(context),
+                ...input.list(input.kids.slice(1, 2)).hack(belt),
                 ...(separator23 && input.kids.length > 2) ? [input.data(separator23)] : [],
-                ...input.list(input.kids.slice(2, 3)).hack(context),
+                ...input.list(input.kids.slice(2, 3)).hack(belt),
                 ...close ? [input.data(close)] : [],
             ];
         }
@@ -8519,19 +8525,19 @@ var $;
                 '.global': sequence('g'),
                 '.multiline': sequence('m'),
                 '.ignoreCase': sequence('i'),
-                '.source': (input, context) => [
+                '.source': (input, belt) => [
                     input.data('/'),
                     input.data(JSON.stringify(input.text()).slice(1, -1)),
                     input.data('/'),
                 ],
-                '``': (input, context) => {
+                '``': (input, belt) => {
                     return [
                         input.data('`'),
                         ...[].concat(...input.kids.map(kid => {
                             if (kid.type) {
                                 return [
                                     kid.data('${'),
-                                    ...kid.list([kid]).hack(context),
+                                    ...kid.list([kid]).hack(belt),
                                     kid.data('}'),
                                 ];
                             }
@@ -8544,7 +8550,7 @@ var $;
                         input.data('`'),
                     ];
                 },
-                '': (input, context) => {
+                '': (input, belt) => {
                     if (!input.type)
                         return [
                             input.data(JSON.stringify(input.text())),
@@ -8578,7 +8584,7 @@ var $;
                     visit(kid, prefix + '\t', false);
                 }
                 if (inline)
-                    res += prefix.slice(0, -1);
+                    res += prefix;
             }
             else if (text.type === 'line') {
                 if (!inline)
@@ -8789,7 +8795,6 @@ var $;
     $.$mol_view_tree2_error_suggestions = $mol_view_tree2_error_suggestions;
     function $mol_view_tree2_error_str(strings, ...parts) {
         const spans = [];
-        let suggestions;
         for (const part of parts) {
             if (part instanceof $.$mol_span)
                 spans.push(part);
@@ -8916,11 +8921,10 @@ var $;
         index(owner) {
             this.added_nodes.set(owner.name.value, owner);
             const index = this.methods.length;
-            this.methods.push(undefined);
             return index;
         }
         method(index, method) {
-            this.methods[index] = method;
+            this.methods.push(...method);
         }
         locale(operator) {
             const parents = this.parents;
@@ -8945,34 +8949,12 @@ var $;
                 return this.$.$mol_fail($_1.$mol_view_tree2_error_str `Locale key \`${key}\` at ${operator.span} conflicts with same at ${prev.span}`);
             this.locale_nodes.set(key, val);
             this.locales[key] = val.value;
-            return $_1.$mol_tree2.struct('inline', body);
+            return operator.struct('line', body);
         }
     }
     $_1.$mol_view_tree2_context = $mol_view_tree2_context;
 })($ || ($ = {}));
 //context.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_view_tree2_serialize(node, prefix = '', parent_is_inline = false) {
-        const { type, kids, value } = node;
-        if (!value && !type)
-            return kids.map(child => this.$mol_view_tree2_serialize(child, prefix)).join('\n');
-        if (type === 'block') {
-            const child_prefix = prefix + '\t';
-            return kids.map((child, index) => this.$mol_view_tree2_serialize(child, child_prefix, index === 0 && parent_is_inline)).join('\n');
-        }
-        if (type === 'lines')
-            return kids.map((child, index) => this.$mol_view_tree2_serialize(child, prefix, index === 0 && parent_is_inline)).join('\n');
-        const current_prefix = parent_is_inline ? '' : prefix;
-        if (type === 'inline')
-            return current_prefix + kids.map(child => this.$mol_view_tree2_serialize(child, prefix, true)).join('');
-        return current_prefix + value;
-    }
-    $.$mol_view_tree2_serialize = $mol_view_tree2_serialize;
-})($ || ($ = {}));
-//serialize.js.map
 ;
 "use strict";
 var $;
@@ -9015,11 +8997,8 @@ var $;
                     props_inner.push(prop.clone(defs));
                 return [operator.clone([prop.clone([])])];
             },
-            '': (node, belt) => {
-                return [node.clone(node.hack(belt))];
-            },
         });
-        return klass.list([...props_root, ...props_inner]);
+        return [...props_root, ...props_inner];
     }
     $.$mol_view_tree2_class_props = $mol_view_tree2_class_props;
 })($ || ($ = {}));
@@ -9205,10 +9184,10 @@ var $;
         if (default_value && default_value.type !== '-' && !context.get_method(owner_parts)) {
             this.$mol_view_tree2_ts_method_body(owner_parts, context.root());
         }
-        return $.$mol_tree2.struct('inline', [
-            owner_parts.name.data('this.'),
-            this.$mol_view_tree2_ts_function_call(owner_parts),
-        ]);
+        return [operator.struct('line', [
+                owner_parts.name.data('this.'),
+                this.$mol_view_tree2_ts_function_call(owner_parts),
+            ])];
     }
     $.$mol_view_tree2_ts_bind_both = $mol_view_tree2_ts_bind_both;
     const example = new $.$mol_view_tree2_error_suggestions([
@@ -9229,10 +9208,10 @@ var $;
         if (default_value && default_value.type !== '-' && !context.get_method(owner_parts)) {
             this.$mol_view_tree2_ts_method_body(owner_parts, context.root());
         }
-        return $.$mol_tree2.struct('inline', [
-            owner_parts.name.data('this.'),
-            this.$mol_view_tree2_ts_function_call(owner_call_parts),
-        ]);
+        return [operator.struct('line', [
+                owner_parts.name.data('this.'),
+                this.$mol_view_tree2_ts_function_call(owner_call_parts),
+            ])];
     }
     $.$mol_view_tree2_ts_bind_left = $mol_view_tree2_ts_bind_left;
 })($ || ($ = {}));
@@ -9248,24 +9227,24 @@ var $;
         if (prev)
             return this.$mol_fail(err `Method ${owner_parts.name.value} at ${owner_parts.name.span} already defined at ${prev.src.span}, ${example}`);
         const index = context.index(owner_parts);
-        const body = $.$mol_tree2.struct('block', [
-            $.$mol_tree2.struct('inline', [
+        const body = operator.struct('indent', [
+            operator.struct('line', [
                 owner_parts.name.data('return this.'),
                 this.$mol_view_tree2_ts_function_call(factory),
                 owner_parts.name.data('.'),
                 this.$mol_view_tree2_ts_function_call(having_parts),
             ])
         ]);
-        const method = $.$mol_tree2.struct('lines', [
-            this.$mol_view_tree2_ts_comment_doc(owner_parts.src),
-            $.$mol_tree2.struct('inline', [
+        const method = [
+            ...this.$mol_view_tree2_ts_comment_doc(owner_parts.src),
+            operator.struct('line', [
                 owner_parts.name,
                 $.$mol_view_tree2_ts_function_declaration(owner_parts, context.types),
                 owner_parts.name.data(' {'),
             ]),
             body,
             owner_parts.name.data('}'),
-        ]);
+        ];
         context.method(index, method);
     }
     $.$mol_view_tree2_ts_bind_right = $mol_view_tree2_ts_bind_right;
@@ -9344,19 +9323,19 @@ var $;
 var $;
 (function ($) {
     function $mol_view_tree2_ts_comment(item) {
-        return $.$mol_tree2.struct('lines', item.kids.map(chunk => item.data('// ' + chunk.type)));
+        return item.kids.map(chunk => item.data('// ' + chunk.type));
     }
     $.$mol_view_tree2_ts_comment = $mol_view_tree2_ts_comment;
     function $mol_view_tree2_ts_comment_doc(item) {
         const chunks = item.toString().trim().split('\n');
-        return $.$mol_tree2.struct('lines', [
+        return [
             item.data(''),
             item.data('/**'),
             item.data(' * ```tree'),
             ...chunks.map(chunk => item.data(' * ' + chunk)),
             item.data(' * ```'),
             item.data(' */'),
-        ]);
+        ];
     }
     $.$mol_view_tree2_ts_comment_doc = $mol_view_tree2_ts_comment_doc;
 })($ || ($ = {}));
@@ -9371,9 +9350,9 @@ var $;
         const class_parts = this.$mol_view_tree2_prop_split(klass);
         const context = new $.$mol_view_tree2_context(this, [class_parts], locales, body);
         const props = this.$mol_view_tree2_class_props(klass);
-        for (const having of props.kids) {
+        for (const having of props) {
             if (having.type === '-') {
-                body.push(this.$mol_view_tree2_ts_comment(having));
+                body.push(...this.$mol_view_tree2_ts_comment(having));
                 continue;
             }
             const having_parts = this.$mol_view_tree2_prop_split(having);
@@ -9381,15 +9360,15 @@ var $;
                 continue;
             this.$mol_view_tree2_ts_method_body(having_parts, context);
         }
-        return $.$mol_tree2.struct('block', [
-            $.$mol_tree2.struct('inline', [
+        return klass.struct('indent', [
+            klass.struct('line', [
                 klass.data('export class '),
                 klass.data(klass.type),
                 klass.data(' extends '),
                 superclass.data(superclass.type),
                 klass.data(' {'),
             ]),
-            $.$mol_tree2.struct('block', body),
+            klass.struct('indent', body),
             klass.data('}'),
             klass.data(''),
         ]);
@@ -9408,7 +9387,7 @@ var $;
         let has_data = false;
         for (const item of tree2_module.kids) {
             if (item.type === '-') {
-                classes.push(this.$mol_view_tree2_ts_comment(item));
+                classes.push(...this.$mol_view_tree2_ts_comment(item));
                 continue;
             }
             const class_node = this.$mol_view_tree2_ts_class(item, locales);
@@ -9428,7 +9407,7 @@ var $;
     function $mol_view_tree2_ts_compile(tree2_module) {
         const locales = {};
         const ts_module = this.$mol_view_tree2_ts_module(tree2_module, locales);
-        const script = this.$mol_view_tree2_serialize(ts_module);
+        const script = this.$mol_tree2_text_to_string(ts_module);
         return { script, locales };
     }
     $.$mol_view_tree2_ts_compile = $mol_view_tree2_ts_compile;
@@ -9451,7 +9430,7 @@ var $;
         if (types && next)
             sub.push(next.data('?: any'));
         sub.push(name.data(')'));
-        return name.struct('inline', sub);
+        return name.struct('line', sub);
     }
     $.$mol_view_tree2_ts_function_declaration = $mol_view_tree2_ts_function_declaration;
     function $mol_view_tree2_ts_function_call({ name, key, next }) {
@@ -9466,7 +9445,7 @@ var $;
         if (next)
             sub.push(next);
         sub.push(name.data(')'));
-        return name.struct('inline', sub);
+        return name.struct('line', sub);
     }
     $.$mol_view_tree2_ts_function_call = $mol_view_tree2_ts_function_call;
 })($ || ($ = {}));
@@ -9478,7 +9457,7 @@ var $;
     const err = $_1.$mol_view_tree2_error_str;
     function $mol_view_tree2_ts_spread(spread_prop) {
         const spread_prop_parts = this.$mol_view_tree2_prop_split(spread_prop);
-        return $_1.$mol_tree2.struct('inline', [
+        return spread_prop.struct('line', [
             spread_prop.data('...this.'),
             this.$mol_view_tree2_ts_function_call(spread_prop_parts)
         ]);
@@ -9500,7 +9479,7 @@ var $;
                 return this.$.$mol_fail(err `Only one \`^\` operator allowed at ${prop.span}, first was at ${super_spread.span}`);
             if (!this.prop_parts)
                 return this.$.$mol_fail(err `Operator \`^\` not allowed at ${prop.span}`);
-            this.super_spread = $_1.$mol_tree2.struct('inline', [
+            this.super_spread = prop.struct('line', [
                 prop.data('...super.'),
                 this.$.$mol_view_tree2_ts_function_call(this.prop_parts)
             ]);
@@ -9515,11 +9494,11 @@ var $;
 var $;
 (function ($) {
     function $mol_view_tree2_ts_locale(operator, context) {
-        return operator.struct('inline', [
-            operator.data('this.$.$mol_locale.text( \''),
-            context.locale(operator),
-            operator.data('\' )'),
-        ]);
+        return [operator.struct('line', [
+                operator.data('this.$.$mol_locale.text( \''),
+                context.locale(operator),
+                operator.data('\' )'),
+            ])];
     }
     $.$mol_view_tree2_ts_locale = $mol_view_tree2_ts_locale;
 })($ || ($ = {}));
@@ -9531,11 +9510,11 @@ var $;
     function $mol_view_tree2_ts_value(src) {
         const converted = this.$mol_view_tree2_value(src);
         if (src.type === 'null')
-            return $.$mol_tree2.struct('inline', [
-                converted.data(converted.value),
-                converted.data(' as any'),
-            ]);
-        return converted;
+            return [converted.struct('line', [
+                    converted.data(converted.value),
+                    converted.data(' as any'),
+                ])];
+        return [converted];
     }
     $.$mol_view_tree2_ts_value = $mol_view_tree2_ts_value;
 })($ || ($ = {}));
@@ -9554,7 +9533,7 @@ var $;
         const spread_factory = new this.$mol_view_tree2_ts_spread_factory(this, super_method);
         for (const opt of kids) {
             if (opt.type === '-') {
-                sub.push(this.$mol_view_tree2_ts_comment(opt));
+                sub.push(...this.$mol_view_tree2_ts_comment(opt));
                 continue;
             }
             let value;
@@ -9563,7 +9542,7 @@ var $;
                 const child_sub = [spread_factory.create(opt)];
                 if (opt !== last)
                     child_sub.push(opt.data(','));
-                sub.push($.$mol_tree2.struct('inline', child_sub));
+                sub.push(opt.struct('line', child_sub));
                 continue;
             }
             const context = dictionary_context.parent(info);
@@ -9589,16 +9568,16 @@ var $;
             ];
             if (info.next || info.key)
                 child_sub.push($.$mol_view_tree2_ts_function_declaration(info, context.types), opt.data(' => '));
-            child_sub.push(value);
+            child_sub.push(...value);
             if (opt !== last)
                 child_sub.push(opt.data(','));
-            sub.push($.$mol_tree2.struct('inline', child_sub));
+            sub.push(opt.struct('line', child_sub));
         }
-        return $.$mol_tree2.struct('lines', [
+        return [
             dictionary.data('{'),
-            $.$mol_tree2.struct('block', sub),
+            dictionary.struct('indent', sub),
             dictionary.data('}'),
-        ]);
+        ];
     }
     $.$mol_view_tree2_ts_dictionary = $mol_view_tree2_ts_dictionary;
 })($ || ($ = {}));
@@ -9617,7 +9596,7 @@ var $;
         let constructor_args;
         for (const child of klass.kids) {
             if (child.type === '-') {
-                body.push(this.$mol_view_tree2_ts_comment(child));
+                body.push(...this.$mol_view_tree2_ts_comment(child));
                 continue;
             }
             const child_parts = this.$mol_view_tree2_prop_split(child);
@@ -9643,23 +9622,23 @@ var $;
             else if (type === '@')
                 value = this.$mol_view_tree2_ts_locale(operator, context);
             else if (type === '*')
-                value = $.$mol_tree2.struct('inline', [
-                    child.data('('),
-                    this.$mol_view_tree2_ts_dictionary(operator, context),
-                    child.data(')'),
-                ]);
+                value = [child.struct('line', [
+                        child.data('('),
+                        ...this.$mol_view_tree2_ts_dictionary(operator, context),
+                        child.data(')'),
+                    ])];
             else if (type[0] === '/')
                 value = this.$mol_view_tree2_ts_array(operator, context);
             else
                 value = this.$mol_view_tree2_ts_value(operator);
-            const call = $.$mol_tree2.struct('inline', [
+            const call = child.struct('line', [
                 obj_node,
                 child.data('.'),
                 child_parts.name,
                 child_parts.name.data(' = '),
                 $.$mol_view_tree2_ts_function_declaration(child_parts, context.types),
                 child.data(' => '),
-                value,
+                ...value,
             ]);
             body.push(call);
         }
@@ -9670,26 +9649,22 @@ var $;
             klass.data(klass.type),
         ];
         if (constructor_args)
-            init.push($.$mol_tree2.struct('lines', [
-                klass.data('('),
-                constructor_args,
-                klass.data(')'),
-            ]));
+            init.push(klass.data('('), constructor_args, klass.data(')'));
         else
             init.push(klass.data('()'));
         const sub = [
-            $.$mol_tree2.struct('inline', init),
+            klass.struct('line', init),
             klass.data(''),
         ];
         if (body.length > 0)
-            sub.push($.$mol_tree2.struct('lines', body));
+            sub.push(...body);
         if (body.length > 0 && !constructor_args)
             sub.push(klass.data(''));
-        sub.push($.$mol_tree2.struct('inline', [
+        sub.push(obj_node.struct('line', [
             klass.data('return '),
             obj_node
         ]));
-        return $.$mol_tree2.struct('block', sub);
+        return klass.struct('indent', sub);
     }
     $.$mol_view_tree2_ts_factory = $mol_view_tree2_ts_factory;
     const example = new $.$mol_view_tree2_error_suggestions([
@@ -9704,17 +9679,7 @@ var $;
     function $mol_view_tree2_to_text(tree2_module) {
         const locales = {};
         const ts_module = this.$mol_view_tree2_ts_module(tree2_module, locales);
-        const plain = ts_module.hack({
-            'block': (input, belt) => [
-                input.struct('indent', input.hack(belt))
-            ],
-            'lines': (input, belt) => input.hack(belt),
-            'inline': (input, belt) => [
-                input.struct('line', input.hack(belt))
-            ],
-            '': input => [input],
-        });
-        return ts_module.list(plain);
+        return ts_module;
     }
     $.$mol_view_tree2_to_text = $mol_view_tree2_to_text;
 })($ || ($ = {}));
@@ -9768,13 +9733,16 @@ var $;
         const nodes = [];
         for (const token of $.$hyoo_marked_line.parse(code)) {
             if (token.inline) {
-                span = span.after(token.marker.length * 2 + token.content.length + token.uri.length + (token.uri && token.content ? 1 : 0));
+                const uri_sep_length = token.uri.length + (token.uri && token.content ? 1 : 0);
+                span = span.after(token.marker.length * 2 + token.content.length + uri_sep_length);
                 const span_content = span.slice(token.marker.length, -token.marker.length);
                 const content = token.code
                     ? [$.$mol_tree2.data(token.content, [], span_content)]
                     : [
-                        ...token.uri ? [$.$mol_tree2.data(token.uri, [], span_content)] : [],
-                        ...this.$hyoo_marked_tree_from_line(token.content, span_content).kids,
+                        ...token.uri ? [
+                            $.$mol_tree2.data(token.uri, [], span_content.slice(-uri_sep_length))
+                        ] : [],
+                        ...token.content ? this.$hyoo_marked_tree_from_line(token.content, span_content.slice(0, -uri_sep_length)).kids : [],
                     ];
                 const name = marker2name[token.marker];
                 if (!name)
@@ -9795,105 +9763,87 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    const templates = $.$$.$mol_tree2_from_string(`
+		body function
+			make_dom
+			(,) parent
+			{;} %body
+		element const
+			child
+			()
+				document
+				[] \\createElement
+				(,) %name
+		attr ()
+			child
+			[] \\setAttribute
+			(,)
+				%name
+				%value
+		text const
+			child
+			()
+				document
+				[] \\createTextNode
+				(,) %text
+		content ()
+			(,) =>
+				parent
+				%content
+			(,) child
+		append ()
+			parent
+			[] \\appendChild
+			(,) child
+	`, '$hyoo_marked_tree_to_js_templates');
+    const wrap_body = templates.select('body', '');
+    const wrap_element = templates.select('element', '');
+    const wrap_attr = templates.select('attr', '');
+    const wrap_text = templates.select('text', '');
+    const wrap_content = templates.select('content', '');
+    const append_child = templates.select('append', '');
     function hack_inline(name, link_attr) {
-        return (input, belt) => {
+        return (input, belt, context) => {
             const uri = link_attr ? input.kids[0] : null;
             const content = link_attr ? input.kids.slice(1) : input.kids;
-            const end = new $.$mol_tree2(input.type, input.value, input.kids, input.span.slice(-2, -1));
             return [
                 input.struct('{;}', [
-                    input.struct('const', [
-                        input.struct('child'),
-                        input.struct('()', [
-                            input.struct('document'),
-                            input.struct('[]', [
-                                input.data('createElement'),
-                            ]),
-                            input.struct('(,)', [
-                                input.data(name),
-                            ]),
-                        ]),
-                    ]),
+                    ...wrap_element.hack({ '%name': () => [input.data(name)] }, Object.assign(Object.assign({}, context), { span: input.span })),
                     ...uri ? [
-                        uri.struct('()', [
-                            uri.struct('child'),
-                            uri.struct('[]', [
-                                uri.data('setAttribute'),
-                            ]),
-                            uri.struct('(,)', [
-                                uri.data(link_attr),
-                                uri,
-                            ]),
-                        ])
+                        ...wrap_attr.hack({
+                            '%name': () => [uri.data(link_attr)],
+                            '%value': () => [uri],
+                        }, Object.assign(Object.assign({}, context), { span: input.span })),
                     ] : [],
                     ...content.length ? [
-                        input.struct('()', [
-                            input.struct('(,)', [
-                                input.struct('=>', [
-                                    input.struct('parent'),
-                                    ...input.list(content).hack(belt),
-                                ]),
-                            ]),
-                            end.struct('(,)', [
-                                end.struct('child'),
-                            ]),
-                        ])
+                        ...wrap_content.hack({ '%content': () => input.list(content).hack(belt, context) }, Object.assign(Object.assign({}, context), { span: input.span })),
                     ] : [],
-                    end.struct('()', [
-                        end.struct('parent'),
-                        end.struct('[]', [
-                            end.data('appendChild'),
-                        ]),
-                        end.struct('(,)', [
-                            end.struct('child'),
-                        ]),
-                    ]),
+                    ...append_child.hack({}, Object.assign(Object.assign({}, context), { span: input.span.slice(-2, -1) })),
                 ])
             ];
         };
     }
-    function hack_text(input, belt) {
+    function hack_text(input, belt, context) {
         return [
             input.struct('{;}', [
-                input.struct('const', [
-                    input.struct('child'),
-                    input.struct('()', [
-                        input.struct('document'),
-                        input.struct('[]', [
-                            input.data('createTextNode'),
-                        ]),
-                        input.struct('(,)', [input]),
-                    ]),
-                ]),
-                input.struct('()', [
-                    input.struct('parent'),
-                    input.struct('[]', [
-                        input.data('appendChild'),
-                    ]),
-                    input.struct('(,)', [
-                        input.struct('child'),
-                    ]),
-                ]),
+                ...wrap_text.hack({ '%text': () => [input] }, Object.assign(Object.assign({}, context), { span: input.span })),
+                ...append_child.hack({}, Object.assign(Object.assign({}, context), { span: input.span })),
             ]),
         ];
     }
     function $hyoo_marked_tree_to_js(mt) {
-        return mt.list([
-            mt.struct('function', [
-                mt.struct('make_dom'),
-                mt.struct('(,)', [mt.struct('parent'),]),
-                mt.struct('{;}', mt.hack({
-                    'strong': hack_inline('strong'),
-                    'emphasis': hack_inline('em'),
-                    'insertion': hack_inline('ins'),
-                    'deletion': hack_inline('del'),
-                    'code': hack_inline('code'),
-                    'link': hack_inline('a', 'href'),
-                    'embed': hack_inline('object', 'data'),
-                    '': hack_text,
-                })),
-            ]),
-        ]);
+        return mt.list(wrap_body.hack({
+            '%body': () => mt.hack({
+                'strong': hack_inline('strong'),
+                'emphasis': hack_inline('em'),
+                'insertion': hack_inline('ins'),
+                'deletion': hack_inline('del'),
+                'code': hack_inline('code'),
+                'link': hack_inline('a', 'href'),
+                'embed': hack_inline('object', 'data'),
+                '': hack_text,
+            }),
+        }));
     }
     $.$hyoo_marked_tree_to_js = $hyoo_marked_tree_to_js;
 })($ || ($ = {}));
@@ -10242,7 +10192,7 @@ var $;
                 const func = this.pipeline()[index];
                 if (!func)
                     return '';
-                return (_a = this.$[func](index ? this.result(index - 1) : this.source(), index ? undefined : $.$mol_span.entire('source', this.source()))) !== null && _a !== void 0 ? _a : null;
+                return (_a = this.$[func](index ? this.result(index - 1) : this.source(), index ? undefined : 'source')) !== null && _a !== void 0 ? _a : null;
             }
             result_text(index) {
                 const res = $.$mol_try(() => this.result(index));
@@ -10388,12 +10338,12 @@ var $;
 var $;
 (function ($) {
     class $mol_view_tree_test_binding_right extends $.$mol_view {
+        outer_width(v) {
+            return this.Test().width(v);
+        }
         Test() {
             const obj = new this.$.$mol_view_tree_test_binding_right_test();
             return obj;
-        }
-        outer_width(v) {
-            return this.Test().width(v);
         }
     }
     __decorate([
@@ -10760,12 +10710,12 @@ var $;
         for (const opt of kids) {
             const type = opt.type;
             if (type === '-') {
-                sub.push(this.$mol_view_tree2_ts_comment(opt));
+                sub.push(...this.$mol_view_tree2_ts_comment(opt));
                 continue;
             }
             let value;
             if (type === '^')
-                value = spread.create(opt);
+                value = [spread.create(opt)];
             else if (type === '<=')
                 value = this.$mol_view_tree2_ts_bind_left(opt, context);
             else if (type === '*')
@@ -10774,12 +10724,12 @@ var $;
                 value = this.$mol_view_tree2_ts_array(opt, context);
             else
                 value = this.$mol_view_tree2_ts_value(opt);
-            const child_sub = [value];
+            const child_sub = value;
             if (opt !== last)
-                child_sub.push(value.data(','));
-            sub.push($.$mol_tree2.struct('inline', child_sub));
+                child_sub.push(operator.data(','));
+            sub.push(opt.struct('line', child_sub));
         }
-        return $.$mol_tree2.struct('block', sub);
+        return operator.struct('indent', sub);
     }
     $.$mol_view_tree2_ts_array_body = $mol_view_tree2_ts_array_body;
 })($ || ($ = {}));
@@ -10814,11 +10764,11 @@ var $;
             type_body.push(operator.data('[]'));
         }
         const body = this.$mol_view_tree2_ts_array_body(operator, context, super_method);
-        return $.$mol_tree2.struct('lines', [
+        return [
             operator.data('['),
             body,
-            $.$mol_tree2.struct('inline', type_body)
-        ]);
+            operator.struct('line', type_body)
+        ];
     }
     $.$mol_view_tree2_ts_array = $mol_view_tree2_ts_array;
 })($ || ($ = {}));
@@ -10838,28 +10788,28 @@ var $;
         const index = context.index(having_parts);
         let body;
         if (type === '<=')
-            body = add_return(this.$mol_view_tree2_ts_bind_left(operator, context, having_parts));
+            body = add_return(operator, this.$mol_view_tree2_ts_bind_left(operator, context, having_parts));
         else if (type === '<=>')
-            body = add_return(this.$mol_view_tree2_ts_bind_both(operator, context));
+            body = add_return(operator, this.$mol_view_tree2_ts_bind_both(operator, context));
         else if (type === '@')
-            body = add_return(this.$mol_view_tree2_ts_locale(operator, context));
+            body = add_return(operator, this.$mol_view_tree2_ts_locale(operator, context));
         else if (type === '*')
-            body = add_return(this.$mol_view_tree2_ts_dictionary(operator, context, having_parts));
+            body = add_return(operator, this.$mol_view_tree2_ts_dictionary(operator, context, having_parts));
         else if (type[0] === '/')
-            body = add_return(this.$mol_view_tree2_ts_array(operator, context, having_parts));
+            body = add_return(operator, this.$mol_view_tree2_ts_array(operator, context, having_parts));
         else if (type[0] === '$')
             body = this.$mol_view_tree2_ts_factory(operator, having_parts, context);
         else
-            body = add_return(this.$mol_view_tree2_ts_value(operator));
+            body = add_return(operator, this.$mol_view_tree2_ts_value(operator));
         const method = this.$mol_view_tree2_ts_method(having_parts, body, context.types);
         context.method(index, method);
     }
     $.$mol_view_tree2_ts_method_body = $mol_view_tree2_ts_method_body;
-    function add_return(value) {
-        return $.$mol_tree2.struct('block', [
-            $.$mol_tree2.struct('inline', [
-                value.data('return '),
-                value
+    function add_return(op, value) {
+        return op.struct('indent', [
+            op.struct('line', [
+                op.data('return '),
+                ...value
             ])
         ]);
     }
@@ -10882,21 +10832,19 @@ var $;
             need_cache = true;
         else if (is_class)
             need_cache = true;
-        const sub = [
-            this.$mol_view_tree2_ts_comment_doc(src),
-        ];
+        const sub = this.$mol_view_tree2_ts_comment_doc(src);
         if (need_cache && key)
             sub.push(name.data(`@ $${''}mol_mem_key`));
         if (need_cache && !key)
             sub.push(name.data(`@ $${''}mol_mem`));
-        sub.push(name.struct('inline', [
+        sub.push(name.struct('line', [
             name,
             $.$mol_view_tree2_ts_function_declaration(owner_parts, types),
             name.data(' {'),
         ]));
         if (next && need_cache)
-            sub.push(next.struct('block', [
-                next.struct('inline', [
+            sub.push(next.struct('indent', [
+                next.struct('line', [
                     next.data('if ( '),
                     next,
                     next.data(' !== undefined ) return '),
@@ -10904,7 +10852,7 @@ var $;
                 ])
             ]));
         sub.push(body, name.data('}'));
-        return name.struct('lines', sub);
+        return sub;
     }
     $.$mol_view_tree2_ts_method = $mol_view_tree2_ts_method;
 })($ || ($ = {}));
@@ -13456,35 +13404,34 @@ var $;
 ;
 "use strict";
 var $;
-(function ($) {
-    $.$mol_test({
-        'inserting'() {
-            $.$mol_assert_equal($.$mol_tree2.fromString('a b c d\n')
-                .insert($.$mol_tree2.struct('x'), 'a', 'b', 'c')
+(function ($_1) {
+    $_1.$mol_test({
+        'inserting'($) {
+            $_1.$mol_assert_equal($.$mol_tree2_from_string('a b c d\n')
+                .insert($_1.$mol_tree2.struct('x'), 'a', 'b', 'c')
                 .toString(), 'a b x\n');
-            $.$mol_assert_equal($.$mol_tree2.fromString('a b\n')
-                .insert($.$mol_tree2.struct('x'), 'a', 'b', 'c', 'd')
+            $_1.$mol_assert_equal($.$mol_tree2_from_string('a b\n')
+                .insert($_1.$mol_tree2.struct('x'), 'a', 'b', 'c', 'd')
                 .toString(), 'a b c x\n');
-            $.$mol_assert_equal($.$mol_tree2.fromString('a b c d\n')
-                .insert($.$mol_tree2.struct('x'), 0, 0, 0)
+            $_1.$mol_assert_equal($.$mol_tree2_from_string('a b c d\n')
+                .insert($_1.$mol_tree2.struct('x'), 0, 0, 0)
                 .toString(), 'a b x\n');
-            $.$mol_assert_equal($.$mol_tree2.fromString('a b\n')
-                .insert($.$mol_tree2.struct('x'), 0, 0, 0, 0)
+            $_1.$mol_assert_equal($.$mol_tree2_from_string('a b\n')
+                .insert($_1.$mol_tree2.struct('x'), 0, 0, 0, 0)
                 .toString(), 'a b \\\n\tx\n');
-            $.$mol_assert_equal($.$mol_tree2.fromString('a b c d\n')
-                .insert($.$mol_tree2.struct('x'), null, null, null)
+            $_1.$mol_assert_equal($.$mol_tree2_from_string('a b c d\n')
+                .insert($_1.$mol_tree2.struct('x'), null, null, null)
                 .toString(), 'a b x\n');
-            $.$mol_assert_equal($.$mol_tree2.fromString('a b\n')
-                .insert($.$mol_tree2.struct('x'), null, null, null, null)
+            $_1.$mol_assert_equal($.$mol_tree2_from_string('a b\n')
+                .insert($_1.$mol_tree2.struct('x'), null, null, null, null)
                 .toString(), 'a b \\\n\tx\n');
         },
-        'hack'() {
-            const res = $.$mol_tree2.fromString(`foo bar xxx\n`)
+        'hack'($) {
+            const res = $.$mol_tree2_from_string(`foo bar xxx\n`)
                 .hack({
-                '': (tree, belt) => [tree.clone(tree.hack(belt))],
-                'bar': (tree, belt) => [tree.struct('777', tree.hack(belt))],
+                'bar': (input, belt) => [input.struct('777', input.hack(belt))],
             });
-            $.$mol_assert_equal(res.toString(), 'foo 777 xxx\n');
+            $_1.$mol_assert_equal(res.toString(), 'foo 777 xxx\n');
         },
     });
 })($ || ($ = {}));
@@ -13510,7 +13457,7 @@ var $;
 						bar
 			`;
             $_1.$mol_assert_fail(() => {
-                $.$mol_tree2_from_string(tree, $_1.$mol_span.begin('test'));
+                $.$mol_tree2_from_string(tree, 'test');
             }, 'Too many tabs\ntest#3:1/6\n!!!!!!\n\t\t\t\t\t\tbar');
         },
         'Too few tabs'($) {
@@ -13519,19 +13466,19 @@ var $;
 				bar
 			`;
             $_1.$mol_assert_fail(() => {
-                $.$mol_tree2_from_string(tree, $_1.$mol_span.begin('test'));
+                $.$mol_tree2_from_string(tree, 'test');
             }, 'Too few tabs\ntest#3:1/4\n!!!!\n\t\t\t\tbar');
         },
         'Wrong nodes separator'($) {
             const tree = `foo  bar\n`;
             $_1.$mol_assert_fail(() => {
-                $.$mol_tree2_from_string(tree, $_1.$mol_span.begin('test'));
+                $.$mol_tree2_from_string(tree, 'test');
             }, 'Wrong nodes separator\ntest#1:4/2\n   !!\nfoo  bar');
         },
         'Undexpected EOF, LF required'($) {
             const tree = `	foo`;
             $_1.$mol_assert_fail(() => {
-                $.$mol_tree2_from_string(tree, $_1.$mol_span.begin('test'));
+                $.$mol_tree2_from_string(tree, 'test');
             }, 'Undexpected EOF, LF required\ntest#1:5/1\n	   !\n	foo');
         },
         'Errors skip and collect'($) {
@@ -13543,7 +13490,7 @@ var $;
                     return null;
                 }
             });
-            const res = $$.$mol_tree2_from_string(tree, $_1.$mol_span.begin('test'));
+            const res = $$.$mol_tree2_from_string(tree, 'test');
             $_1.$mol_assert_like(errors, [
                 'Wrong nodes separator\ntest#1:4/2\n   !!\nfoo  bar',
                 'Undexpected EOF, LF required\ntest#1:9/1\n        !\nfoo  bar',
@@ -14048,12 +13995,11 @@ var $;
 			title \close
 			click?event <=> close?event
 		Speech $${''}mol_speech text => speech
-	`);
+	`, 'reference');
         $_1.$mol_test({
             'props'($) {
-                const span = $_1.$mol_span.entire('/mol/view/tree2/class/props.test.ts', src);
-                const mod = $_1.$mol_tree2.fromString(src, span);
-                const result = $.$mol_view_tree2_class_props(mod.kids[0]).toString();
+                const mod = $.$mol_tree2_from_string(src, '/mol/view/tree2/class/props.test.ts');
+                const result = $.$mol_view_tree2_class_props(mod.kids[0]).join('');
                 $_1.$mol_assert_equal(result, dest.toString());
             }
         });
@@ -14101,49 +14047,49 @@ var $;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/simple.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3Rfc2ltcGxlICRtb2xfdmlldwoJc3RyIFxzb21lCgludW0gMTIzMTcKCWJvb2wgdHJ1ZQoJbnVsIG51bGwKCWxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUKCW11bHRpX3N0ciBcCgkJXG9uZQoJCVx0d28KCXNhbWU/dmFsIFwKCS0gY29tbWVudGVkX25vZGUgLwoJCTw9IE5vdGVzX3BhZ2VfdGl0bGUhdGFnCg=="
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/simple.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X3NpbXBsZSBleHRlbmRzICRtb2xfdmlldyB7CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzdHIgXHNvbWUKCQkgKiBgYGAKCQkgKi8KCQlzdHIoKSB7CgkJCXJldHVybiAic29tZSIKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBudW0gMTIzMTcKCQkgKiBgYGAKCQkgKi8KCQludW0oKSB7CgkJCXJldHVybiAxMjMxNwoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGJvb2wgdHJ1ZQoJCSAqIGBgYAoJCSAqLwoJCWJvb2woKSB7CgkJCXJldHVybiB0cnVlCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogbnVsIG51bGwKCQkgKiBgYGAKCQkgKi8KCQludWwoKSB7CgkJCXJldHVybiBudWxsIGFzIGFueQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUKCQkgKiBgYGAKCQkgKi8KCQlsb2NhbGl6ZWQoKSB7CgkJCXJldHVybiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X3NpbXBsZV9sb2NhbGl6ZWQnICkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBtdWx0aV9zdHIgXAoJCSAqIAlcb25lCgkJICogCVx0d28KCQkgKiBgYGAKCQkgKi8KCQltdWx0aV9zdHIoKSB7CgkJCXJldHVybiAib25lXG50d28iCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc2FtZT92YWwgXAoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlzYW1lKHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQlyZXR1cm4gIiIKCQl9CgkJLy8gY29tbWVudGVkX25vZGUKCX0KCn0K"
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/simple.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X3NpbXBsZSBleHRlbmRzICRtb2xfdmlldyB7CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHN0ciBcc29tZQoJCSAqIGBgYAoJCSAqLwoJCXN0cigpIHsKCQkJcmV0dXJuICJzb21lIgoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogbnVtIDEyMzE3CgkJICogYGBgCgkJICovCgkJbnVtKCkgewoJCQlyZXR1cm4gMTIzMTcKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGJvb2wgdHJ1ZQoJCSAqIGBgYAoJCSAqLwoJCWJvb2woKSB7CgkJCXJldHVybiB0cnVlCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBudWwgbnVsbAoJCSAqIGBgYAoJCSAqLwoJCW51bCgpIHsKCQkJcmV0dXJuIG51bGwgYXMgYW55CgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBsb2NhbGl6ZWQgQCBcbG9jYWxpemVkIHZhbHVlCgkJICogYGBgCgkJICovCgkJbG9jYWxpemVkKCkgewoJCQlyZXR1cm4gdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9zaW1wbGVfbG9jYWxpemVkJyApCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBtdWx0aV9zdHIgXAoJCSAqIAlcb25lCgkJICogCVx0d28KCQkgKiBgYGAKCQkgKi8KCQltdWx0aV9zdHIoKSB7CgkJCXJldHVybiAib25lXG50d28iCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzYW1lP3ZhbCBcCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCXNhbWUodmFsPzogYW55KSB7CgkJCWlmICggdmFsICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdmFsCgkJCXJldHVybiAiIgoJCX0KCQkvLyBjb21tZW50ZWRfbm9kZQoJfQoJCn0KCg=="
 
 ;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/array.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfYXJyYXkgJG1vbF92aWV3Cgl0eXBlZCAvc3RyaW5nCgkJXHNvbWUxCgkJXHNvbWUyCgljb25zdCAvY29uc3QKCQlcc29tZTEKCQlcc29tZTIKCXN1cGVyX3Byb3AgLwoJCVxzb21lMQoJCV4KCQlcc29tZTIKCQleIHRlc3QKCXNpbXBsZSAvCgkJXHNvbWUKCQkxMjMxNwoJCXRydWUKCQludWxsCglhcnIgL3JlYWRvbmx5KG51bWJlcilbXQoJY29tcGxleCAvCgkJLwoJCQlcdGVzdDEKCQkJXHRlc3QyCgkJKgoJCQlzdHIgXHNvbWUKCQkJbnVsIG51bGwK"
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/array.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2FycmF5IGV4dGVuZHMgJG1vbF92aWV3IHsKCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHR5cGVkIC9zdHJpbmcKCQkgKiAJXHNvbWUxCgkJICogCVxzb21lMgoJCSAqIGBgYAoJCSAqLwoJCXR5cGVkKCkgewoJCQlyZXR1cm4gWwoJCQkJInNvbWUxIiwKCQkJCSJzb21lMiIKCQkJXSBhcyByZWFkb25seSBzdHJpbmdbXQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNvbnN0IC9jb25zdAoJCSAqIAlcc29tZTEKCQkgKiAJXHNvbWUyCgkJICogYGBgCgkJICovCgkJY29uc3QoKSB7CgkJCXJldHVybiBbCgkJCQkic29tZTEiLAoJCQkJInNvbWUyIgoJCQldIGFzIGNvbnN0CgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc3VwZXJfcHJvcCAvCgkJICogCVxzb21lMQoJCSAqIAleCgkJICogCVxzb21lMgoJCSAqIAleIHRlc3QKCQkgKiBgYGAKCQkgKi8KCQlzdXBlcl9wcm9wKCkgewoJCQlyZXR1cm4gWwoJCQkJInNvbWUxIiwKCQkJCS4uLnN1cGVyLnN1cGVyX3Byb3AoKSwKCQkJCSJzb21lMiIsCgkJCQkuLi50aGlzLnRlc3QoKQoJCQldIGFzIHJlYWRvbmx5IGFueVtdCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc2ltcGxlIC8KCQkgKiAJXHNvbWUKCQkgKiAJMTIzMTcKCQkgKiAJdHJ1ZQoJCSAqIAludWxsCgkJICogYGBgCgkJICovCgkJc2ltcGxlKCkgewoJCQlyZXR1cm4gWwoJCQkJInNvbWUiLAoJCQkJMTIzMTcsCgkJCQl0cnVlLAoJCQkJbnVsbCBhcyBhbnkKCQkJXSBhcyByZWFkb25seSBhbnlbXQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGFyciAvcmVhZG9ubHkobnVtYmVyKVtdCgkJICogYGBgCgkJICovCgkJYXJyKCkgewoJCQlyZXR1cm4gWwoKCQkJXSBhcyByZWFkb25seSAocmVhZG9ubHkobnVtYmVyKVtdKVtdCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY29tcGxleCAvCgkJICogCS8KCQkgKiAJCVx0ZXN0MQoJCSAqIAkJXHRlc3QyCgkJICogCSoKCQkgKiAJCXN0ciBcc29tZQoJCSAqIAkJbnVsIG51bGwKCQkgKiBgYGAKCQkgKi8KCQljb21wbGV4KCkgewoJCQlyZXR1cm4gWwoJCQkJWwoJCQkJCSJ0ZXN0MSIsCgkJCQkJInRlc3QyIgoJCQkJXSBhcyByZWFkb25seSBhbnlbXSwKCQkJCXsKCQkJCQlzdHI6ICJzb21lIiwKCQkJCQludWw6IG51bGwgYXMgYW55CgkJCQl9CgkJCV0gYXMgcmVhZG9ubHkgYW55W10KCQl9Cgl9Cgp9Cg=="
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/array.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2FycmF5IGV4dGVuZHMgJG1vbF92aWV3IHsKCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogdHlwZWQgL3N0cmluZwoJCSAqIAlcc29tZTEKCQkgKiAJXHNvbWUyCgkJICogYGBgCgkJICovCgkJdHlwZWQoKSB7CgkJCXJldHVybiBbCgkJCQkic29tZTEiLAoJCQkJInNvbWUyIgoJCQldIGFzIHJlYWRvbmx5IHN0cmluZ1tdCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjb25zdCAvY29uc3QKCQkgKiAJXHNvbWUxCgkJICogCVxzb21lMgoJCSAqIGBgYAoJCSAqLwoJCWNvbnN0KCkgewoJCQlyZXR1cm4gWwoJCQkJInNvbWUxIiwKCQkJCSJzb21lMiIKCQkJXSBhcyBjb25zdAoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc3VwZXJfcHJvcCAvCgkJICogCVxzb21lMQoJCSAqIAleCgkJICogCVxzb21lMgoJCSAqIAleIHRlc3QKCQkgKiBgYGAKCQkgKi8KCQlzdXBlcl9wcm9wKCkgewoJCQlyZXR1cm4gWwoJCQkJInNvbWUxIiwKCQkJCS4uLnN1cGVyLnN1cGVyX3Byb3AoKSwKCQkJCSJzb21lMiIsCgkJCQkuLi50aGlzLnRlc3QoKQoJCQldIGFzIHJlYWRvbmx5IGFueVtdCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzaW1wbGUgLwoJCSAqIAlcc29tZQoJCSAqIAkxMjMxNwoJCSAqIAl0cnVlCgkJICogCW51bGwKCQkgKiBgYGAKCQkgKi8KCQlzaW1wbGUoKSB7CgkJCXJldHVybiBbCgkJCQkic29tZSIsCgkJCQkxMjMxNywKCQkJCXRydWUsCgkJCQludWxsIGFzIGFueQoJCQldIGFzIHJlYWRvbmx5IGFueVtdCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBhcnIgL3JlYWRvbmx5KG51bWJlcilbXQoJCSAqIGBgYAoJCSAqLwoJCWFycigpIHsKCQkJcmV0dXJuIFsKCQkJXSBhcyByZWFkb25seSAocmVhZG9ubHkobnVtYmVyKVtdKVtdCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjb21wbGV4IC8KCQkgKiAJLwoJCSAqIAkJXHRlc3QxCgkJICogCQlcdGVzdDIKCQkgKiAJKgoJCSAqIAkJc3RyIFxzb21lCgkJICogCQludWwgbnVsbAoJCSAqIGBgYAoJCSAqLwoJCWNvbXBsZXgoKSB7CgkJCXJldHVybiBbCgkJCQlbCgkJCQkJInRlc3QxIiwKCQkJCQkidGVzdDIiCgkJCQldIGFzIHJlYWRvbmx5IGFueVtdLAoJCQkJewoJCQkJCXN0cjogInNvbWUiLAoJCQkJCW51bDogbnVsbCBhcyBhbnkKCQkJCX0KCQkJXSBhcyByZWFkb25seSBhbnlbXQoJCX0KCX0KCQp9Cgo="
 
 ;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/dictionary.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfZGljdGlvbmFyeSAkbW9sX3ZpZXcKCXN1cGVyX3Byb3AgKgoJCXN0ciBcc29tZQoJCV4KCQlzdHIyIFxzb21lCgkJXiB0ZXN0CglzaW1wbGUgKgoJCSRzdHIgXHNvbWUKCQluLXVtIDEyMzE3CgkJYm9vbCB0cnVlCgkJbnVsIG51bGwKCQlsb2NhbGl6ZWQgQCBcbG9jYWxpemVkIHZhbHVlMQoJY29tcGxleCAqCgkJYXJyIC8KCQkJXHRlc3QxCgkJCVx0ZXN0MgoJCWNoaWxkICoKCQkJc3RyIFxzb21lCgkJCW51bSAxMjMxNwoJCQlib29sIHRydWUKCQkJbnVsIG51bGwKCQkJbG9jYWxpemVkIEAgXGxvY2FsaXplZCB2YWx1ZTIK"
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/dictionary.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2RpY3Rpb25hcnkgZXh0ZW5kcyAkbW9sX3ZpZXcgewoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc3VwZXJfcHJvcCAqCgkJICogCXN0ciBcc29tZQoJCSAqIAleCgkJICogCXN0cjIgXHNvbWUKCQkgKiAJXiB0ZXN0CgkJICogYGBgCgkJICovCgkJc3VwZXJfcHJvcCgpIHsKCQkJcmV0dXJuIHsKCQkJCXN0cjogInNvbWUiLAoJCQkJLi4uc3VwZXIuc3VwZXJfcHJvcCgpLAoJCQkJc3RyMjogInNvbWUiLAoJCQkJLi4udGhpcy50ZXN0KCkKCQkJfQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHNpbXBsZSAqCgkJICogCSRzdHIgXHNvbWUKCQkgKiAJbi11bSAxMjMxNwoJCSAqIAlib29sIHRydWUKCQkgKiAJbnVsIG51bGwKCQkgKiAJbG9jYWxpemVkIEAgXGxvY2FsaXplZCB2YWx1ZTEKCQkgKiBgYGAKCQkgKi8KCQlzaW1wbGUoKSB7CgkJCXJldHVybiB7CgkJCQkiJHN0ciI6ICJzb21lIiwKCQkJCSJuLXVtIjogMTIzMTcsCgkJCQlib29sOiB0cnVlLAoJCQkJbnVsOiBudWxsIGFzIGFueSwKCQkJCWxvY2FsaXplZDogdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9kaWN0aW9uYXJ5X3NpbXBsZV9sb2NhbGl6ZWQnICkKCQkJfQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNvbXBsZXggKgoJCSAqIAlhcnIgLwoJCSAqIAkJXHRlc3QxCgkJICogCQlcdGVzdDIKCQkgKiAJY2hpbGQgKgoJCSAqIAkJc3RyIFxzb21lCgkJICogCQludW0gMTIzMTcKCQkgKiAJCWJvb2wgdHJ1ZQoJCSAqIAkJbnVsIG51bGwKCQkgKiAJCWxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUyCgkJICogYGBgCgkJICovCgkJY29tcGxleCgpIHsKCQkJcmV0dXJuIHsKCQkJCWFycjogWwoJCQkJCSJ0ZXN0MSIsCgkJCQkJInRlc3QyIgoJCQkJXSBhcyByZWFkb25seSBhbnlbXSwKCQkJCWNoaWxkOiB7CgkJCQkJc3RyOiAic29tZSIsCgkJCQkJbnVtOiAxMjMxNywKCQkJCQlib29sOiB0cnVlLAoJCQkJCW51bDogbnVsbCBhcyBhbnksCgkJCQkJbG9jYWxpemVkOiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X2RpY3Rpb25hcnlfY29tcGxleF9jaGlsZF9sb2NhbGl6ZWQnICkKCQkJCX0KCQkJfQoJCX0KCX0KCn0K"
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/dictionary.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2RpY3Rpb25hcnkgZXh0ZW5kcyAkbW9sX3ZpZXcgewoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzdXBlcl9wcm9wICoKCQkgKiAJc3RyIFxzb21lCgkJICogCV4KCQkgKiAJc3RyMiBcc29tZQoJCSAqIAleIHRlc3QKCQkgKiBgYGAKCQkgKi8KCQlzdXBlcl9wcm9wKCkgewoJCQlyZXR1cm4gewoJCQkJc3RyOiAic29tZSIsCgkJCQkuLi5zdXBlci5zdXBlcl9wcm9wKCksCgkJCQlzdHIyOiAic29tZSIsCgkJCQkuLi50aGlzLnRlc3QoKQoJCQl9CgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzaW1wbGUgKgoJCSAqIAkkc3RyIFxzb21lCgkJICogCW4tdW0gMTIzMTcKCQkgKiAJYm9vbCB0cnVlCgkJICogCW51bCBudWxsCgkJICogCWxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUxCgkJICogYGBgCgkJICovCgkJc2ltcGxlKCkgewoJCQlyZXR1cm4gewoJCQkJIiRzdHIiOiAic29tZSIsCgkJCQkibi11bSI6IDEyMzE3LAoJCQkJYm9vbDogdHJ1ZSwKCQkJCW51bDogbnVsbCBhcyBhbnksCgkJCQlsb2NhbGl6ZWQ6IHRoaXMuJC4kbW9sX2xvY2FsZS50ZXh0KCAnJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfZGljdGlvbmFyeV9zaW1wbGVfbG9jYWxpemVkJyApCgkJCX0KCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNvbXBsZXggKgoJCSAqIAlhcnIgLwoJCSAqIAkJXHRlc3QxCgkJICogCQlcdGVzdDIKCQkgKiAJY2hpbGQgKgoJCSAqIAkJc3RyIFxzb21lCgkJICogCQludW0gMTIzMTcKCQkgKiAJCWJvb2wgdHJ1ZQoJCSAqIAkJbnVsIG51bGwKCQkgKiAJCWxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUyCgkJICogYGBgCgkJICovCgkJY29tcGxleCgpIHsKCQkJcmV0dXJuIHsKCQkJCWFycjogWwoJCQkJCSJ0ZXN0MSIsCgkJCQkJInRlc3QyIgoJCQkJXSBhcyByZWFkb25seSBhbnlbXSwKCQkJCWNoaWxkOiB7CgkJCQkJc3RyOiAic29tZSIsCgkJCQkJbnVtOiAxMjMxNywKCQkJCQlib29sOiB0cnVlLAoJCQkJCW51bDogbnVsbCBhcyBhbnksCgkJCQkJbG9jYWxpemVkOiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X2RpY3Rpb25hcnlfY29tcGxleF9jaGlsZF9sb2NhbGl6ZWQnICkKCQkJCX0KCQkJfQoJCX0KCX0KCQp9Cgo="
 
 ;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/factory.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfZmFjdG9yeSAkbW9sX3ZpZXcKCVNpbXBsZSAkbW9sX3ZpZXcKCQlzdHIgXHNvbWUKCQludW0gMTIzMTcKCQlib29sIHRydWUKCQludWwgbnVsbAoJCWxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUKCUNvbXBsZXggJG1vbF92aWV3CgkJYXJyIC8KCQkJXHRlc3QxCgkJCVx0ZXN0MgoJCWRpY3QgKgoJCQlzdHIgXHNvbWUyCgkJCWxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUKCUFyciAkbW9sX3ZlY3Rvcl8yZCAvCgkJPD0gdmlld3BvcnRfeCAkbW9sX3ZlY3Rvcl9yYW5nZSAvCgkJCUluZmluaXR5CgkJCS1JbmZpbml0eQoJCTw9IHZpZXdwb3J0X3kgJG1vbF92ZWN0b3JfcmFuZ2UgLwoJCQlJbmZpbml0eQoJCQktSW5maW5pdHkK"
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/factory.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2ZhY3RvcnkgZXh0ZW5kcyAkbW9sX3ZpZXcgewoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogU2ltcGxlICRtb2xfdmlldwoJCSAqIAlzdHIgXHNvbWUKCQkgKiAJbnVtIDEyMzE3CgkJICogCWJvb2wgdHJ1ZQoJCSAqIAludWwgbnVsbAoJCSAqIAlsb2NhbGl6ZWQgQCBcbG9jYWxpemVkIHZhbHVlCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCVNpbXBsZSgpIHsKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZpZXcoKQoKCQkJb2JqLnN0ciA9ICgpID0+ICJzb21lIgoJCQlvYmoubnVtID0gKCkgPT4gMTIzMTcKCQkJb2JqLmJvb2wgPSAoKSA9PiB0cnVlCgkJCW9iai5udWwgPSAoKSA9PiBudWxsIGFzIGFueQoJCQlvYmoubG9jYWxpemVkID0gKCkgPT4gdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9mYWN0b3J5X1NpbXBsZV9sb2NhbGl6ZWQnICkKCgkJCXJldHVybiBvYmoKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBDb21wbGV4ICRtb2xfdmlldwoJCSAqIAlhcnIgLwoJCSAqIAkJXHRlc3QxCgkJICogCQlcdGVzdDIKCQkgKiAJZGljdCAqCgkJICogCQlzdHIgXHNvbWUyCgkJICogCQlsb2NhbGl6ZWQgQCBcbG9jYWxpemVkIHZhbHVlCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCUNvbXBsZXgoKSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92aWV3KCkKCgkJCW9iai5hcnIgPSAoKSA9PiBbCgkJCQkidGVzdDEiLAoJCQkJInRlc3QyIgoJCQldIGFzIHJlYWRvbmx5IGFueVtdCgkJCW9iai5kaWN0ID0gKCkgPT4gKHsKCQkJCXN0cjogInNvbWUyIiwKCQkJCWxvY2FsaXplZDogdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9mYWN0b3J5X0NvbXBsZXhfZGljdF9sb2NhbGl6ZWQnICkKCQkJfSkKCgkJCXJldHVybiBvYmoKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBBcnIgJG1vbF92ZWN0b3JfMmQgLwoJCSAqIAk8PSB2aWV3cG9ydF94CgkJICogCTw9IHZpZXdwb3J0X3kKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJQXJyKCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmVjdG9yXzJkKAoJCQkJdGhpcy52aWV3cG9ydF94KCksCgkJCQl0aGlzLnZpZXdwb3J0X3koKQoJCQkpCgoJCQlyZXR1cm4gb2JqCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogdmlld3BvcnRfeCAkbW9sX3ZlY3Rvcl9yYW5nZSAvCgkJICogCUluZmluaXR5CgkJICogCS1JbmZpbml0eQoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQl2aWV3cG9ydF94KCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmVjdG9yX3JhbmdlKAoJCQkJSW5maW5pdHksCgkJCQktSW5maW5pdHkKCQkJKQoKCQkJcmV0dXJuIG9iagoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHZpZXdwb3J0X3kgJG1vbF92ZWN0b3JfcmFuZ2UgLwoJCSAqIAlJbmZpbml0eQoJCSAqIAktSW5maW5pdHkKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJdmlld3BvcnRfeSgpIHsKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZlY3Rvcl9yYW5nZSgKCQkJCUluZmluaXR5LAoJCQkJLUluZmluaXR5CgkJCSkKCgkJCXJldHVybiBvYmoKCQl9Cgl9Cgp9Cg=="
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/factory.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2ZhY3RvcnkgZXh0ZW5kcyAkbW9sX3ZpZXcgewoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBTaW1wbGUgJG1vbF92aWV3CgkJICogCXN0ciBcc29tZQoJCSAqIAludW0gMTIzMTcKCQkgKiAJYm9vbCB0cnVlCgkJICogCW51bCBudWxsCgkJICogCWxvY2FsaXplZCBAIFxsb2NhbGl6ZWQgdmFsdWUKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJU2ltcGxlKCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgkJCQoJCQlvYmouc3RyID0gKCkgPT4gInNvbWUiCgkJCW9iai5udW0gPSAoKSA9PiAxMjMxNwoJCQlvYmouYm9vbCA9ICgpID0+IHRydWUKCQkJb2JqLm51bCA9ICgpID0+IG51bGwgYXMgYW55CgkJCW9iai5sb2NhbGl6ZWQgPSAoKSA9PiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X2ZhY3RvcnlfU2ltcGxlX2xvY2FsaXplZCcgKQoJCQkKCQkJcmV0dXJuIG9iagoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogQ29tcGxleCAkbW9sX3ZpZXcKCQkgKiAJYXJyIC8KCQkgKiAJCVx0ZXN0MQoJCSAqIAkJXHRlc3QyCgkJICogCWRpY3QgKgoJCSAqIAkJc3RyIFxzb21lMgoJCSAqIAkJbG9jYWxpemVkIEAgXGxvY2FsaXplZCB2YWx1ZQoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlDb21wbGV4KCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgkJCQoJCQlvYmouYXJyID0gKCkgPT4gWwoJCQkJInRlc3QxIiwKCQkJCSJ0ZXN0MiIKCQkJXSBhcyByZWFkb25seSBhbnlbXQoJCQlvYmouZGljdCA9ICgpID0+ICh7CgkJCQlzdHI6ICJzb21lMiIsCgkJCQlsb2NhbGl6ZWQ6IHRoaXMuJC4kbW9sX2xvY2FsZS50ZXh0KCAnJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfZmFjdG9yeV9Db21wbGV4X2RpY3RfbG9jYWxpemVkJyApCgkJCX0pCgkJCQoJCQlyZXR1cm4gb2JqCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBBcnIgJG1vbF92ZWN0b3JfMmQgLwoJCSAqIAk8PSB2aWV3cG9ydF94CgkJICogCTw9IHZpZXdwb3J0X3kKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJQXJyKCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmVjdG9yXzJkKAoJCQkJdGhpcy52aWV3cG9ydF94KCksCgkJCQl0aGlzLnZpZXdwb3J0X3koKQoJCQkpCgkJCQoJCQlyZXR1cm4gb2JqCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiB2aWV3cG9ydF94ICRtb2xfdmVjdG9yX3JhbmdlIC8KCQkgKiAJSW5maW5pdHkKCQkgKiAJLUluZmluaXR5CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCXZpZXdwb3J0X3goKSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92ZWN0b3JfcmFuZ2UoCgkJCQlJbmZpbml0eSwKCQkJCS1JbmZpbml0eQoJCQkpCgkJCQoJCQlyZXR1cm4gb2JqCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiB2aWV3cG9ydF95ICRtb2xfdmVjdG9yX3JhbmdlIC8KCQkgKiAJSW5maW5pdHkKCQkgKiAJLUluZmluaXR5CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCXZpZXdwb3J0X3koKSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92ZWN0b3JfcmFuZ2UoCgkJCQlJbmZpbml0eSwKCQkJCS1JbmZpbml0eQoJCQkpCgkJCQoJCQlyZXR1cm4gb2JqCgkJfQoJfQoJCn0KCg=="
 
 ;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/multiple_class.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfbXVsdGlwbGVfY2xhc3NfYSAkbW9sX3ZpZXcKCXN0ciBcc29tZQoKJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfbXVsdGlwbGVfY2xhc3NfYiAkbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9tdWx0aXBsZV9jbGFzc19hCglzdHIgXHNvbWUyCg=="
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/multiple_class.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X211bHRpcGxlX2NsYXNzX2EgZXh0ZW5kcyAkbW9sX3ZpZXcgewoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc3RyIFxzb21lCgkJICogYGBgCgkJICovCgkJc3RyKCkgewoJCQlyZXR1cm4gInNvbWUiCgkJfQoJfQoKCWV4cG9ydCBjbGFzcyAkbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9tdWx0aXBsZV9jbGFzc19iIGV4dGVuZHMgJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfbXVsdGlwbGVfY2xhc3NfYSB7CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzdHIgXHNvbWUyCgkJICogYGBgCgkJICovCgkJc3RyKCkgewoJCQlyZXR1cm4gInNvbWUyIgoJCX0KCX0KCn0K"
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/multiple_class.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X211bHRpcGxlX2NsYXNzX2EgZXh0ZW5kcyAkbW9sX3ZpZXcgewoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzdHIgXHNvbWUKCQkgKiBgYGAKCQkgKi8KCQlzdHIoKSB7CgkJCXJldHVybiAic29tZSIKCQl9Cgl9CgkKCWV4cG9ydCBjbGFzcyAkbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9tdWx0aXBsZV9jbGFzc19iIGV4dGVuZHMgJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfbXVsdGlwbGVfY2xhc3NfYSB7CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHN0ciBcc29tZTIKCQkgKiBgYGAKCQkgKi8KCQlzdHIoKSB7CgkJCXJldHVybiAic29tZTIiCgkJfQoJfQoJCn0KCg=="
 
 ;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/left.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfYmluZF9sZWZ0ICRtb2xfdmlldwoJZGVmYXVsdCA8PSBkZWZhdWx0X293bmVyIFx0ZXN0CgllbXB0eSA8PSBlbXB0eV9vd25lcgoJaW5kZXhlZCFrZXkgPD0gaW5kZXhlZF9vd25lciFrZXkKCWluZGV4ZWRfZGVmYXVsdCFrZXkgPD0gaW5kZXhlZF9kZWZhdWx0X293bmVyIWtleSBudWxsCgljbGFzcyA8PSBjbGFzc19vd25lciAkbW9sX3ZpZXcKCXR3aWNlIG51bGwKCXdyaXRhYmxlIDw9IHdyaXRhYmxlX293bmVyP3ZhbCBcCgljbGFzc19pbmRleGVkIWtleSA8PSBjbGFzc19pbmRleGVkX293bmVyIWtleSAkbW9sX3ZpZXcKCQl0aXRsZSBAIFxzb21lMQoJCXNhbWUgPD0gc2FtZT92YWwgXAoJCXNvbWUgPD0gdHdpY2UKCQlsb2NhbGl6ZWQgPD0gbG9jYWxpemVkX293bmVyIWtleSBAIFxzb21lMQoJCWNoYWluIDw9IGNoYWluMSA8PSBjaGFpbjIgbnVsbAoJYXJyIC8KCQk8PSBEZXRhaWxfbGlzdCAkbW9sX2xpc3QKCQkJcm93cyA8PSBtYWluX2NvbnRlbnQgLwoJCSoKCQkJbG9jIDw9IGxvY19vdXRlciBAIFx0ZXN0IGxvY2FsaXplCgkJKgoJCQlsb2MgPD0gbG9jX291dGVyIEAgXHRlc3QgbG9jYWxpemUKCXNhbWUyIEAgXFNvbWUKCVNhbWUKCQk8PSBTdWIgJG1vbF92aWV3CgkJCXNhbWUgPD0gc2FtZTIgLQo="
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/left.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfbGVmdCBleHRlbmRzICRtb2xfdmlldyB7CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBkZWZhdWx0IDw9IGRlZmF1bHRfb3duZXIKCQkgKiBgYGAKCQkgKi8KCQlkZWZhdWx0KCkgewoJCQlyZXR1cm4gdGhpcy5kZWZhdWx0X293bmVyKCkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBlbXB0eSA8PSBlbXB0eV9vd25lcgoJCSAqIGBgYAoJCSAqLwoJCWVtcHR5KCkgewoJCQlyZXR1cm4gdGhpcy5lbXB0eV9vd25lcigpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZCFrZXkgPD0gaW5kZXhlZF9vd25lciFrZXkKCQkgKiBgYGAKCQkgKi8KCQlpbmRleGVkKGtleTogYW55KSB7CgkJCXJldHVybiB0aGlzLmluZGV4ZWRfb3duZXIoa2V5KQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGluZGV4ZWRfZGVmYXVsdCFrZXkgPD0gaW5kZXhlZF9kZWZhdWx0X293bmVyIWtleQoJCSAqIGBgYAoJCSAqLwoJCWluZGV4ZWRfZGVmYXVsdChrZXk6IGFueSkgewoJCQlyZXR1cm4gdGhpcy5pbmRleGVkX2RlZmF1bHRfb3duZXIoa2V5KQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNsYXNzIDw9IGNsYXNzX293bmVyCgkJICogYGBgCgkJICovCgkJY2xhc3MoKSB7CgkJCXJldHVybiB0aGlzLmNsYXNzX293bmVyKCkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiB0d2ljZSBudWxsCgkJICogYGBgCgkJICovCgkJdHdpY2UoKSB7CgkJCXJldHVybiBudWxsIGFzIGFueQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHdyaXRhYmxlIDw9IHdyaXRhYmxlX293bmVyP3ZhbAoJCSAqIGBgYAoJCSAqLwoJCXdyaXRhYmxlKCkgewoJCQlyZXR1cm4gdGhpcy53cml0YWJsZV9vd25lcigpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2xhc3NfaW5kZXhlZCFrZXkgPD0gY2xhc3NfaW5kZXhlZF9vd25lciFrZXkKCQkgKiBgYGAKCQkgKi8KCQljbGFzc19pbmRleGVkKGtleTogYW55KSB7CgkJCXJldHVybiB0aGlzLmNsYXNzX2luZGV4ZWRfb3duZXIoa2V5KQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGFyciAvCgkJICogCTw9IERldGFpbF9saXN0CgkJICogCSogbG9jIDw9IGxvY19vdXRlcgoJCSAqIAkqIGxvYyA8PSBsb2Nfb3V0ZXIKCQkgKiBgYGAKCQkgKi8KCQlhcnIoKSB7CgkJCXJldHVybiBbCgkJCQl0aGlzLkRldGFpbF9saXN0KCksCgkJCQl7CgkJCQkJbG9jOiB0aGlzLmxvY19vdXRlcigpCgkJCQl9LAoJCQkJewoJCQkJCWxvYzogdGhpcy5sb2Nfb3V0ZXIoKQoJCQkJfQoJCQldIGFzIHJlYWRvbmx5IGFueVtdCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc2FtZTIgQCBcU29tZQoJCSAqIGBgYAoJCSAqLwoJCXNhbWUyKCkgewoJCQlyZXR1cm4gdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9iaW5kX2xlZnRfc2FtZTInICkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBTYW1lIDw9IFN1YgoJCSAqIGBgYAoJCSAqLwoJCVNhbWUoKSB7CgkJCXJldHVybiB0aGlzLlN1YigpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogZGVmYXVsdF9vd25lciBcdGVzdAoJCSAqIGBgYAoJCSAqLwoJCWRlZmF1bHRfb3duZXIoKSB7CgkJCXJldHVybiAidGVzdCIKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBpbmRleGVkX2RlZmF1bHRfb3duZXIha2V5IG51bGwKCQkgKiBgYGAKCQkgKi8KCQlpbmRleGVkX2RlZmF1bHRfb3duZXIoa2V5OiBhbnkpIHsKCQkJcmV0dXJuIG51bGwgYXMgYW55CgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2xhc3Nfb3duZXIgJG1vbF92aWV3CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCWNsYXNzX293bmVyKCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgoJCQlyZXR1cm4gb2JqCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogd3JpdGFibGVfb3duZXI/dmFsIFwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJd3JpdGFibGVfb3duZXIodmFsPzogYW55KSB7CgkJCWlmICggdmFsICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdmFsCgkJCXJldHVybiAiIgoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHNhbWU/dmFsIFwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJc2FtZSh2YWw/OiBhbnkpIHsKCQkJaWYgKCB2YWwgIT09IHVuZGVmaW5lZCApIHJldHVybiB2YWwKCQkJcmV0dXJuICIiCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogbG9jYWxpemVkX293bmVyIWtleSBAIFxzb21lMQoJCSAqIGBgYAoJCSAqLwoJCWxvY2FsaXplZF9vd25lcihrZXk6IGFueSkgewoJCQlyZXR1cm4gdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9iaW5kX2xlZnRfbG9jYWxpemVkX293bmVyJyApCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2hhaW4yIG51bGwKCQkgKiBgYGAKCQkgKi8KCQljaGFpbjIoKSB7CgkJCXJldHVybiBudWxsIGFzIGFueQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNoYWluMSA8PSBjaGFpbjIKCQkgKiBgYGAKCQkgKi8KCQljaGFpbjEoKSB7CgkJCXJldHVybiB0aGlzLmNoYWluMigpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2xhc3NfaW5kZXhlZF9vd25lciFrZXkgJG1vbF92aWV3CgkJICogCXRpdGxlIEAgXHNvbWUxCgkJICogCXNhbWUgPD0gc2FtZT92YWwKCQkgKiAJc29tZSA8PSB0d2ljZQoJCSAqIAlsb2NhbGl6ZWQgPD0gbG9jYWxpemVkX293bmVyIWtleQoJCSAqIAljaGFpbiA8PSBjaGFpbjEKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtX2tleQoJCWNsYXNzX2luZGV4ZWRfb3duZXIoa2V5OiBhbnkpIHsKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZpZXcoKQoKCQkJb2JqLnRpdGxlID0gKCkgPT4gdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9iaW5kX2xlZnRfY2xhc3NfaW5kZXhlZF9vd25lcl90aXRsZScgKQoJCQlvYmouc2FtZSA9ICgpID0+IHRoaXMuc2FtZSgpCgkJCW9iai5zb21lID0gKCkgPT4gdGhpcy50d2ljZSgpCgkJCW9iai5sb2NhbGl6ZWQgPSAoKSA9PiB0aGlzLmxvY2FsaXplZF9vd25lcihrZXkpCgkJCW9iai5jaGFpbiA9ICgpID0+IHRoaXMuY2hhaW4xKCkKCgkJCXJldHVybiBvYmoKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBtYWluX2NvbnRlbnQgLwoJCSAqIGBgYAoJCSAqLwoJCW1haW5fY29udGVudCgpIHsKCQkJcmV0dXJuIFsKCgkJCV0gYXMgcmVhZG9ubHkgYW55W10KCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBEZXRhaWxfbGlzdCAkbW9sX2xpc3Qgcm93cyA8PSBtYWluX2NvbnRlbnQKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJRGV0YWlsX2xpc3QoKSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF9saXN0KCkKCgkJCW9iai5yb3dzID0gKCkgPT4gdGhpcy5tYWluX2NvbnRlbnQoKQoKCQkJcmV0dXJuIG9iagoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGxvY19vdXRlciBAIFx0ZXN0IGxvY2FsaXplCgkJICogYGBgCgkJICovCgkJbG9jX291dGVyKCkgewoJCQlyZXR1cm4gdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9iaW5kX2xlZnRfbG9jX291dGVyJyApCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogU3ViICRtb2xfdmlldyBzYW1lIDw9IHNhbWUyCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCVN1YigpIHsKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZpZXcoKQoKCQkJb2JqLnNhbWUgPSAoKSA9PiB0aGlzLnNhbWUyKCkKCgkJCXJldHVybiBvYmoKCQl9Cgl9Cgp9Cg=="
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/left.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfbGVmdCBleHRlbmRzICRtb2xfdmlldyB7CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGRlZmF1bHQgPD0gZGVmYXVsdF9vd25lcgoJCSAqIGBgYAoJCSAqLwoJCWRlZmF1bHQoKSB7CgkJCXJldHVybiB0aGlzLmRlZmF1bHRfb3duZXIoKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogZW1wdHkgPD0gZW1wdHlfb3duZXIKCQkgKiBgYGAKCQkgKi8KCQllbXB0eSgpIHsKCQkJcmV0dXJuIHRoaXMuZW1wdHlfb3duZXIoKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZCFrZXkgPD0gaW5kZXhlZF9vd25lciFrZXkKCQkgKiBgYGAKCQkgKi8KCQlpbmRleGVkKGtleTogYW55KSB7CgkJCXJldHVybiB0aGlzLmluZGV4ZWRfb3duZXIoa2V5KQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZF9kZWZhdWx0IWtleSA8PSBpbmRleGVkX2RlZmF1bHRfb3duZXIha2V5CgkJICogYGBgCgkJICovCgkJaW5kZXhlZF9kZWZhdWx0KGtleTogYW55KSB7CgkJCXJldHVybiB0aGlzLmluZGV4ZWRfZGVmYXVsdF9vd25lcihrZXkpCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjbGFzcyA8PSBjbGFzc19vd25lcgoJCSAqIGBgYAoJCSAqLwoJCWNsYXNzKCkgewoJCQlyZXR1cm4gdGhpcy5jbGFzc19vd25lcigpCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiB0d2ljZSBudWxsCgkJICogYGBgCgkJICovCgkJdHdpY2UoKSB7CgkJCXJldHVybiBudWxsIGFzIGFueQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogd3JpdGFibGUgPD0gd3JpdGFibGVfb3duZXI/dmFsCgkJICogYGBgCgkJICovCgkJd3JpdGFibGUoKSB7CgkJCXJldHVybiB0aGlzLndyaXRhYmxlX293bmVyKCkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNsYXNzX2luZGV4ZWQha2V5IDw9IGNsYXNzX2luZGV4ZWRfb3duZXIha2V5CgkJICogYGBgCgkJICovCgkJY2xhc3NfaW5kZXhlZChrZXk6IGFueSkgewoJCQlyZXR1cm4gdGhpcy5jbGFzc19pbmRleGVkX293bmVyKGtleSkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGFyciAvCgkJICogCTw9IERldGFpbF9saXN0CgkJICogCSogbG9jIDw9IGxvY19vdXRlcgoJCSAqIAkqIGxvYyA8PSBsb2Nfb3V0ZXIKCQkgKiBgYGAKCQkgKi8KCQlhcnIoKSB7CgkJCXJldHVybiBbCgkJCQl0aGlzLkRldGFpbF9saXN0KCksCgkJCQl7CgkJCQkJbG9jOiB0aGlzLmxvY19vdXRlcigpCgkJCQl9LAoJCQkJewoJCQkJCWxvYzogdGhpcy5sb2Nfb3V0ZXIoKQoJCQkJfQoJCQldIGFzIHJlYWRvbmx5IGFueVtdCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzYW1lMiBAIFxTb21lCgkJICogYGBgCgkJICovCgkJc2FtZTIoKSB7CgkJCXJldHVybiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfbGVmdF9zYW1lMicgKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogU2FtZSA8PSBTdWIKCQkgKiBgYGAKCQkgKi8KCQlTYW1lKCkgewoJCQlyZXR1cm4gdGhpcy5TdWIoKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogZGVmYXVsdF9vd25lciBcdGVzdAoJCSAqIGBgYAoJCSAqLwoJCWRlZmF1bHRfb3duZXIoKSB7CgkJCXJldHVybiAidGVzdCIKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGluZGV4ZWRfZGVmYXVsdF9vd25lciFrZXkgbnVsbAoJCSAqIGBgYAoJCSAqLwoJCWluZGV4ZWRfZGVmYXVsdF9vd25lcihrZXk6IGFueSkgewoJCQlyZXR1cm4gbnVsbCBhcyBhbnkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNsYXNzX293bmVyICRtb2xfdmlldwoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQljbGFzc19vd25lcigpIHsKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZpZXcoKQoJCQkKCQkJcmV0dXJuIG9iagoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogd3JpdGFibGVfb3duZXI/dmFsIFwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJd3JpdGFibGVfb3duZXIodmFsPzogYW55KSB7CgkJCWlmICggdmFsICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdmFsCgkJCXJldHVybiAiIgoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogc2FtZT92YWwgXAoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlzYW1lKHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQlyZXR1cm4gIiIKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGxvY2FsaXplZF9vd25lciFrZXkgQCBcc29tZTEKCQkgKiBgYGAKCQkgKi8KCQlsb2NhbGl6ZWRfb3duZXIoa2V5OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMuJC4kbW9sX2xvY2FsZS50ZXh0KCAnJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfYmluZF9sZWZ0X2xvY2FsaXplZF9vd25lcicgKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2hhaW4yIG51bGwKCQkgKiBgYGAKCQkgKi8KCQljaGFpbjIoKSB7CgkJCXJldHVybiBudWxsIGFzIGFueQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2hhaW4xIDw9IGNoYWluMgoJCSAqIGBgYAoJCSAqLwoJCWNoYWluMSgpIHsKCQkJcmV0dXJuIHRoaXMuY2hhaW4yKCkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNsYXNzX2luZGV4ZWRfb3duZXIha2V5ICRtb2xfdmlldwoJCSAqIAl0aXRsZSBAIFxzb21lMQoJCSAqIAlzYW1lIDw9IHNhbWU/dmFsCgkJICogCXNvbWUgPD0gdHdpY2UKCQkgKiAJbG9jYWxpemVkIDw9IGxvY2FsaXplZF9vd25lciFrZXkKCQkgKiAJY2hhaW4gPD0gY2hhaW4xCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbV9rZXkKCQljbGFzc19pbmRleGVkX293bmVyKGtleTogYW55KSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92aWV3KCkKCQkJCgkJCW9iai50aXRsZSA9ICgpID0+IHRoaXMuJC4kbW9sX2xvY2FsZS50ZXh0KCAnJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfYmluZF9sZWZ0X2NsYXNzX2luZGV4ZWRfb3duZXJfdGl0bGUnICkKCQkJb2JqLnNhbWUgPSAoKSA9PiB0aGlzLnNhbWUoKQoJCQlvYmouc29tZSA9ICgpID0+IHRoaXMudHdpY2UoKQoJCQlvYmoubG9jYWxpemVkID0gKCkgPT4gdGhpcy5sb2NhbGl6ZWRfb3duZXIoa2V5KQoJCQlvYmouY2hhaW4gPSAoKSA9PiB0aGlzLmNoYWluMSgpCgkJCQoJCQlyZXR1cm4gb2JqCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBtYWluX2NvbnRlbnQgLwoJCSAqIGBgYAoJCSAqLwoJCW1haW5fY29udGVudCgpIHsKCQkJcmV0dXJuIFsKCQkJXSBhcyByZWFkb25seSBhbnlbXQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogRGV0YWlsX2xpc3QgJG1vbF9saXN0IHJvd3MgPD0gbWFpbl9jb250ZW50CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCURldGFpbF9saXN0KCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfbGlzdCgpCgkJCQoJCQlvYmoucm93cyA9ICgpID0+IHRoaXMubWFpbl9jb250ZW50KCkKCQkJCgkJCXJldHVybiBvYmoKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGxvY19vdXRlciBAIFx0ZXN0IGxvY2FsaXplCgkJICogYGBgCgkJICovCgkJbG9jX291dGVyKCkgewoJCQlyZXR1cm4gdGhpcy4kLiRtb2xfbG9jYWxlLnRleHQoICckbW9sX3ZpZXdfdHJlZTJfdHNfdGVzdF9iaW5kX2xlZnRfbG9jX291dGVyJyApCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBTdWIgJG1vbF92aWV3IHNhbWUgPD0gc2FtZTIKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJU3ViKCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgkJCQoJCQlvYmouc2FtZSA9ICgpID0+IHRoaXMuc2FtZTIoKQoJCQkKCQkJcmV0dXJuIG9iagoJCX0KCX0KCQp9Cgo="
 
 ;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/right.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfYmluZF9yaWdodCAkbW9sX3ZpZXcKCUNscyAkbW9sX3ZpZXcKCQlpbm5lciA9PiBvdXRlcgoJCXdyaXRhYmxlP3ZhbCA9PiB3cml0YWJsZV9vdXRlcj92YWwKCQlpbmRleGVkIWtleSA9PiBpbmRleGVkX291dGVyIWtleQoJCWluZGV4ZWRfd3JpdGFibGUha2V5P3ZhbCA9PiBpbmRleGVkX3dyaXRhYmxlX291dGVyIWtleT92YWwKCXEgPD0gQ2xzMiAkbW9sX3ZpZXcKCQlpbm5lciA9PiBvdXRlclEKCUluZGV4ZWQhaW5kZXggJG1vbF92aWV3CgkJVGl0bGUgPT4gT3V0ZXJfdGl0bGUhaW5kZXgK"
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/right.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfcmlnaHQgZXh0ZW5kcyAkbW9sX3ZpZXcgewoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogQ2xzICRtb2xfdmlldwoJCSAqIAlpbm5lciA9PiBvdXRlcgoJCSAqIAl3cml0YWJsZT92YWwgPT4gd3JpdGFibGVfb3V0ZXI/dmFsCgkJICogCWluZGV4ZWQha2V5ID0+IGluZGV4ZWRfb3V0ZXIha2V5CgkJICogCWluZGV4ZWRfd3JpdGFibGUha2V5P3ZhbCA9PiBpbmRleGVkX3dyaXRhYmxlX291dGVyIWtleT92YWwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJQ2xzKCkgewoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgoJCQlyZXR1cm4gb2JqCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogb3V0ZXIKCQkgKiBgYGAKCQkgKi8KCQlvdXRlcigpIHsKCQkJcmV0dXJuIHRoaXMuQ2xzKCkuaW5uZXIoKQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHdyaXRhYmxlX291dGVyP3ZhbAoJCSAqIGBgYAoJCSAqLwoJCXdyaXRhYmxlX291dGVyKHZhbD86IGFueSkgewoJCQlyZXR1cm4gdGhpcy5DbHMoKS53cml0YWJsZSh2YWwpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZF9vdXRlciFrZXkKCQkgKiBgYGAKCQkgKi8KCQlpbmRleGVkX291dGVyKGtleTogYW55KSB7CgkJCXJldHVybiB0aGlzLkNscygpLmluZGV4ZWQoa2V5KQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGluZGV4ZWRfd3JpdGFibGVfb3V0ZXIha2V5P3ZhbAoJCSAqIGBgYAoJCSAqLwoJCWluZGV4ZWRfd3JpdGFibGVfb3V0ZXIoa2V5OiBhbnksIHZhbD86IGFueSkgewoJCQlyZXR1cm4gdGhpcy5DbHMoKS5pbmRleGVkX3dyaXRhYmxlKGtleSwgdmFsKQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHEgPD0gQ2xzMgoJCSAqIGBgYAoJCSAqLwoJCXEoKSB7CgkJCXJldHVybiB0aGlzLkNsczIoKQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIEluZGV4ZWQhaW5kZXggJG1vbF92aWV3IFRpdGxlID0+IE91dGVyX3RpdGxlIWluZGV4CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbV9rZXkKCQlJbmRleGVkKGluZGV4OiBhbnkpIHsKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZpZXcoKQoKCQkJcmV0dXJuIG9iagoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIE91dGVyX3RpdGxlIWluZGV4CgkJICogYGBgCgkJICovCgkJT3V0ZXJfdGl0bGUoaW5kZXg6IGFueSkgewoJCQlyZXR1cm4gdGhpcy5JbmRleGVkKGluZGV4KS5UaXRsZSgpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogQ2xzMiAkbW9sX3ZpZXcgaW5uZXIgPT4gb3V0ZXJRCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCUNsczIoKSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92aWV3KCkKCgkJCXJldHVybiBvYmoKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBvdXRlclEKCQkgKiBgYGAKCQkgKi8KCQlvdXRlclEoKSB7CgkJCXJldHVybiB0aGlzLkNsczIoKS5pbm5lcigpCgkJfQoJfQoKfQo="
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/right.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfcmlnaHQgZXh0ZW5kcyAkbW9sX3ZpZXcgewoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBvdXRlcgoJCSAqIGBgYAoJCSAqLwoJCW91dGVyKCkgewoJCQlyZXR1cm4gdGhpcy5DbHMoKS5pbm5lcigpCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiB3cml0YWJsZV9vdXRlcj92YWwKCQkgKiBgYGAKCQkgKi8KCQl3cml0YWJsZV9vdXRlcih2YWw/OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMuQ2xzKCkud3JpdGFibGUodmFsKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZF9vdXRlciFrZXkKCQkgKiBgYGAKCQkgKi8KCQlpbmRleGVkX291dGVyKGtleTogYW55KSB7CgkJCXJldHVybiB0aGlzLkNscygpLmluZGV4ZWQoa2V5KQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZF93cml0YWJsZV9vdXRlciFrZXk/dmFsCgkJICogYGBgCgkJICovCgkJaW5kZXhlZF93cml0YWJsZV9vdXRlcihrZXk6IGFueSwgdmFsPzogYW55KSB7CgkJCXJldHVybiB0aGlzLkNscygpLmluZGV4ZWRfd3JpdGFibGUoa2V5LCB2YWwpCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBDbHMgJG1vbF92aWV3CgkJICogCWlubmVyID0+IG91dGVyCgkJICogCXdyaXRhYmxlP3ZhbCA9PiB3cml0YWJsZV9vdXRlcj92YWwKCQkgKiAJaW5kZXhlZCFrZXkgPT4gaW5kZXhlZF9vdXRlciFrZXkKCQkgKiAJaW5kZXhlZF93cml0YWJsZSFrZXk/dmFsID0+IGluZGV4ZWRfd3JpdGFibGVfb3V0ZXIha2V5P3ZhbAoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlDbHMoKSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92aWV3KCkKCQkJCgkJCXJldHVybiBvYmoKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHEgPD0gQ2xzMgoJCSAqIGBgYAoJCSAqLwoJCXEoKSB7CgkJCXJldHVybiB0aGlzLkNsczIoKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogT3V0ZXJfdGl0bGUhaW5kZXgKCQkgKiBgYGAKCQkgKi8KCQlPdXRlcl90aXRsZShpbmRleDogYW55KSB7CgkJCXJldHVybiB0aGlzLkluZGV4ZWQoaW5kZXgpLlRpdGxlKCkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIEluZGV4ZWQhaW5kZXggJG1vbF92aWV3IFRpdGxlID0+IE91dGVyX3RpdGxlIWluZGV4CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbV9rZXkKCQlJbmRleGVkKGluZGV4OiBhbnkpIHsKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZpZXcoKQoJCQkKCQkJcmV0dXJuIG9iagoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogb3V0ZXJRCgkJICogYGBgCgkJICovCgkJb3V0ZXJRKCkgewoJCQlyZXR1cm4gdGhpcy5DbHMyKCkuaW5uZXIoKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogQ2xzMiAkbW9sX3ZpZXcgaW5uZXIgPT4gb3V0ZXJRCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCUNsczIoKSB7CgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92aWV3KCkKCQkJCgkJCXJldHVybiBvYmoKCQl9Cgl9CgkKfQoK"
 
 ;
 var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/both.view.tree.bin" ] = "data:application/octet-stream;base64,JG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfYmluZF9ib3RoICRtb2xfdmlldwoJd3JpdGFibGU/dmFsIDw9PiB3cml0YWJsZV9vd25lcj92YWwKCXdyaXRhYmxlX2RlZmF1bHQ/dmFsIDw9PiB3cml0YWJsZV9kZWZhdWx0X293bmVyP3ZhbCBudWxsCgljbGFzcz92YWwgPD0+IGNsYXNzX293bmVyP3ZhbCAkbW9sX3ZpZXcKCWluZGV4ZWQha2V5P3ZhbCA8PT4gaW5kZXhlZF9vd25lciFrZXk/dmFsIG51bGwKCXR3aWNlIG51bGwKCWNsYXNzX2luZGV4ZWQha2V5P3ZhbCAkbW9sX3ZpZXcKCQlleHBhbmRlZCA8PT4gY2VsbF9leHBhbmRlZCFrZXk/dmFsCgljbGFzc193cml0YWJsZT92YWwgPD0+IGNsYXNzX3dyaXRhYmxlX293bmVyP3ZhbCAkbW9sX3ZpZXcKCQlzb21lP3ZhbCA8PT4gdHdpY2U/dmFsCgkJbG9jYWxpemVkP3ZhbCA8PT4gbG9jYWxpemVkX293bmVyP3ZhbCBAIFxzb21lMQoJCWNoYWluP3YgPD0+IGNoYWluMT92IDw9PiBjaGFpbjI/diBudWxsCglhcnIgLwoJCSoKCQkJbG9jP3YgPD0+IGxvY19vdXRlcj92IEAgXHRlc3QgbG9jYWxpemUKCQkqCgkJCWxvYz92IDw9PiBsb2Nfb3V0ZXI/diBAIFx0ZXN0IGxvY2FsaXplCglzd2lwZV90b19sZWZ0P2V2ZW50IDw9PiBldmVudF9uZXh0P2V2ZW50IG51bGwKCWV2ZW50X2NhdGNoP3ZhbCA8PT4gZXZlbnRfbmV4dD92YWwgbnVsbAo="
 
 ;
-var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/both.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfYm90aCBleHRlbmRzICRtb2xfdmlldyB7CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiB3cml0YWJsZT92YWwgPD0+IHdyaXRhYmxlX293bmVyP3ZhbAoJCSAqIGBgYAoJCSAqLwoJCXdyaXRhYmxlKHZhbD86IGFueSkgewoJCQlyZXR1cm4gdGhpcy53cml0YWJsZV9vd25lcih2YWwpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogd3JpdGFibGVfZGVmYXVsdD92YWwgPD0+IHdyaXRhYmxlX2RlZmF1bHRfb3duZXI/dmFsCgkJICogYGBgCgkJICovCgkJd3JpdGFibGVfZGVmYXVsdCh2YWw/OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMud3JpdGFibGVfZGVmYXVsdF9vd25lcih2YWwpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2xhc3M/dmFsIDw9PiBjbGFzc19vd25lcj92YWwKCQkgKiBgYGAKCQkgKi8KCQljbGFzcyh2YWw/OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMuY2xhc3Nfb3duZXIodmFsKQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGluZGV4ZWQha2V5P3ZhbCA8PT4gaW5kZXhlZF9vd25lciFrZXk/dmFsCgkJICogYGBgCgkJICovCgkJaW5kZXhlZChrZXk6IGFueSwgdmFsPzogYW55KSB7CgkJCXJldHVybiB0aGlzLmluZGV4ZWRfb3duZXIoa2V5LCB2YWwpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogdHdpY2UgbnVsbAoJCSAqIGBgYAoJCSAqLwoJCXR3aWNlKCkgewoJCQlyZXR1cm4gbnVsbCBhcyBhbnkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjbGFzc19pbmRleGVkIWtleT92YWwgJG1vbF92aWV3IGV4cGFuZGVkIDw9PiBjZWxsX2V4cGFuZGVkIWtleT92YWwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtX2tleQoJCWNsYXNzX2luZGV4ZWQoa2V5OiBhbnksIHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgoJCQlvYmouZXhwYW5kZWQgPSAoKSA9PiB0aGlzLmNlbGxfZXhwYW5kZWQoa2V5LCB2YWwpCgoJCQlyZXR1cm4gb2JqCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2xhc3Nfd3JpdGFibGU/dmFsIDw9PiBjbGFzc193cml0YWJsZV9vd25lcj92YWwKCQkgKiBgYGAKCQkgKi8KCQljbGFzc193cml0YWJsZSh2YWw/OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMuY2xhc3Nfd3JpdGFibGVfb3duZXIodmFsKQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGFyciAvCgkJICogCSogbG9jP3YgPD0+IGxvY19vdXRlcj92CgkJICogCSogbG9jP3YgPD0+IGxvY19vdXRlcj92CgkJICogYGBgCgkJICovCgkJYXJyKCkgewoJCQlyZXR1cm4gWwoJCQkJewoJCQkJCWxvYzogKHY/OiBhbnkpID0+IHRoaXMubG9jX291dGVyKHYpCgkJCQl9LAoJCQkJewoJCQkJCWxvYzogKHY/OiBhbnkpID0+IHRoaXMubG9jX291dGVyKHYpCgkJCQl9CgkJCV0gYXMgcmVhZG9ubHkgYW55W10KCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzd2lwZV90b19sZWZ0P2V2ZW50IDw9PiBldmVudF9uZXh0P2V2ZW50CgkJICogYGBgCgkJICovCgkJc3dpcGVfdG9fbGVmdChldmVudD86IGFueSkgewoJCQlyZXR1cm4gdGhpcy5ldmVudF9uZXh0KGV2ZW50KQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGV2ZW50X2NhdGNoP3ZhbCA8PT4gZXZlbnRfbmV4dD92YWwKCQkgKiBgYGAKCQkgKi8KCQlldmVudF9jYXRjaCh2YWw/OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMuZXZlbnRfbmV4dCh2YWwpCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogd3JpdGFibGVfZGVmYXVsdF9vd25lcj92YWwgbnVsbAoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQl3cml0YWJsZV9kZWZhdWx0X293bmVyKHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQlyZXR1cm4gbnVsbCBhcyBhbnkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjbGFzc19vd25lcj92YWwgJG1vbF92aWV3CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCWNsYXNzX293bmVyKHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgoJCQlyZXR1cm4gb2JqCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZF9vd25lciFrZXk/dmFsIG51bGwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtX2tleQoJCWluZGV4ZWRfb3duZXIoa2V5OiBhbnksIHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQlyZXR1cm4gbnVsbCBhcyBhbnkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBsb2NhbGl6ZWRfb3duZXI/dmFsIEAgXHNvbWUxCgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCWxvY2FsaXplZF9vd25lcih2YWw/OiBhbnkpIHsKCQkJaWYgKCB2YWwgIT09IHVuZGVmaW5lZCApIHJldHVybiB2YWwKCQkJcmV0dXJuIHRoaXMuJC4kbW9sX2xvY2FsZS50ZXh0KCAnJG1vbF92aWV3X3RyZWUyX3RzX3Rlc3RfYmluZF9ib3RoX2xvY2FsaXplZF9vd25lcicgKQoJCX0KCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNoYWluMj92IG51bGwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJY2hhaW4yKHY/OiBhbnkpIHsKCQkJaWYgKCB2ICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdgoJCQlyZXR1cm4gbnVsbCBhcyBhbnkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjaGFpbjE/diA8PT4gY2hhaW4yP3YKCQkgKiBgYGAKCQkgKi8KCQljaGFpbjEodj86IGFueSkgewoJCQlyZXR1cm4gdGhpcy5jaGFpbjIodikKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjbGFzc193cml0YWJsZV9vd25lcj92YWwgJG1vbF92aWV3CgkJICogCXNvbWU/dmFsIDw9PiB0d2ljZT92YWwKCQkgKiAJbG9jYWxpemVkP3ZhbCA8PT4gbG9jYWxpemVkX293bmVyP3ZhbAoJCSAqIAljaGFpbj92IDw9PiBjaGFpbjE/dgoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQljbGFzc193cml0YWJsZV9vd25lcih2YWw/OiBhbnkpIHsKCQkJaWYgKCB2YWwgIT09IHVuZGVmaW5lZCApIHJldHVybiB2YWwKCQkJY29uc3Qgb2JqID0gbmV3IHRoaXMuJC4kbW9sX3ZpZXcoKQoKCQkJb2JqLnNvbWUgPSAodmFsPzogYW55KSA9PiB0aGlzLnR3aWNlKHZhbCkKCQkJb2JqLmxvY2FsaXplZCA9ICh2YWw/OiBhbnkpID0+IHRoaXMubG9jYWxpemVkX293bmVyKHZhbCkKCQkJb2JqLmNoYWluID0gKHY/OiBhbnkpID0+IHRoaXMuY2hhaW4xKHYpCgoJCQlyZXR1cm4gb2JqCgkJfQoKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogbG9jX291dGVyP3YgQCBcdGVzdCBsb2NhbGl6ZQoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlsb2Nfb3V0ZXIodj86IGFueSkgewoJCQlpZiAoIHYgIT09IHVuZGVmaW5lZCApIHJldHVybiB2CgkJCXJldHVybiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfYm90aF9sb2Nfb3V0ZXInICkKCQl9CgoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBldmVudF9uZXh0P2V2ZW50IG51bGwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJZXZlbnRfbmV4dChldmVudD86IGFueSkgewoJCQlpZiAoIGV2ZW50ICE9PSB1bmRlZmluZWQgKSByZXR1cm4gZXZlbnQKCQkJcmV0dXJuIG51bGwgYXMgYW55CgkJfQoJfQoKfQo="
+var $node = $node || {} ; $node[ "/mol/view/tree2/ts/test/bind/both.view.ts.bin" ] = "data:application/octet-stream;base64,bmFtZXNwYWNlICQgewoJZXhwb3J0IGNsYXNzICRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfYm90aCBleHRlbmRzICRtb2xfdmlldyB7CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHdyaXRhYmxlP3ZhbCA8PT4gd3JpdGFibGVfb3duZXI/dmFsCgkJICogYGBgCgkJICovCgkJd3JpdGFibGUodmFsPzogYW55KSB7CgkJCXJldHVybiB0aGlzLndyaXRhYmxlX293bmVyKHZhbCkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHdyaXRhYmxlX2RlZmF1bHQ/dmFsIDw9PiB3cml0YWJsZV9kZWZhdWx0X293bmVyP3ZhbAoJCSAqIGBgYAoJCSAqLwoJCXdyaXRhYmxlX2RlZmF1bHQodmFsPzogYW55KSB7CgkJCXJldHVybiB0aGlzLndyaXRhYmxlX2RlZmF1bHRfb3duZXIodmFsKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2xhc3M/dmFsIDw9PiBjbGFzc19vd25lcj92YWwKCQkgKiBgYGAKCQkgKi8KCQljbGFzcyh2YWw/OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMuY2xhc3Nfb3duZXIodmFsKQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogaW5kZXhlZCFrZXk/dmFsIDw9PiBpbmRleGVkX293bmVyIWtleT92YWwKCQkgKiBgYGAKCQkgKi8KCQlpbmRleGVkKGtleTogYW55LCB2YWw/OiBhbnkpIHsKCQkJcmV0dXJuIHRoaXMuaW5kZXhlZF9vd25lcihrZXksIHZhbCkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHR3aWNlIG51bGwKCQkgKiBgYGAKCQkgKi8KCQl0d2ljZSgpIHsKCQkJcmV0dXJuIG51bGwgYXMgYW55CgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjbGFzc19pbmRleGVkIWtleT92YWwgJG1vbF92aWV3IGV4cGFuZGVkIDw9PiBjZWxsX2V4cGFuZGVkIWtleT92YWwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtX2tleQoJCWNsYXNzX2luZGV4ZWQoa2V5OiBhbnksIHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgkJCQoJCQlvYmouZXhwYW5kZWQgPSAoKSA9PiB0aGlzLmNlbGxfZXhwYW5kZWQoa2V5LCB2YWwpCgkJCQoJCQlyZXR1cm4gb2JqCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjbGFzc193cml0YWJsZT92YWwgPD0+IGNsYXNzX3dyaXRhYmxlX293bmVyP3ZhbAoJCSAqIGBgYAoJCSAqLwoJCWNsYXNzX3dyaXRhYmxlKHZhbD86IGFueSkgewoJCQlyZXR1cm4gdGhpcy5jbGFzc193cml0YWJsZV9vd25lcih2YWwpCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBhcnIgLwoJCSAqIAkqIGxvYz92IDw9PiBsb2Nfb3V0ZXI/dgoJCSAqIAkqIGxvYz92IDw9PiBsb2Nfb3V0ZXI/dgoJCSAqIGBgYAoJCSAqLwoJCWFycigpIHsKCQkJcmV0dXJuIFsKCQkJCXsKCQkJCQlsb2M6ICh2PzogYW55KSA9PiB0aGlzLmxvY19vdXRlcih2KQoJCQkJfSwKCQkJCXsKCQkJCQlsb2M6ICh2PzogYW55KSA9PiB0aGlzLmxvY19vdXRlcih2KQoJCQkJfQoJCQldIGFzIHJlYWRvbmx5IGFueVtdCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBzd2lwZV90b19sZWZ0P2V2ZW50IDw9PiBldmVudF9uZXh0P2V2ZW50CgkJICogYGBgCgkJICovCgkJc3dpcGVfdG9fbGVmdChldmVudD86IGFueSkgewoJCQlyZXR1cm4gdGhpcy5ldmVudF9uZXh0KGV2ZW50KQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogZXZlbnRfY2F0Y2g/dmFsIDw9PiBldmVudF9uZXh0P3ZhbAoJCSAqIGBgYAoJCSAqLwoJCWV2ZW50X2NhdGNoKHZhbD86IGFueSkgewoJCQlyZXR1cm4gdGhpcy5ldmVudF9uZXh0KHZhbCkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIHdyaXRhYmxlX2RlZmF1bHRfb3duZXI/dmFsIG51bGwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJd3JpdGFibGVfZGVmYXVsdF9vd25lcih2YWw/OiBhbnkpIHsKCQkJaWYgKCB2YWwgIT09IHVuZGVmaW5lZCApIHJldHVybiB2YWwKCQkJcmV0dXJuIG51bGwgYXMgYW55CgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBjbGFzc19vd25lcj92YWwgJG1vbF92aWV3CgkJICogYGBgCgkJICovCgkJQCAkbW9sX21lbQoJCWNsYXNzX293bmVyKHZhbD86IGFueSkgewoJCQlpZiAoIHZhbCAhPT0gdW5kZWZpbmVkICkgcmV0dXJuIHZhbAoJCQljb25zdCBvYmogPSBuZXcgdGhpcy4kLiRtb2xfdmlldygpCgkJCQoJCQlyZXR1cm4gb2JqCgkJfQoJCQoJCS8qKgoJCSAqIGBgYHRyZWUKCQkgKiBpbmRleGVkX293bmVyIWtleT92YWwgbnVsbAoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW1fa2V5CgkJaW5kZXhlZF9vd25lcihrZXk6IGFueSwgdmFsPzogYW55KSB7CgkJCWlmICggdmFsICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdmFsCgkJCXJldHVybiBudWxsIGFzIGFueQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogbG9jYWxpemVkX293bmVyP3ZhbCBAIFxzb21lMQoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlsb2NhbGl6ZWRfb3duZXIodmFsPzogYW55KSB7CgkJCWlmICggdmFsICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdmFsCgkJCXJldHVybiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfYm90aF9sb2NhbGl6ZWRfb3duZXInICkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNoYWluMj92IG51bGwKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJY2hhaW4yKHY/OiBhbnkpIHsKCQkJaWYgKCB2ICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdgoJCQlyZXR1cm4gbnVsbCBhcyBhbnkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGNoYWluMT92IDw9PiBjaGFpbjI/dgoJCSAqIGBgYAoJCSAqLwoJCWNoYWluMSh2PzogYW55KSB7CgkJCXJldHVybiB0aGlzLmNoYWluMih2KQoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogY2xhc3Nfd3JpdGFibGVfb3duZXI/dmFsICRtb2xfdmlldwoJCSAqIAlzb21lP3ZhbCA8PT4gdHdpY2U/dmFsCgkJICogCWxvY2FsaXplZD92YWwgPD0+IGxvY2FsaXplZF9vd25lcj92YWwKCQkgKiAJY2hhaW4/diA8PT4gY2hhaW4xP3YKCQkgKiBgYGAKCQkgKi8KCQlAICRtb2xfbWVtCgkJY2xhc3Nfd3JpdGFibGVfb3duZXIodmFsPzogYW55KSB7CgkJCWlmICggdmFsICE9PSB1bmRlZmluZWQgKSByZXR1cm4gdmFsCgkJCWNvbnN0IG9iaiA9IG5ldyB0aGlzLiQuJG1vbF92aWV3KCkKCQkJCgkJCW9iai5zb21lID0gKHZhbD86IGFueSkgPT4gdGhpcy50d2ljZSh2YWwpCgkJCW9iai5sb2NhbGl6ZWQgPSAodmFsPzogYW55KSA9PiB0aGlzLmxvY2FsaXplZF9vd25lcih2YWwpCgkJCW9iai5jaGFpbiA9ICh2PzogYW55KSA9PiB0aGlzLmNoYWluMSh2KQoJCQkKCQkJcmV0dXJuIG9iagoJCX0KCQkKCQkvKioKCQkgKiBgYGB0cmVlCgkJICogbG9jX291dGVyP3YgQCBcdGVzdCBsb2NhbGl6ZQoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlsb2Nfb3V0ZXIodj86IGFueSkgewoJCQlpZiAoIHYgIT09IHVuZGVmaW5lZCApIHJldHVybiB2CgkJCXJldHVybiB0aGlzLiQuJG1vbF9sb2NhbGUudGV4dCggJyRtb2xfdmlld190cmVlMl90c190ZXN0X2JpbmRfYm90aF9sb2Nfb3V0ZXInICkKCQl9CgkJCgkJLyoqCgkJICogYGBgdHJlZQoJCSAqIGV2ZW50X25leHQ/ZXZlbnQgbnVsbAoJCSAqIGBgYAoJCSAqLwoJCUAgJG1vbF9tZW0KCQlldmVudF9uZXh0KGV2ZW50PzogYW55KSB7CgkJCWlmICggZXZlbnQgIT09IHVuZGVmaW5lZCApIHJldHVybiBldmVudAoJCQlyZXR1cm4gbnVsbCBhcyBhbnkKCQl9Cgl9CgkKfQoK"
 
 ;
 "use strict";
@@ -14158,7 +14104,7 @@ var $;
             async 'localized - simple'($) {
                 const view = text(require('/mol/view/tree2/ts/test/simple.view.tree.bin'));
                 const ts = text(require('/mol/view/tree2/ts/test/simple.view.ts.bin'));
-                const tree = $_1.$mol_tree2.fromString(view, $_1.$mol_span.entire('factory.view.tree', view));
+                const tree = $.$mol_tree2_from_string(view, 'factory.view.tree');
                 const res = $.$mol_view_tree2_ts_compile(tree);
                 $_1.$mol_assert_equal(res.locales['$mol_view_tree2_ts_test_simple_localized'], 'localized value');
                 $_1.$mol_assert_equal(res.script, ts);
@@ -14166,7 +14112,7 @@ var $;
             async 'localized - factory'($) {
                 const view = text(require('/mol/view/tree2/ts/test/factory.view.tree.bin'));
                 const ts = text(require('/mol/view/tree2/ts/test/factory.view.ts.bin'));
-                const tree = $_1.$mol_tree2.fromString(view, $_1.$mol_span.entire('factory.view.tree', view));
+                const tree = $.$mol_tree2_from_string(view, 'factory.view.tree');
                 const res = $.$mol_view_tree2_ts_compile(tree);
                 $_1.$mol_assert_equal(res.locales['$mol_view_tree2_ts_test_factory_Simple_localized'], 'localized value');
                 $_1.$mol_assert_equal(res.script, ts);
@@ -14211,7 +14157,7 @@ var $;
                     ],
                 ]);
                 for (const [view, ts] of samples) {
-                    const tree = $_1.$mol_tree2.fromString(view, $_1.$mol_span.entire('factory.view.tree', view));
+                    const tree = $.$mol_tree2_from_string(view, 'factory.view.tree');
                     const res = $.$mol_view_tree2_ts_compile(tree);
                     $_1.$mol_assert_equal(res.script, ts);
                 }
