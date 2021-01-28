@@ -49,7 +49,7 @@ namespace $.$$ {
 
 			return this.$[ func ](
 				index ? this.result( index - 1 ) : this.source(),
-				index ? undefined : $mol_span.entire( 'source', this.source() )
+				index ? undefined : 'source',
 			) ?? null
 
 		}
