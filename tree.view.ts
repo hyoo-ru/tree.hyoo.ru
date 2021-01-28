@@ -48,8 +48,7 @@ namespace $.$$ {
 			if( !func ) return ''
 
 			return this.$[ func ](
-				index ? this.result( index - 1 ) : this.source(),
-				index ? undefined : 'source',
+				index ? this.result( index - 1 ) : this.source()
 			) ?? null
 
 		}
