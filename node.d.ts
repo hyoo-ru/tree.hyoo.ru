@@ -2898,6 +2898,7 @@ declare namespace $ {
         View(): $$.$mol_link;
         Json(): $$.$mol_link;
         Xml(): $$.$mol_link;
+        Js(): $$.$mol_link;
         Mt(): $$.$mol_link;
         Grammar(): $$.$mol_link;
         Span(): $$.$mol_link;

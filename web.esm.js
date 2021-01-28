@@ -6957,7 +6957,7 @@ var $;
             return this.span(this.row, this.col + begin, end - begin);
         }
     }
-    $mol_span.unknown = $mol_span.begin('');
+    $mol_span.unknown = $mol_span.begin('unknown');
     $.$mol_span = $mol_span;
 })($ || ($ = {}));
 //span.js.map
@@ -8181,50 +8181,56 @@ var $;
         };
     }
     function $mol_tree2_xml_to_text(xml) {
-        return xml.list([
-            xml.struct('line', xml.hack({
-                '@': (input, belt) => [],
-                '--': (input, belt) => [
+        return xml.list(xml.hack({
+            '@': (input, belt) => [],
+            '--': (input, belt) => [
+                xml.struct('line', [
                     input.data('<!-- '),
                     ...input.hack(belt),
                     input.data(' -->'),
-                ],
-                '?': (input, belt) => [
+                ]),
+            ],
+            '?': (input, belt) => [
+                xml.struct('line', [
                     input.data('<?'),
                     input.kids[0].data(input.kids[0].type),
                     ...input.kids[0].hack(attrs_belt('=')),
                     input.data('?>'),
-                ],
-                '!': (input, belt) => [
+                ]),
+            ],
+            '!': (input, belt) => [
+                xml.struct('line', [
                     input.data('<!'),
                     input.kids[0].data(input.kids[0].type),
                     ...input.kids[0].hack(attrs_belt(' ')),
                     input.data('>'),
-                ],
-                '': (input, belt) => {
-                    if (!input.type)
-                        return [
-                            input.data($.$mol_html_encode(input.text())),
-                        ];
-                    const attrs = input.select('@', '').hack(attrs_belt('='));
-                    const content = input.hack(belt);
+                ]),
+            ],
+            '': (input, belt) => {
+                if (!input.type)
                     return [
+                        input.data($.$mol_html_encode(input.text())),
+                    ];
+                const attrs = input.select('@', '').hack(attrs_belt('='));
+                const content = input.hack(belt);
+                return [
+                    input.struct('line', [
                         input.data(`<`),
                         input.data(input.type),
                         ...attrs,
                         ...content.length ? [
                             input.data(`>`),
-                            ...content,
+                            input.struct('indent', content),
                             input.data(`</`),
                             input.data(input.type),
                             input.data(`>`),
                         ] : [
                             input.data(` />`),
                         ]
-                    ];
-                },
-            })),
-        ]);
+                    ]),
+                ];
+            },
+        }));
     }
     $.$mol_tree2_xml_to_text = $mol_tree2_xml_to_text;
 })($ || ($ = {}));
@@ -8237,10 +8243,12 @@ var $;
         function sequence(open, separator, close) {
             return (input, belt) => [
                 ...open ? [input.data(open)] : [],
-                ...[].concat(...input.kids.map((kid, index) => [
-                    ...(index && separator) ? [kid.data(separator)] : [],
-                    ...kid.list([kid]).hack(belt),
-                ])),
+                input.struct(separator && input.kids.length > 1 ? 'indent' : 'line', [].concat(...input.kids.map((kid, index) => [
+                    kid.struct('line', [
+                        ...kid.list([kid]).hack(belt),
+                        ...(separator && index < input.kids.length - 1) ? [kid.data(separator)] : [],
+                    ]),
+                ]))),
                 ...close ? [input.data(close)] : [],
             ];
         }
@@ -8282,63 +8290,63 @@ var $;
                 '...': sequence('...'),
                 '@++': sequence('', '', '++'),
                 '@--': sequence('', '', '--'),
-                '(in)': sequence('(', 'in', ')'),
-                '(instanceof)': sequence('(', 'instanceof', ')'),
-                '(+)': sequence('(', '+', ')'),
-                '(-)': sequence('(', '-', ')'),
-                '(*)': sequence('(', '*', ')'),
-                '(/)': sequence('(', '/', ')'),
-                '(%)': sequence('(', '%', ')'),
-                '(**)': sequence('(', '**', ')'),
-                '(<)': sequence('(', '<', ')'),
-                '(<=)': sequence('(', '<=', ')'),
-                '(>)': sequence('(', '>', ')'),
-                '(>=)': sequence('(', '>=', ')'),
-                '(==)': sequence('(', '==', ')'),
-                '(===)': sequence('(', '===', ')'),
-                '(<<)': sequence('(', '<<', ')'),
-                '(>>)': sequence('(', '>>', ')'),
-                '(>>>)': sequence('(', '>>>', ')'),
-                '(&)': sequence('(', '&', ')'),
-                '(|)': sequence('(', '|', ')'),
-                '(^)': sequence('(', '^', ')'),
-                '(&&)': sequence('(', '&&', ')'),
-                '(||)': sequence('(', '||', ')'),
+                '(in)': sequence('(', ' in ', ')'),
+                '(instanceof)': sequence('(', ' instanceof ', ')'),
+                '(+)': sequence('(', ' + ', ')'),
+                '(-)': sequence('(', ' - ', ')'),
+                '(*)': sequence('(', ' * ', ')'),
+                '(/)': sequence('(', ' / ', ')'),
+                '(%)': sequence('(', ' % ', ')'),
+                '(**)': sequence('(', ' ** ', ')'),
+                '(<)': sequence('(', ' < ', ')'),
+                '(<=)': sequence('(', ' <= ', ')'),
+                '(>)': sequence('(', ' > ', ')'),
+                '(>=)': sequence('(', ' >= ', ')'),
+                '(==)': sequence('(', ' == ', ')'),
+                '(===)': sequence('(', ' === ', ')'),
+                '(<<)': sequence('(', ' << ', ')'),
+                '(>>)': sequence('(', ' >> ', ')'),
+                '(>>>)': sequence('(', ' >>> ', ')'),
+                '(&)': sequence('(', ' & ', ')'),
+                '(|)': sequence('(', ' | ', ')'),
+                '(^)': sequence('(', ' ^ ', ')'),
+                '(&&)': sequence('(', ' && ', ')'),
+                '(||)': sequence('(', ' || ', ')'),
                 '(,)': sequence('(', ',', ')'),
                 '{;}': sequence('{', ';', '}'),
                 '[,]': sequence('[', ',', ']'),
                 '{,}': sequence('{', ',', '}'),
-                ':': sequence('[', ']:'),
+                ':': duplet('[', ']: '),
                 '()': sequence('(', '', ')'),
                 '[]': sequence('[', '', ']'),
                 '{}': sequence('{', '', '}'),
-                'let': duplet('let ', '='),
-                'const': duplet('const ', '='),
-                'var': duplet('var ', '='),
-                '=': duplet('', '='),
-                '+=': duplet('', '+='),
-                '-=': duplet('', '-='),
-                '*=': duplet('', '*='),
-                '/=': duplet('', '/='),
-                '%=': duplet('', '%='),
-                '**=': duplet('', '**='),
-                '<<=': duplet('', '<<='),
-                '>>=': duplet('', '>>='),
-                '>>>=': duplet('', '>>>='),
-                '&=': duplet('', '&='),
-                '|=': duplet('', '|='),
-                '^=': duplet('', '^='),
-                '&&=': duplet('', '&&='),
-                '||=': duplet('', '||='),
-                '=>': duplet('', '=>'),
-                'async=>': duplet('async ', '=>'),
+                'let': duplet('let ', ' = '),
+                'const': duplet('const ', ' = '),
+                'var': duplet('var ', ' = '),
+                '=': duplet('', ' = '),
+                '+=': duplet('', ' += '),
+                '-=': duplet('', ' -= '),
+                '*=': duplet('', ' *= '),
+                '/=': duplet('', ' /= '),
+                '%=': duplet('', ' %= '),
+                '**=': duplet('', ' **= '),
+                '<<=': duplet('', ' <<= '),
+                '>>=': duplet('', ' >>= '),
+                '>>>=': duplet('', ' >>>= '),
+                '&=': duplet('', ' &= '),
+                '|=': duplet('', ' |= '),
+                '^=': duplet('', ' ^= '),
+                '&&=': duplet('', ' &&= '),
+                '||=': duplet('', ' ||= '),
+                '=>': duplet('', ' => '),
+                'async=>': duplet('async ', ' => '),
                 'function': triplet('function '),
                 'function*': triplet('function* '),
                 'async': triplet('async function '),
                 'async*': triplet('async function* '),
                 'class': triplet('class '),
                 'if': triplet('if', '', 'else'),
-                '?:': triplet('', '?', ':'),
+                '?:': triplet('', ' ? ', ' : '),
                 '.': triplet('[', ']'),
                 'get': triplet('get [', ']'),
                 'set': triplet('set [', ']'),
@@ -8391,7 +8399,7 @@ var $;
     }
     $.$mol_tree2_js_to_text = $mol_tree2_js_to_text;
 })($ || ($ = {}));
-//js.js.map
+//text.js.map
 ;
 "use strict";
 var $;
@@ -8464,16 +8472,11 @@ var $;
 var $;
 (function ($) {
     function $mol_tree2_text_to_sourcemap(tree) {
-        var _a, _b;
-        tree = tree.clone(tree.hack({
-            indent: (input, belt) => input.hack(belt),
-            line: (input, belt) => input.hack(belt),
-            '': (input, belt) => [input],
-        }));
-        let offset = 0;
-        let prev;
+        let col = 1;
+        let prev_span;
         let prev_index = 0;
-        const mappings = [];
+        let prev_col = 1;
+        let mappings = '';
         const file_indexes = new Map();
         const file_sources = new Map();
         function span2index(span) {
@@ -8484,27 +8487,62 @@ var $;
             file_sources.set(span.uri, span.source);
             return index;
         }
-        for (const chunk of tree.kids) {
-            const text = chunk.text();
-            if (prev !== chunk.span) {
-                const index = span2index(chunk.span);
-                mappings.push($.$mol_vlq_encode(offset) +
-                    $.$mol_vlq_encode(index - prev_index) +
-                    $.$mol_vlq_encode(chunk.span.row - ((_a = prev === null || prev === void 0 ? void 0 : prev.row) !== null && _a !== void 0 ? _a : 1)) +
-                    $.$mol_vlq_encode(chunk.span.col - ((_b = prev === null || prev === void 0 ? void 0 : prev.col) !== null && _b !== void 0 ? _b : 1)));
-                offset = text.length;
-                prev = chunk.span;
+        function next_line() {
+            mappings += ';';
+            col = 1;
+            prev_col = 1;
+        }
+        function visit(text, prefix, inline) {
+            var _a, _b;
+            function indent() {
+                col += prefix;
+            }
+            if (inline && text.type === 'indent')
+                next_line();
+            if (prev_span !== text.span || col === 1) {
+                const index = span2index(text.span);
+                mappings +=
+                    $.$mol_vlq_encode(col - prev_col) +
+                        $.$mol_vlq_encode(index - prev_index) +
+                        $.$mol_vlq_encode(text.span.row - ((_a = prev_span === null || prev_span === void 0 ? void 0 : prev_span.row) !== null && _a !== void 0 ? _a : 1)) +
+                        $.$mol_vlq_encode(text.span.col - ((_b = prev_span === null || prev_span === void 0 ? void 0 : prev_span.col) !== null && _b !== void 0 ? _b : 1)) +
+                        ',';
+                prev_col = col;
+                prev_span = text.span;
                 prev_index = index;
             }
-            else {
-                offset += text.length;
+            if (text.type === 'indent') {
+                for (let kid of text.kids) {
+                    visit(kid, prefix + 1, false);
+                }
+                if (inline)
+                    indent();
             }
+            else if (text.type === 'line') {
+                if (!inline)
+                    indent();
+                for (let kid of text.kids) {
+                    visit(kid, prefix, true);
+                }
+                if (!inline)
+                    next_line();
+            }
+            else {
+                if (!inline)
+                    indent();
+                col += text.text().length;
+                if (!inline)
+                    next_line();
+            }
+        }
+        for (let kid of tree.kids) {
+            visit(kid, 0, false);
         }
         const map = {
             version: 3,
             sources: [...file_sources.keys()],
             sourcesContent: [...file_sources.values()],
-            mappings: mappings.join(','),
+            mappings,
         };
         return map;
     }
@@ -9550,7 +9588,7 @@ var $;
         '\\\\': 'link',
         '""': 'embed',
     };
-    function $hyoo_marked_tree_from_line(code, span_entire = $.$mol_span.unknown) {
+    function $hyoo_marked_tree_from_line(code, span_entire = $.$mol_span.entire('unknown', code)) {
         let span = span_entire.slice(0, 0);
         const nodes = [];
         for (const token of $.$hyoo_marked_line.parse(code)) {
@@ -9755,6 +9793,12 @@ var $;
             obj.uri = () => "#source=!%20doctype%20html%0A%3F%20xml%20version%20%5C1.0%0A--%20%5Centry%20point%0Ahtml%0A%09meta%20%40%20charset%20%5Cutf-8%0A%09body%0A%09%09a%0A%09%09%09%40%20href%20%5Chttps%3A%2F%2Fgithub.com%2Fnin-jin%2Ftree.d%2Fwiki%2Fxml.tree%0A%09%09%09%5Cxml.tree%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_xml_to_text~%24mol_tree2_text_to_string";
             return obj;
         }
+        Js() {
+            const obj = new this.$.$mol_link();
+            obj.title = () => "js.tree ⇒ JS";
+            obj.uri = () => "#source=function%0A%09main%0A%09%28%2C%29%0A%09%09one%0A%09%09%3D%0A%09%09%09two%0A%09%09%092%0A%09%7B%3B%7D%0A%09%09const%0A%09%09%09%5B%2C%5D%0A%09%09%09%09self%0A%09%09%09%09samples%0A%09%09%09%5B%2C%5D%0A%09%09%09%09this%0A%09%09%09%09%7B%2C%7D%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Cvoid%0A%09%09%09%09%09%09%5B%2C%5D%0A%09%09%09%09%09%09%09null%0A%09%09%09%09%09%09%09undefined%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Cboolean%0A%09%09%09%09%09%09%5B%2C%5D%0A%09%09%09%09%09%09%09true%0A%09%09%09%09%09%09%09false%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09777%0A%09%09%09%09%09%09%5B%2C%5D%0A%09%09%09%09%09%09%091e%2B5%0A%09%09%09%09%09%09%09NaN%0A%09%09%09%09%09%09%09Infinity%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%28%29%0A%09%09%09%09%09%09%09Symbol%0A%09%09%09%09%09%09%09%5B%5D%20%5CtoStringTag%0A%09%09%09%09%09%09%5Chttps%3A%2F%2Fgithub.com%2Fnin-jin%2Ftree.d%2Fwiki%2Fjs.tree%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Ctemplate%0A%09%09%09%09%09%09%60%60%0A%09%09%09%09%09%09%09%5Cfoo%3D%20%0A%09%09%09%09%09%09%09foo%0A%09%09%09%09%09%09%09%5C!%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Cregexp%0A%09%09%09%09%09%09%2F.%2F%0A%09%09%09%09%09%09%09.source%20%5C%5Ct%0A%09%09%09%09%09%09%09.multiline%0A%09%09%09%09%09%09%09.ignoreCase%0A%09%09%09%09%09%09%09.global%0A%09%09%09%09%09...%20foo%0A%09%09%2B%3D%0A%09%09%09two%0A%09%09%09%28*%29%0A%09%09%09%092%0A%09%09%09%093%0A%09%09%09%09%28%29%0A%09%09%09%09%09Math%0A%09%09%09%09%09%5B%5D%20%5Csin%0A%09%09%09%09%09%28%2C%29%200%0A%09%09delete%20samples%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_js_to_text~%24mol_tree2_text_to_string";
+            return obj;
+        }
         Mt() {
             const obj = new this.$.$mol_link();
             obj.title = () => "MarkedText ⇒ JS + SM";
@@ -9779,6 +9823,7 @@ var $;
                 this.View(),
                 this.Json(),
                 this.Xml(),
+                this.Js(),
                 this.Mt(),
                 this.Grammar(),
                 this.Span()
@@ -9902,6 +9947,9 @@ var $;
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "Xml", null);
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_tree.prototype, "Js", null);
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "Mt", null);

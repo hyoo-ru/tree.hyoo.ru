@@ -2875,21 +2875,21 @@ var $;
 					[,]
 						1
 						2
-				`), '[1,2]\n');
+				`), '[\n\t1,\n\t2\n]\n');
         },
         'last'() {
             $.$mol_assert_equal(convert(`
 					(,)
 						1
 						2
-				`), '(1,2)\n');
+				`), '(\n\t1,\n\t2\n)\n');
         },
         'scope'() {
             $.$mol_assert_equal(convert(`
 					{;}
 						1
 						2
-				`), '{1;2}\n');
+				`), '{\n\t1;\n\t2\n}\n');
         },
         'object'() {
             $.$mol_assert_equal(convert(`
@@ -2899,7 +2899,7 @@ var $;
 					{,}
 						foo
 						bar
-				`), '{foo,bar}\n');
+				`), '{\n\tfoo,\n\tbar\n}\n');
             $.$mol_assert_equal(convert(`
 					{,}
 						:
@@ -2908,7 +2908,7 @@ var $;
 						:
 							bar
 							2
-				`), '{["foo"]:1,[bar]:2}\n');
+				`), '{\n\t["foo"]: 1,\n\t[bar]: 2\n}\n');
         },
         'regexp'() {
             $.$mol_assert_equal(convert(`
@@ -2930,7 +2930,7 @@ var $;
 						1
 						2
 						3
-				`), '(1+2+3)\n');
+				`), '(\n\t1 + \n\t2 + \n\t3\n)\n');
             $.$mol_assert_equal(convert(`
 					@++ foo
 				`), 'foo++\n');
@@ -2955,19 +2955,19 @@ var $;
 						(,)
 							2
 							3
-				`), '([0][1](2,3))\n');
+				`), '([0][1](\n\t2,\n\t3\n))\n');
         },
         'function'() {
             $.$mol_assert_equal(convert(`
 					=>
 						(,)
 						1
-				`), '()=>1\n');
+				`), '() => 1\n');
             $.$mol_assert_equal(convert(`
 					async=>
 						(,)
 						1
-				`), 'async ()=>1\n');
+				`), 'async () => 1\n');
             $.$mol_assert_equal(convert(`
 					function
 						foo
@@ -3031,7 +3031,7 @@ var $;
 						1
 						2
 						3
-				`), '1?2:3\n');
+				`), '1 ? 2 : 3\n');
             $.$mol_assert_equal(convert(`
 					if
 						() 1
@@ -3049,7 +3049,7 @@ var $;
 					=
 						foo
 						bar
-				`), 'foo=bar\n');
+				`), 'foo = bar\n');
             $.$mol_assert_equal(convert(`
 					=
 						[,]
@@ -3058,7 +3058,7 @@ var $;
 						[,]
 							1
 							2
-				`), '[foo,bar]=[1,2]\n');
+				`), '[\n\tfoo,\n\tbar\n] = [\n\t1,\n\t2\n]\n');
             $.$mol_assert_equal(convert(`
 					let foo
 				`), 'let foo\n');
@@ -3066,16 +3066,16 @@ var $;
 					let
 						foo
 						bar
-				`), 'let foo=bar\n');
+				`), 'let foo = bar\n');
             $.$mol_assert_equal(convert(`
 					+=
 						foo
 						bar
-				`), 'foo+=bar\n');
+				`), 'foo += bar\n');
         },
     });
 })($ || ($ = {}));
-//js.test.js.map
+//text.test.js.map
 ;
 "use strict";
 var $;
@@ -3119,8 +3119,8 @@ var $;
                     $_1.$mol_tree2.data('console.log(11);', [], span.script1.slice(0, 1)),
                     $_1.$mol_tree2.data('console.log(21);', [], span.script2),
                     $_1.$mol_tree2.data('console.log(12);', [], span.script1.span(2, 1, 1)),
-                ]),
-            ]);
+                ], span.script1),
+            ], span.script1);
             $_1.$mol_assert_like($.$mol_tree2_text_to_string(tree), '"use strict";console.log(11);console.log(21);console.log(12);\n');
             $_1.$mol_assert_like($.$mol_tree2_text_to_sourcemap(tree), {
                 "version": 3,
@@ -3129,7 +3129,7 @@ var $;
                     "script2"
                 ],
                 "sourcesContent": [source.script1, source.script2],
-                "mappings": "AAAI,aAAJ,gBCAA,gBDCA"
+                "mappings": "AAAA,AAAI,aAAJ,gBCAA,gBDCA,;"
             });
         }
     });
