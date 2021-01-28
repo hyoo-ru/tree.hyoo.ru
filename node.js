@@ -10199,7 +10199,7 @@ var $;
                 const func = this.pipeline()[index];
                 if (!func)
                     return '';
-                return (_a = this.$[func](index ? this.result(index - 1) : this.source(), index ? undefined : 'source')) !== null && _a !== void 0 ? _a : null;
+                return (_a = this.$[func](index ? this.result(index - 1) : this.source())) !== null && _a !== void 0 ? _a : null;
             }
             result_text(index) {
                 const res = $.$mol_try(() => this.result(index));
