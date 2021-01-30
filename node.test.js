@@ -10042,7 +10042,7 @@ var $;
         Wasm() {
             const obj = new this.$.$mol_link();
             obj.title = () => "wasm.tree ⇒ WASM";
-            obj.uri = () => "#source=customsec%0A%09name%20%5C%5Cxxx%0Atypesec%20vec%0A%09functype%0A%09%09vec%0A%09%09%09i32%0A%09%09%09i64%0A%09%09vec%0A%09%09%09f32%0A%09%09%09f64%0Aimportsec%20vec%0A%09import%20foo.bar%20func%200%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_wasm_to_bin~%24mol_tree2_bin_to_bytes~%24mol_wasm_module";
+            obj.uri = () => "#source=customsec%0A%09name%20%5Cxxx%0Atypesec%20vec%0A%09functype%0A%09%09vec%0A%09%09%09i32%0A%09%09%09i64%0A%09%09vec%0A%09%09%09f32%0A%09%09%09f64%0Aimportsec%20vec%0A%09import%20foo.bar%20func%200%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_wasm_to_bin~%24mol_tree2_bin_to_bytes~%24mol_wasm_module";
             return obj;
         }
         Mt() {
