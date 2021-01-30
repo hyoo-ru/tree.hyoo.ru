@@ -42,25 +42,35 @@ namespace $.$$ {
 		}
 
 		@ $mol_mem_key
-		result( index: number ): string | $mol_tree2 {
+		result( index: number ): string | $mol_tree2 | Uint8Array | $mol_wasm_module {
 			
 			const func = this.pipeline()[ index ]
 			if( !func ) return ''
+			
+			const arg = index ? this.result( index - 1 ) : this.source()
 
-			return this.$[ func ](
-				index ? this.result( index - 1 ) : this.source()
-			) ?? null
+			if( $mol_func_is_class( this.$[ func ] ) ) {
+				return new this.$[ func ]( arg ) ?? null
+			} else {
+				return this.$[ func ]( arg ) ?? null
+			}
 
 		}
 
 		@ $mol_mem_key
 		result_text( index: number ): string {
-			const res = $mol_try( ()=> this.result( index ) )
+			let res = $mol_try( ()=> this.result( index ) )
 			if( res instanceof Promise ) $mol_fail_hidden( res )
 			if( typeof res === 'string' ) return res
 			if( Object( res ) !== res ) return String( res )
 			if( !Reflect.getPrototypeOf( Reflect.getPrototypeOf( res ) ) ) return JSON.stringify( res, null, '\t' )
 			if( Array.isArray( res ) ) return JSON.stringify( res, null, '\t' )
+			if( res instanceof $mol_wasm_module ) {
+				res = new Uint8Array( res.buffer )
+			}
+			if( res instanceof Uint8Array ) {
+				return `data:application/octet-stream;base64,${ $mol_base64_encode( res ) }`
+			}
 			return String( res )
 		}
 
