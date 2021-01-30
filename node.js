@@ -10380,11 +10380,13 @@ var $;
                     return JSON.stringify(res, null, '\t');
                 if (Array.isArray(res))
                     return JSON.stringify(res, null, '\t');
+                let mime = 'application/octet-stream';
                 if (res instanceof $.$mol_wasm_module) {
                     res = new Uint8Array(res.buffer);
+                    mime = 'application/wasm';
                 }
                 if (res instanceof Uint8Array) {
-                    return `data:application/octet-stream;base64,${$.$mol_base64_encode(res)}`;
+                    return `data:${mime};base64,${$.$mol_base64_encode(res)}`;
                 }
                 return String(res);
             }
