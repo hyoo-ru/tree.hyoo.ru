@@ -6492,7 +6492,7 @@ var $;
     $.$mol_syntax2_md_code = new $.$mol_syntax2({
         'code-docs': /\/\/\/.*?$/,
         'code-comment-block': /(?:\/\*[^]*?\*\/|\/\+[^]*?\+\/|<![^]*?>)/,
-        'code-link': /\w+:\/\/\S*/,
+        'code-link': /\w+:\S+/,
         'code-comment-inline': /\/\/.*?$/,
         'code-string': /(?:".*?"|'.*?'|`.*?`|\/.+?\/[gmi]*\b|(?:^|[ \t])\\[^\n]*\n)/,
         'code-number': /[+-]?(?:\d*\.)?\d+\w*/,
@@ -8806,6 +8806,68 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    class $mol_wasm_instance extends $.$mol_object2 {
+        constructor(module, imports) {
+            super();
+            this.module = module;
+            this.imports = imports;
+            this.native = new WebAssembly.Instance(module, imports);
+        }
+        memory(offset, length) {
+            const memory = this.native['exports'].memory;
+            return new Uint8Array(memory.buffer, offset, length);
+        }
+        string(offset, length, encoding = 'utf-8') {
+            return new TextDecoder(encoding).decode(this.memory(offset, length));
+        }
+        get(name) {
+            return this.native.exports[name];
+        }
+    }
+    $.$mol_wasm_instance = $mol_wasm_instance;
+})($ || ($ = {}));
+//instance.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_wasm_module extends $.$mol_object2 {
+        constructor(buffer) {
+            super();
+            this.buffer = buffer;
+            this.native = new WebAssembly.Module(buffer);
+        }
+        instance(imports) {
+            return new $.$mol_wasm_instance(this.native, imports);
+        }
+    }
+    $.$mol_wasm_module = $mol_wasm_module;
+})($ || ($ = {}));
+//module.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_tree2_bin_to_bytes(tree) {
+        return Uint8Array.from(tree.kids, kid => parseInt(kid.value, 16));
+    }
+    $.$mol_tree2_bin_to_bytes = $mol_tree2_bin_to_bytes;
+    function $mol_tree2_bin_from_bytes(bytes, span) {
+        return $.$mol_tree2.list(Array.from(bytes, code => {
+            return $.$mol_tree2.data(code.toString(16).padStart(2, '0'), [], span);
+        }), span);
+    }
+    $.$mol_tree2_bin_from_bytes = $mol_tree2_bin_from_bytes;
+    function $mol_tree2_bin_from_string(str, span) {
+        return $mol_tree2_bin_from_bytes([...new TextEncoder().encode(str)], span);
+    }
+    $.$mol_tree2_bin_from_string = $mol_tree2_bin_from_string;
+})($ || ($ = {}));
+//bin.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $mol_view_tree2_error extends Error {
         constructor(message, spans) {
             super(message);
@@ -9977,6 +10039,12 @@ var $;
             obj.uri = () => "#source=function%0A%09main%0A%09%28%2C%29%0A%09%09one%0A%09%09%3D%0A%09%09%09two%0A%09%09%092%0A%09%7B%3B%7D%0A%09%09const%0A%09%09%09%5B%2C%5D%0A%09%09%09%09self%0A%09%09%09%09samples%0A%09%09%09%5B%2C%5D%0A%09%09%09%09this%0A%09%09%09%09%7B%2C%7D%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Cvoid%0A%09%09%09%09%09%09%5B%2C%5D%0A%09%09%09%09%09%09%09null%0A%09%09%09%09%09%09%09undefined%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Cboolean%0A%09%09%09%09%09%09%5B%2C%5D%0A%09%09%09%09%09%09%09true%0A%09%09%09%09%09%09%09false%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09777%0A%09%09%09%09%09%09%5B%2C%5D%0A%09%09%09%09%09%09%091e%2B5%0A%09%09%09%09%09%09%09NaN%0A%09%09%09%09%09%09%09Infinity%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%28%29%0A%09%09%09%09%09%09%09Symbol%0A%09%09%09%09%09%09%09%5B%5D%20%5CtoStringTag%0A%09%09%09%09%09%09%5Chttps%3A%2F%2Fgithub.com%2Fnin-jin%2Ftree.d%2Fwiki%2Fjs.tree%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Ctemplate%0A%09%09%09%09%09%09%60%60%0A%09%09%09%09%09%09%09%5Cfoo%3D%20%0A%09%09%09%09%09%09%09foo%0A%09%09%09%09%09%09%09%5C!%0A%09%09%09%09%09%3A%0A%09%09%09%09%09%09%5Cregexp%0A%09%09%09%09%09%09%2F.%2F%0A%09%09%09%09%09%09%09.source%20%5C%5Ct%0A%09%09%09%09%09%09%09.multiline%0A%09%09%09%09%09%09%09.ignoreCase%0A%09%09%09%09%09%09%09.global%0A%09%09%09%09%09...%20foo%0A%09%09%2B%3D%0A%09%09%09two%0A%09%09%09%28*%29%0A%09%09%09%092%0A%09%09%09%093%0A%09%09%09%09%28%29%0A%09%09%09%09%09Math%0A%09%09%09%09%09%5B%5D%20%5Csin%0A%09%09%09%09%09%28%2C%29%200%0A%09%09delete%20samples%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_js_to_text~%24mol_tree2_text_to_string";
             return obj;
         }
+        Wasm() {
+            const obj = new this.$.$mol_link();
+            obj.title = () => "wasm.tree ⇒ WASM";
+            obj.uri = () => "#source=customsec%0A%09name%20%5C%5Cxxx%0Atypesec%20vec%0A%09functype%0A%09%09vec%0A%09%09%09i32%0A%09%09%09i64%0A%09%09vec%0A%09%09%09f32%0A%09%09%09f64%0Aimportsec%20vec%0A%09import%20foo.bar%20func%200%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_wasm_to_bin~%24mol_tree2_bin_to_bytes~%24mol_wasm_module";
+            return obj;
+        }
         Mt() {
             const obj = new this.$.$mol_link();
             obj.title = () => "MarkedText ⇒ JS + SM";
@@ -10002,6 +10070,7 @@ var $;
                 this.Json(),
                 this.Xml(),
                 this.Js(),
+                this.Wasm(),
                 this.Mt(),
                 this.Grammar(),
                 this.Span()
@@ -10063,6 +10132,11 @@ var $;
                 "$mol_tree2_text_to_sourcemap_vis",
                 "$mol_tree2_span_imprint",
                 "$mol_tree2_span_reuse",
+                "$mol_tree2_wasm_to_bin",
+                "$mol_wasm_module",
+                "$mol_tree2_bin_from_string",
+                "$mol_tree2_bin_from_bytes",
+                "$mol_tree2_bin_to_bytes",
                 "$mol_view_tree2_to_text",
                 "$hyoo_marked_tree_from_line",
                 "$hyoo_marked_tree_to_js",
@@ -10130,6 +10204,9 @@ var $;
     ], $hyoo_tree.prototype, "Js", null);
     __decorate([
         $.$mol_mem
+    ], $hyoo_tree.prototype, "Wasm", null);
+    __decorate([
+        $.$mol_mem
     ], $hyoo_tree.prototype, "Mt", null);
     __decorate([
         $.$mol_mem
@@ -10177,6 +10254,17 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_func_is_class(func) {
+        var _a;
+        return ((_a = Object.getOwnPropertyDescriptor(func, 'prototype')) === null || _a === void 0 ? void 0 : _a.writable) === false;
+    }
+    $.$mol_func_is_class = $mol_func_is_class;
+})($ || ($ = {}));
+//class.js.map
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_try(handler) {
         try {
             return handler();
@@ -10188,6 +10276,31 @@ var $;
     $.$mol_try = $mol_try;
 })($ || ($ = {}));
 //try.node.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_base64_encode(src) {
+        throw new Error('Not implemented');
+    }
+    $.$mol_base64_encode = $mol_base64_encode;
+})($ || ($ = {}));
+//encode.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_base64_encode_node(str) {
+        if (!str)
+            return '';
+        if (Buffer.isBuffer(str))
+            return str.toString('base64');
+        return Buffer.from(str).toString('base64');
+    }
+    $.$mol_base64_encode_node = $mol_base64_encode_node;
+    $.$mol_base64_encode = $mol_base64_encode_node;
+})($ || ($ = {}));
+//encode.node.js.map
 ;
 "use strict";
 var $;
@@ -10236,14 +10349,20 @@ var $;
                 return (_a = pipeline[index]) !== null && _a !== void 0 ? _a : null;
             }
             result(index) {
-                var _a;
+                var _a, _b;
                 const func = this.pipeline()[index];
                 if (!func)
                     return '';
-                return (_a = this.$[func](index ? this.result(index - 1) : this.source())) !== null && _a !== void 0 ? _a : null;
+                const arg = index ? this.result(index - 1) : this.source();
+                if ($.$mol_func_is_class(this.$[func])) {
+                    return (_a = new this.$[func](arg)) !== null && _a !== void 0 ? _a : null;
+                }
+                else {
+                    return (_b = this.$[func](arg)) !== null && _b !== void 0 ? _b : null;
+                }
             }
             result_text(index) {
-                const res = $.$mol_try(() => this.result(index));
+                let res = $.$mol_try(() => this.result(index));
                 if (res instanceof Promise)
                     $.$mol_fail_hidden(res);
                 if (typeof res === 'string')
@@ -10254,6 +10373,12 @@ var $;
                     return JSON.stringify(res, null, '\t');
                 if (Array.isArray(res))
                     return JSON.stringify(res, null, '\t');
+                if (res instanceof $.$mol_wasm_module) {
+                    res = new Uint8Array(res.buffer);
+                }
+                if (res instanceof Uint8Array) {
+                    return `data:application/octet-stream;base64,${$.$mol_base64_encode(res)}`;
+                }
                 return String(res);
             }
             close(index) {
@@ -10742,6 +10867,150 @@ var $;
     $.$mol_view_tree_compile = $mol_view_tree_compile;
 })($ || ($ = {}));
 //tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_leb128_encode(val) {
+        const length = Math.max(1, Math.ceil(Math.log2(val) / 7));
+        const bytes = new Uint8Array(length);
+        for (let i = 0; i < bytes.length; ++i) {
+            bytes[i] = ((val >> (7 * i)) & 0xFF) | (1 << 7);
+        }
+        bytes[bytes.length - 1] ^= (1 << 7);
+        return bytes;
+    }
+    $.$mol_leb128_encode = $mol_leb128_encode;
+    function $mol_leb128_decode(bytes) {
+        let val = 0;
+        for (let i = 0; i < bytes.length; ++i) {
+            val |= (bytes[i] & ~(1 << 7)) << (7 * i);
+        }
+        return val;
+    }
+    $.$mol_leb128_decode = $mol_leb128_decode;
+})($ || ($ = {}));
+//leb128.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    let $mol_wasm_section_types;
+    (function ($mol_wasm_section_types) {
+        $mol_wasm_section_types[$mol_wasm_section_types["custom"] = 0] = "custom";
+        $mol_wasm_section_types[$mol_wasm_section_types["type"] = 1] = "type";
+        $mol_wasm_section_types[$mol_wasm_section_types["import"] = 2] = "import";
+        $mol_wasm_section_types[$mol_wasm_section_types["function"] = 3] = "function";
+        $mol_wasm_section_types[$mol_wasm_section_types["table"] = 4] = "table";
+        $mol_wasm_section_types[$mol_wasm_section_types["memory"] = 5] = "memory";
+        $mol_wasm_section_types[$mol_wasm_section_types["global"] = 6] = "global";
+        $mol_wasm_section_types[$mol_wasm_section_types["export"] = 7] = "export";
+        $mol_wasm_section_types[$mol_wasm_section_types["start"] = 8] = "start";
+        $mol_wasm_section_types[$mol_wasm_section_types["element"] = 9] = "element";
+        $mol_wasm_section_types[$mol_wasm_section_types["code"] = 10] = "code";
+        $mol_wasm_section_types[$mol_wasm_section_types["data"] = 11] = "data";
+    })($mol_wasm_section_types = $.$mol_wasm_section_types || ($.$mol_wasm_section_types = {}));
+})($ || ($ = {}));
+//section.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    let $mol_wasm_import_types;
+    (function ($mol_wasm_import_types) {
+        $mol_wasm_import_types[$mol_wasm_import_types["func"] = 0] = "func";
+        $mol_wasm_import_types[$mol_wasm_import_types["table"] = 1] = "table";
+        $mol_wasm_import_types[$mol_wasm_import_types["mem"] = 2] = "mem";
+        $mol_wasm_import_types[$mol_wasm_import_types["global"] = 3] = "global";
+    })($mol_wasm_import_types = $.$mol_wasm_import_types || ($.$mol_wasm_import_types = {}));
+})($ || ($ = {}));
+//import.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_tree2_wasm_to_bin(code) {
+        const bytes = (bytes, span) => $.$mol_tree2_bin_from_bytes(bytes, span).kids;
+        const int = (int, span) => bytes($.$mol_leb128_encode(int), span);
+        const dyn = (items, span) => [...int(items.length, span), ...items];
+        const str = (str, span) => dyn($.$mol_tree2_bin_from_string(str, span).kids, span);
+        const prolog = [0, 0x61, 0x73, 0x6d];
+        const version = [0x1, 0, 0, 0];
+        const section = (name) => {
+            return (input, belt, context) => {
+                if (context.up !== 'module') {
+                    $.$mol_fail(input.error(`${name} should be in module`));
+                }
+                context = Object.assign(Object.assign({}, context), { up: input.type });
+                return [
+                    ...bytes([$.$mol_wasm_section_types[name]], input.span),
+                    ...dyn(input.hack(belt, context), input.span),
+                ];
+            };
+        };
+        const import_ = (name) => {
+            return (input, belt, context) => {
+                if (context.up !== 'import') {
+                    $.$mol_fail(input.error(`${name} should be in import`));
+                }
+                return [
+                    ...bytes([$.$mol_wasm_import_types[name]], input.span),
+                    ...int(Number(input.kids[0].type), input.span),
+                ];
+            };
+        };
+        return code.list([
+            ...bytes(prolog, code.span),
+            ...bytes(version, code.span),
+            ...code.hack({
+                '': (input, belt) => $.$mol_fail(input.error(`Unknown wasm node`)),
+                'customsec': section('custom'),
+                'typesec': section('type'),
+                'importsec': section('import'),
+                'functype': (input, belt, context) => {
+                    if (context.up !== 'typesec') {
+                        $.$mol_fail(input.error(`functype should be in typesec`));
+                    }
+                    return [
+                        ...bytes([0x60], input.span),
+                        ...input.hack(belt, context),
+                    ];
+                },
+                'import': (input, belt, context) => {
+                    if (context.up !== 'importsec') {
+                        $.$mol_fail(input.error(`import should be in importsec`));
+                    }
+                    context = Object.assign(Object.assign({}, context), { up: input.type });
+                    const ext = input.kids[0];
+                    return [
+                        ...[].concat(...ext.type.split('.').map(name => str(name, ext.span))),
+                        ...ext.hack({
+                            '': (input, belt) => $.$mol_fail(input.error(`Unknown import type`)),
+                            func: import_('func'),
+                            table: import_('table'),
+                            mem: import_('mem'),
+                            global: import_('global'),
+                        }, context),
+                    ];
+                },
+                'vec': (input, belt, context) => [
+                    ...int(input.kids.length, input.span),
+                    ...input.hack(belt, context)
+                ],
+                'name': input => str(input.text(), input.span),
+                'i32': input => bytes([0x7F], input.span),
+                'i64': input => bytes([0x7E], input.span),
+                'f32': input => bytes([0x7D], input.span),
+                'f64': input => bytes([0x7C], input.span),
+            }, {
+                up: 'module',
+                section: '',
+            })
+        ]);
+    }
+    $.$mol_tree2_wasm_to_bin = $mol_tree2_wasm_to_bin;
+})($ || ($ = {}));
+//wasm.js.map
 ;
 "use strict";
 var $;
@@ -13630,17 +13899,6 @@ var $;
 //class.test.js.map
 ;
 "use strict";
-var $;
-(function ($) {
-    function $mol_func_is_class(func) {
-        var _a;
-        return ((_a = Object.getOwnPropertyDescriptor(func, 'prototype')) === null || _a === void 0 ? void 0 : _a.writable) === false;
-    }
-    $.$mol_func_is_class = $mol_func_is_class;
-})($ || ($ = {}));
-//class.js.map
-;
-"use strict";
 //foot.test.js.map
 ;
 "use strict";
@@ -14300,6 +14558,21 @@ var $;
 ;
 "use strict";
 var $;
+(function ($) {
+    const png = new Uint8Array([0x1a, 0x0a, 0x00, 0x49, 0x48, 0x78, 0xda]);
+    $.$mol_test({
+        'base64 encode string'() {
+            $.$mol_assert_equal($.$mol_base64_encode('Hello, ΧΨΩЫ'), 'SGVsbG8sIM6nzqjOqdCr');
+        },
+        'base64 encode binary'() {
+            $.$mol_assert_equal($.$mol_base64_encode(png), 'GgoASUh42g==');
+        },
+    });
+})($ || ($ = {}));
+//encode.test.js.map
+;
+"use strict";
+var $;
 (function ($_1) {
     $_1.$mol_test({
         'tree parsing'() {
@@ -14678,5 +14951,93 @@ var $;
     })($$ = $_1.$$ || ($_1.$$ = {}));
 })($ || ($ = {}));
 //tree.test.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_tree2_wasm_to_bytes = $.$mol_data_pipe($.$mol_tree2_wasm_to_bin, $.$mol_tree2_bin_to_bytes);
+})($ || ($ = {}));
+//bytes.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_tree2_wasm_to_module = $.$mol_data_pipe($.$mol_tree2_wasm_to_bytes, $.$mol_wasm_module);
+})($ || ($ = {}));
+//module.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_test({
+        '$mol_leb128'() {
+            $.$mol_assert_like($.$mol_leb128_encode(0), new Uint8Array([0]));
+            $.$mol_assert_like($.$mol_leb128_encode(624485), new Uint8Array([0xE5, 0x8E, 0x26]));
+            $.$mol_assert_equal($.$mol_leb128_decode(new Uint8Array([0xE5, 0x8E, 0x26])), 624485);
+        },
+    });
+})($ || ($ = {}));
+//leb128.test.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_test({
+        'hello world'() {
+            const buffer = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0, 1, 133, 128, 128, 128, 0, 1, 96, 0, 1, 127, 3, 130, 128, 128, 128, 0, 1, 0, 4, 132, 128, 128, 128, 0, 1, 112, 0, 0, 5, 131, 128, 128, 128, 0, 1, 0, 1, 6, 129, 128, 128, 128, 0, 0, 7, 146, 128, 128, 128, 0, 2, 6, 109, 101, 109, 111, 114, 121, 2, 0, 5, 104, 101, 108, 108, 111, 0, 0, 10, 138, 128, 128, 128, 0, 1, 132, 128, 128, 128, 0, 0, 65, 16, 11, 11, 146, 128, 128, 128, 0, 1, 0, 65, 16, 11, 12, 72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 0]);
+            const wasm = new $.$mol_wasm_module(buffer).instance();
+            const hello = wasm.get('hello');
+            $.$mol_assert_equal(wasm.string(hello(), 11), 'Hello World');
+        },
+    });
+})($ || ($ = {}));
+//wasm.test.js.map
+;
+"use strict";
+var $;
+(function ($_1) {
+    $_1.$mol_test({
+        'module'($) {
+            const code = $.$mol_tree2_from_string(``);
+            $_1.$mol_assert_like(new Uint8Array($_1.$mol_tree2_wasm_to_module(code).buffer), new Uint8Array([0, 0x61, 0x73, 0x6d, 0x1, 0, 0, 0]));
+        },
+        'custom section'($) {
+            const code = $.$mol_tree2_from_string(`
+				customsec
+					name \\xxx
+			`);
+            $_1.$mol_assert_like(new Uint8Array($_1.$mol_tree2_wasm_to_module(code).buffer), new Uint8Array([0, 0x61, 0x73, 0x6d, 0x1, 0, 0, 0, 0, 0x4, 0x3, 0x78, 0x78, 0x78]));
+        },
+        'type section with value types'($) {
+            const code = $.$mol_tree2_from_string(`
+				typesec vec
+					functype
+						vec
+							i32
+							i64
+							f32
+						vec
+							f64
+			`);
+            $_1.$mol_assert_like(new Uint8Array($_1.$mol_tree2_wasm_to_module(code).buffer), new Uint8Array([0, 0x61, 0x73, 0x6d, 0x01, 0, 0, 0, 0x01, 0x08, 0x01, 0x60, 0x03, 0x7f, 0x7e, 0x7d, 0x01, 0x7c]));
+        },
+        'import section'($) {
+            const code = $.$mol_tree2_from_string(`
+				typesec vec
+					functype
+						vec
+						vec
+				importsec vec
+					import foo.bar func 0
+			`);
+            $_1.$mol_assert_like(new Uint8Array($_1.$mol_tree2_wasm_to_module(code).buffer), new Uint8Array([
+                0, 0x61, 0x73, 0x6d, 0x01, 0, 0, 0,
+                0x01, 0x04, 0x01, 0x60, 0, 0,
+                0x02, 0x0b, 0x01, 0x03, 0x66, 0x6f, 0x6f, 0x03, 0x62, 0x61, 0x72, 0, 0
+            ]));
+        },
+    });
+})($ || ($ = {}));
+//wasm.test.js.map
 
 //# sourceMappingURL=node.test.js.map
