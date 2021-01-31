@@ -2638,6 +2638,56 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_tree2_bin_to_bytes(tree: $mol_tree2): Uint8Array;
+    function $mol_tree2_bin_from_bytes(bytes: ArrayLike<number>, span: $mol_span): $mol_tree2;
+    function $mol_tree2_bin_from_string(str: string, span: $mol_span): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_leb128_encode(val: number): Uint8Array;
+    function $mol_leb128_decode(bytes: Uint8Array): number;
+}
+
+declare namespace $ {
+    enum $mol_wasm_section_types {
+        custom = 0,
+        type = 1,
+        import = 2,
+        function = 3,
+        table = 4,
+        memory = 5,
+        global = 6,
+        export = 7,
+        start = 8,
+        element = 9,
+        code = 10,
+        data = 11
+    }
+}
+
+declare namespace $ {
+    enum $mol_wasm_value_types {
+        i32 = 127,
+        i64 = 126,
+        f32 = 125,
+        f64 = 124
+    }
+}
+
+declare namespace $ {
+    enum $mol_wasm_import_types {
+        func = 0,
+        table = 1,
+        mem = 2,
+        global = 3
+    }
+}
+
+declare namespace $ {
+    function $mol_tree2_wasm_to_bin(this: $, code: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
     class $mol_wasm_instance extends $mol_object2 {
         readonly module: WebAssembly.Module;
         readonly imports?: Record<string, Record<string, WebAssembly.ImportValue>> | undefined;
@@ -2660,12 +2710,6 @@ declare namespace $ {
             };
         }>(imports?: Imports): $mol_wasm_instance;
     }
-}
-
-declare namespace $ {
-    function $mol_tree2_bin_to_bytes(tree: $mol_tree2): Uint8Array;
-    function $mol_tree2_bin_from_bytes(bytes: ArrayLike<number>, span: $mol_span): $mol_tree2;
-    function $mol_tree2_bin_from_string(str: string, span: $mol_span): $mol_tree2;
 }
 
 declare namespace $ {
@@ -3102,41 +3146,6 @@ declare namespace $ {
             [key: string]: string;
         };
     };
-}
-
-declare namespace $ {
-    function $mol_leb128_encode(val: number): Uint8Array;
-    function $mol_leb128_decode(bytes: Uint8Array): number;
-}
-
-declare namespace $ {
-    enum $mol_wasm_section_types {
-        custom = 0,
-        type = 1,
-        import = 2,
-        function = 3,
-        table = 4,
-        memory = 5,
-        global = 6,
-        export = 7,
-        start = 8,
-        element = 9,
-        code = 10,
-        data = 11
-    }
-}
-
-declare namespace $ {
-    enum $mol_wasm_import_types {
-        func = 0,
-        table = 1,
-        mem = 2,
-        global = 3
-    }
-}
-
-declare namespace $ {
-    function $mol_tree2_wasm_to_bin(code: $mol_tree2): $mol_tree2;
 }
 
 declare namespace $ {

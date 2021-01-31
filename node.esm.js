@@ -8813,6 +8813,187 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_tree2_bin_to_bytes(tree) {
+        return Uint8Array.from(tree.kids, kid => parseInt(kid.value, 16));
+    }
+    $.$mol_tree2_bin_to_bytes = $mol_tree2_bin_to_bytes;
+    function $mol_tree2_bin_from_bytes(bytes, span) {
+        return $.$mol_tree2.list(Array.from(bytes, code => {
+            return $.$mol_tree2.data(code.toString(16).padStart(2, '0'), [], span);
+        }), span);
+    }
+    $.$mol_tree2_bin_from_bytes = $mol_tree2_bin_from_bytes;
+    function $mol_tree2_bin_from_string(str, span) {
+        return $mol_tree2_bin_from_bytes([...new TextEncoder().encode(str)], span);
+    }
+    $.$mol_tree2_bin_from_string = $mol_tree2_bin_from_string;
+})($ || ($ = {}));
+//bin.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_leb128_encode(val) {
+        const length = Math.max(1, Math.ceil(Math.log2(val) / 7));
+        const bytes = new Uint8Array(length);
+        for (let i = 0; i < bytes.length; ++i) {
+            bytes[i] = ((val >> (7 * i)) & 0xFF) | (1 << 7);
+        }
+        bytes[bytes.length - 1] ^= (1 << 7);
+        return bytes;
+    }
+    $.$mol_leb128_encode = $mol_leb128_encode;
+    function $mol_leb128_decode(bytes) {
+        let val = 0;
+        for (let i = 0; i < bytes.length; ++i) {
+            val |= (bytes[i] & ~(1 << 7)) << (7 * i);
+        }
+        return val;
+    }
+    $.$mol_leb128_decode = $mol_leb128_decode;
+})($ || ($ = {}));
+//leb128.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    let $mol_wasm_section_types;
+    (function ($mol_wasm_section_types) {
+        $mol_wasm_section_types[$mol_wasm_section_types["custom"] = 0] = "custom";
+        $mol_wasm_section_types[$mol_wasm_section_types["type"] = 1] = "type";
+        $mol_wasm_section_types[$mol_wasm_section_types["import"] = 2] = "import";
+        $mol_wasm_section_types[$mol_wasm_section_types["function"] = 3] = "function";
+        $mol_wasm_section_types[$mol_wasm_section_types["table"] = 4] = "table";
+        $mol_wasm_section_types[$mol_wasm_section_types["memory"] = 5] = "memory";
+        $mol_wasm_section_types[$mol_wasm_section_types["global"] = 6] = "global";
+        $mol_wasm_section_types[$mol_wasm_section_types["export"] = 7] = "export";
+        $mol_wasm_section_types[$mol_wasm_section_types["start"] = 8] = "start";
+        $mol_wasm_section_types[$mol_wasm_section_types["element"] = 9] = "element";
+        $mol_wasm_section_types[$mol_wasm_section_types["code"] = 10] = "code";
+        $mol_wasm_section_types[$mol_wasm_section_types["data"] = 11] = "data";
+    })($mol_wasm_section_types = $.$mol_wasm_section_types || ($.$mol_wasm_section_types = {}));
+})($ || ($ = {}));
+//section.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    let $mol_wasm_value_types;
+    (function ($mol_wasm_value_types) {
+        $mol_wasm_value_types[$mol_wasm_value_types["i32"] = 127] = "i32";
+        $mol_wasm_value_types[$mol_wasm_value_types["i64"] = 126] = "i64";
+        $mol_wasm_value_types[$mol_wasm_value_types["f32"] = 125] = "f32";
+        $mol_wasm_value_types[$mol_wasm_value_types["f64"] = 124] = "f64";
+    })($mol_wasm_value_types = $.$mol_wasm_value_types || ($.$mol_wasm_value_types = {}));
+})($ || ($ = {}));
+//value.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    let $mol_wasm_import_types;
+    (function ($mol_wasm_import_types) {
+        $mol_wasm_import_types[$mol_wasm_import_types["func"] = 0] = "func";
+        $mol_wasm_import_types[$mol_wasm_import_types["table"] = 1] = "table";
+        $mol_wasm_import_types[$mol_wasm_import_types["mem"] = 2] = "mem";
+        $mol_wasm_import_types[$mol_wasm_import_types["global"] = 3] = "global";
+    })($mol_wasm_import_types = $.$mol_wasm_import_types || ($.$mol_wasm_import_types = {}));
+})($ || ($ = {}));
+//import.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_tree2_wasm_to_bin(code) {
+        const bytes = (bytes, span) => $.$mol_tree2_bin_from_bytes(bytes, span).kids;
+        const int = (int, span) => bytes($.$mol_leb128_encode(int), span);
+        const dyn = (items, span) => [...int(items.length, span), ...items];
+        const str = (str, span) => dyn($.$mol_tree2_bin_from_string(str, span).kids, span);
+        const array_prolog = (input, span = input.span) => int(input.kids.length, span);
+        const pending = (input) => $.$mol_fail(input.error('pending to impement'));
+        const prolog = this.$mol_tree2_from_string(`
+			\\00
+			\\61
+			\\73
+			\\6D
+			\\01
+			\\00
+			\\00
+			\\00
+		`, '$mol_tree2_wasm_to_bin_prolog');
+        const body = [];
+        const types_mapping = new Map();
+        customs: {
+            const customs = code.select('custom');
+            for (const custom of customs.kids) {
+                const name = custom.kids[0];
+                const section = [];
+                section.push(...str(name.type, name.span));
+                body.push(...bytes([$.$mol_wasm_section_types.custom], custom.span));
+                body.push(...dyn(section, custom.span));
+            }
+        }
+        types: {
+            const types = code.select('type');
+            if (types.kids.length === 0)
+                break types;
+            const section = [];
+            for (const type of types.kids) {
+                section.push(...bytes([0x60], type.span));
+                const name = type.kids[0];
+                types_mapping.set(name.type, types_mapping.size);
+                const params = name.select('=>', '');
+                section.push(...array_prolog(params));
+                for (const param of params.kids) {
+                    section.push(...bytes([$.$mol_wasm_value_types[param.type]], param.span));
+                }
+                const results = name.select('<=', '');
+                section.push(...array_prolog(results));
+                for (const result of results.kids) {
+                    section.push(...bytes([$.$mol_wasm_value_types[result.type]], result.span));
+                }
+            }
+            body.push(...bytes([$.$mol_wasm_section_types.type], prolog.span), ...dyn([
+                ...array_prolog(types, prolog.span),
+                ...section,
+            ], prolog.span));
+        }
+        imports: {
+            const imports = code.select('import');
+            if (imports.kids.length === 0)
+                break imports;
+            const section = [];
+            for (const import_ of imports.kids) {
+                const path = import_.kids[0];
+                const kind = path.kids[0];
+                for (const name of path.type.split('.')) {
+                    section.push(...str(name, path.span));
+                }
+                if (kind.type === 'func') {
+                    const name = kind.kids[0];
+                    const index = types_mapping.get(name.type);
+                    if (index === undefined)
+                        this.$mol_fail(name.error('unknown type'));
+                    section.push(...bytes([$.$mol_wasm_import_types.func], kind.span), ...int(index, name.span));
+                }
+            }
+            body.push(...bytes([$.$mol_wasm_section_types.import], prolog.span), ...dyn([
+                ...array_prolog(imports, prolog.span),
+                ...section,
+            ], prolog.span));
+        }
+        return code.list([
+            ...prolog.kids,
+            ...body,
+        ]);
+    }
+    $.$mol_tree2_wasm_to_bin = $mol_tree2_wasm_to_bin;
+})($ || ($ = {}));
+//bin.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $mol_wasm_instance extends $.$mol_object2 {
         constructor(module, imports) {
             super();
@@ -8851,26 +9032,6 @@ var $;
     $.$mol_wasm_module = $mol_wasm_module;
 })($ || ($ = {}));
 //module.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_tree2_bin_to_bytes(tree) {
-        return Uint8Array.from(tree.kids, kid => parseInt(kid.value, 16));
-    }
-    $.$mol_tree2_bin_to_bytes = $mol_tree2_bin_to_bytes;
-    function $mol_tree2_bin_from_bytes(bytes, span) {
-        return $.$mol_tree2.list(Array.from(bytes, code => {
-            return $.$mol_tree2.data(code.toString(16).padStart(2, '0'), [], span);
-        }), span);
-    }
-    $.$mol_tree2_bin_from_bytes = $mol_tree2_bin_from_bytes;
-    function $mol_tree2_bin_from_string(str, span) {
-        return $mol_tree2_bin_from_bytes([...new TextEncoder().encode(str)], span);
-    }
-    $.$mol_tree2_bin_from_string = $mol_tree2_bin_from_string;
-})($ || ($ = {}));
-//bin.js.map
 ;
 "use strict";
 var $;
@@ -10049,7 +10210,7 @@ var $;
         Wasm() {
             const obj = new this.$.$mol_link();
             obj.title = () => "wasm.tree ⇒ WASM";
-            obj.uri = () => "#source=customsec%0A%09name%20%5Cxxx%0Atypesec%20vec%0A%09functype%0A%09%09vec%0A%09%09%09i32%0A%09%09%09i64%0A%09%09vec%0A%09%09%09f32%0A%09%09%09f64%0Aimportsec%20vec%0A%09import%20foo.bar%20func%200%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_wasm_to_bin~%24mol_tree2_bin_to_bytes~%24mol_wasm_module";
+            obj.uri = () => "#source=custom%20xxx%0A%0Atype%20xxx%0A%09%3D>%20i32%0A%09%3D>%20i64%0A%09%3D>%20f32%0A%09<%3D%20f64%0A%0Aimport%20foo.bar%20func%20xxx%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_wasm_to_bin~%24mol_tree2_bin_to_bytes~%24mol_wasm_module";
             return obj;
         }
         Mt() {
@@ -10876,150 +11037,6 @@ var $;
     $.$mol_view_tree_compile = $mol_view_tree_compile;
 })($ || ($ = {}));
 //tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_leb128_encode(val) {
-        const length = Math.max(1, Math.ceil(Math.log2(val) / 7));
-        const bytes = new Uint8Array(length);
-        for (let i = 0; i < bytes.length; ++i) {
-            bytes[i] = ((val >> (7 * i)) & 0xFF) | (1 << 7);
-        }
-        bytes[bytes.length - 1] ^= (1 << 7);
-        return bytes;
-    }
-    $.$mol_leb128_encode = $mol_leb128_encode;
-    function $mol_leb128_decode(bytes) {
-        let val = 0;
-        for (let i = 0; i < bytes.length; ++i) {
-            val |= (bytes[i] & ~(1 << 7)) << (7 * i);
-        }
-        return val;
-    }
-    $.$mol_leb128_decode = $mol_leb128_decode;
-})($ || ($ = {}));
-//leb128.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    let $mol_wasm_section_types;
-    (function ($mol_wasm_section_types) {
-        $mol_wasm_section_types[$mol_wasm_section_types["custom"] = 0] = "custom";
-        $mol_wasm_section_types[$mol_wasm_section_types["type"] = 1] = "type";
-        $mol_wasm_section_types[$mol_wasm_section_types["import"] = 2] = "import";
-        $mol_wasm_section_types[$mol_wasm_section_types["function"] = 3] = "function";
-        $mol_wasm_section_types[$mol_wasm_section_types["table"] = 4] = "table";
-        $mol_wasm_section_types[$mol_wasm_section_types["memory"] = 5] = "memory";
-        $mol_wasm_section_types[$mol_wasm_section_types["global"] = 6] = "global";
-        $mol_wasm_section_types[$mol_wasm_section_types["export"] = 7] = "export";
-        $mol_wasm_section_types[$mol_wasm_section_types["start"] = 8] = "start";
-        $mol_wasm_section_types[$mol_wasm_section_types["element"] = 9] = "element";
-        $mol_wasm_section_types[$mol_wasm_section_types["code"] = 10] = "code";
-        $mol_wasm_section_types[$mol_wasm_section_types["data"] = 11] = "data";
-    })($mol_wasm_section_types = $.$mol_wasm_section_types || ($.$mol_wasm_section_types = {}));
-})($ || ($ = {}));
-//section.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    let $mol_wasm_import_types;
-    (function ($mol_wasm_import_types) {
-        $mol_wasm_import_types[$mol_wasm_import_types["func"] = 0] = "func";
-        $mol_wasm_import_types[$mol_wasm_import_types["table"] = 1] = "table";
-        $mol_wasm_import_types[$mol_wasm_import_types["mem"] = 2] = "mem";
-        $mol_wasm_import_types[$mol_wasm_import_types["global"] = 3] = "global";
-    })($mol_wasm_import_types = $.$mol_wasm_import_types || ($.$mol_wasm_import_types = {}));
-})($ || ($ = {}));
-//import.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_tree2_wasm_to_bin(code) {
-        const bytes = (bytes, span) => $.$mol_tree2_bin_from_bytes(bytes, span).kids;
-        const int = (int, span) => bytes($.$mol_leb128_encode(int), span);
-        const dyn = (items, span) => [...int(items.length, span), ...items];
-        const str = (str, span) => dyn($.$mol_tree2_bin_from_string(str, span).kids, span);
-        const prolog = [0, 0x61, 0x73, 0x6d];
-        const version = [0x1, 0, 0, 0];
-        const section = (name) => {
-            return (input, belt, context) => {
-                if (context.up !== 'module') {
-                    $.$mol_fail(input.error(`${name} should be in module`));
-                }
-                context = Object.assign(Object.assign({}, context), { up: input.type });
-                return [
-                    ...bytes([$.$mol_wasm_section_types[name]], input.span),
-                    ...dyn(input.hack(belt, context), input.span),
-                ];
-            };
-        };
-        const import_ = (name) => {
-            return (input, belt, context) => {
-                if (context.up !== 'import') {
-                    $.$mol_fail(input.error(`${name} should be in import`));
-                }
-                return [
-                    ...bytes([$.$mol_wasm_import_types[name]], input.span),
-                    ...int(Number(input.kids[0].type), input.span),
-                ];
-            };
-        };
-        return code.list([
-            ...bytes(prolog, code.span),
-            ...bytes(version, code.span),
-            ...code.hack({
-                '': (input, belt) => $.$mol_fail(input.error(`Unknown wasm node`)),
-                'customsec': section('custom'),
-                'typesec': section('type'),
-                'importsec': section('import'),
-                'functype': (input, belt, context) => {
-                    if (context.up !== 'typesec') {
-                        $.$mol_fail(input.error(`functype should be in typesec`));
-                    }
-                    return [
-                        ...bytes([0x60], input.span),
-                        ...input.hack(belt, context),
-                    ];
-                },
-                'import': (input, belt, context) => {
-                    if (context.up !== 'importsec') {
-                        $.$mol_fail(input.error(`import should be in importsec`));
-                    }
-                    context = Object.assign(Object.assign({}, context), { up: input.type });
-                    const ext = input.kids[0];
-                    return [
-                        ...[].concat(...ext.type.split('.').map(name => str(name, ext.span))),
-                        ...ext.hack({
-                            '': (input, belt) => $.$mol_fail(input.error(`Unknown import type`)),
-                            func: import_('func'),
-                            table: import_('table'),
-                            mem: import_('mem'),
-                            global: import_('global'),
-                        }, context),
-                    ];
-                },
-                'vec': (input, belt, context) => [
-                    ...int(input.kids.length, input.span),
-                    ...input.hack(belt, context)
-                ],
-                'name': input => str(input.text(), input.span),
-                'i32': input => bytes([0x7F], input.span),
-                'i64': input => bytes([0x7E], input.span),
-                'f32': input => bytes([0x7D], input.span),
-                'f64': input => bytes([0x7C], input.span),
-            }, {
-                up: 'module',
-                section: '',
-            })
-        ]);
-    }
-    $.$mol_tree2_wasm_to_bin = $mol_tree2_wasm_to_bin;
-})($ || ($ = {}));
-//wasm.js.map
 ;
 "use strict";
 var $;
