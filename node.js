@@ -10375,6 +10375,7 @@ var $;
             list: (input, belt) => input.hack(belt),
             tree: input => input.kids,
             type: (input, belt) => input.hack(belt).map(kid => kid.data(kid.type)),
+            kids: (input, belt) => [].concat(...input.hack(belt).map(kid => kid.kids)),
             head: (input, belt) => input.hack(belt).slice(0, 1),
             headless: (input, belt) => input.hack(belt).slice(1),
             reversed: (input, belt) => input.hack(belt).reverse(),

@@ -10368,6 +10368,7 @@ var $;
             list: (input, belt) => input.hack(belt),
             tree: input => input.kids,
             type: (input, belt) => input.hack(belt).map(kid => kid.data(kid.type)),
+            kids: (input, belt) => [].concat(...input.hack(belt).map(kid => kid.kids)),
             head: (input, belt) => input.hack(belt).slice(0, 1),
             headless: (input, belt) => input.hack(belt).slice(1),
             reversed: (input, belt) => input.hack(belt).reverse(),
@@ -14796,6 +14797,10 @@ var $;
 					case tree
 						\\ONE
 						\\
+				test
+					name \\kids of struct node
+					case kids tree one two
+					case tree two
 				test
 					name \\first element of list
 					case head
