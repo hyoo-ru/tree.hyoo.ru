@@ -4,7 +4,8 @@ namespace $.$$ {
 
 		@ $mol_mem
 		pipeline( next?: string[] ) {
-			return ( this.$.$mol_state_arg.value( 'pipeline', next && next.join( '~' ) ) ?? '' ).split( '~' ).filter( Boolean )
+			const str = this.$.$mol_state_arg.value( 'pipeline', next && next.join( '~' ) )
+			return str && str.split( '~' ).filter( Boolean ) || super.pipeline()
 		}
 
 		@ $mol_mem
@@ -27,7 +28,7 @@ namespace $.$$ {
 
 		@ $mol_mem
 		source( next? : string ) {
-			return this.$.$mol_state_arg.value( 'source' , next ) ?? ''
+			return this.$.$mol_state_arg.value( 'source' , next ) ?? super.source()
 		}
 
 		@ $mol_mem_key
