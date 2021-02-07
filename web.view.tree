@@ -536,6 +536,7 @@ $hyoo_tree $mol_book2
 					hint <= source_hint @ \view.tree source
 	Result!index $mol_page
 		Title null
+		title <= transform!index
 		head <= result_head!index /
 			<= Transform!index $mol_select
 				hint @ \Search transform..

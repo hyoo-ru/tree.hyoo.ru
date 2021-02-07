@@ -3239,7 +3239,7 @@ var $;
     (function ($$) {
         class $mol_book2 extends $.$mol_book2 {
             title() {
-                return this.pages().map(page => page.title()).reverse().join(' | ');
+                return this.pages().map(page => page === null || page === void 0 ? void 0 : page.title()).reverse().filter(Boolean).join(' | ');
             }
             sub() {
                 var _a;
@@ -10466,6 +10466,7 @@ var $;
         Result(index) {
             const obj = new this.$.$mol_page();
             obj.Title = () => null;
+            obj.title = () => this.transform(index);
             obj.head = () => this.result_head(index);
             obj.body = () => [
                 this.Result_text(index)
