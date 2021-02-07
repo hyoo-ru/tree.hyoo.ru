@@ -489,7 +489,7 @@ $mol_icon_cross $mol_icon path \M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12
 $hyoo_tree $mol_book2
 	plugins /
 		<= Theme $mol_theme_auto
-	pipeline?val /string
+	pipeline?val <= pipeline_default /string
 	Placeholder null
 	pages /
 		<= Presets $mol_page
@@ -530,9 +530,10 @@ $hyoo_tree $mol_book2
 							uri \#source=foo%0A%09bar%0A%09%09%5Chttps%3A%2F%2Fgithub.com%2Fnin-jin%2Ftree.d%2Fwiki%2Fspan.tree%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_span_imprint~%24mol_tree2_span_reuse~%24mol_tree2_span_imprint
 		<= Source $mol_page
 			title @ \Tree pipeline source
+			tools <= source_tools /$mol_view_content
 			body /
 				<= Source_text $mol_textarea
-					value?val <=> source?val \
+					value?val <=> source?val <= source_default \
 					hint <= source_hint @ \view.tree source
 	Result!index $mol_page
 		Title null

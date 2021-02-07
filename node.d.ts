@@ -3002,11 +3002,12 @@ declare namespace $ {
 declare namespace $ {
     class $hyoo_tree extends $mol_book2 {
         plugins(): readonly any[];
-        pipeline(val?: any): any;
+        pipeline(val?: any): readonly string[];
         Placeholder(): any;
         pages(): readonly any[];
         Result(index: any): $$.$mol_page;
         Theme(): $$.$mol_theme_auto;
+        pipeline_default(): readonly string[];
         Lights(): $$.$mol_lights_toggle;
         Github(): $mol_link_source;
         View(): $$.$mol_link;
@@ -3020,7 +3021,9 @@ declare namespace $ {
         Span(): $$.$mol_link;
         Presets_list(): $$.$mol_list;
         Presets(): $$.$mol_page;
-        source(val?: any): any;
+        source_tools(): readonly (string | number | boolean | $mol_view | Node)[];
+        source_default(): string;
+        source(val?: any): string;
         source_hint(): string;
         Source_text(): $$.$mol_textarea;
         Source(): $$.$mol_page;
@@ -3056,7 +3059,7 @@ declare namespace $ {
 
 declare namespace $.$$ {
     class $hyoo_tree extends $.$hyoo_tree {
-        pipeline(next?: string[]): string[];
+        pipeline(next?: string[]): readonly string[];
         pages(): $mol_page[];
         result_head(index: number): ($mol_button_minor | $mol_select)[];
         source(next?: string): string;

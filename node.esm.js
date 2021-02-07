@@ -10455,9 +10455,7 @@ var $;
             ];
         }
         pipeline(val) {
-            if (val !== undefined)
-                return val;
-            return [];
+            return this.pipeline_default();
         }
         Placeholder() {
             return null;
@@ -10481,6 +10479,9 @@ var $;
         Theme() {
             const obj = new this.$.$mol_theme_auto();
             return obj;
+        }
+        pipeline_default() {
+            return [];
         }
         Lights() {
             const obj = new this.$.$mol_lights_toggle();
@@ -10572,10 +10573,14 @@ var $;
             ];
             return obj;
         }
-        source(val) {
-            if (val !== undefined)
-                return val;
+        source_tools() {
+            return [];
+        }
+        source_default() {
             return "";
+        }
+        source(val) {
+            return this.source_default();
         }
         source_hint() {
             return this.$.$mol_locale.text('$hyoo_tree_source_hint');
@@ -10589,6 +10594,7 @@ var $;
         Source() {
             const obj = new this.$.$mol_page();
             obj.title = () => this.$.$mol_locale.text('$hyoo_tree_Source_title');
+            obj.tools = () => this.source_tools();
             obj.body = () => [
                 this.Source_text()
             ];
@@ -10664,9 +10670,6 @@ var $;
         }
     }
     __decorate([
-        $.$mol_mem
-    ], $hyoo_tree.prototype, "pipeline", null);
-    __decorate([
         $.$mol_mem_key
     ], $hyoo_tree.prototype, "Result", null);
     __decorate([
@@ -10711,9 +10714,6 @@ var $;
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "Presets", null);
-    __decorate([
-        $.$mol_mem
-    ], $hyoo_tree.prototype, "source", null);
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "Source_text", null);
@@ -10807,8 +10807,8 @@ var $;
     (function ($$) {
         class $hyoo_tree extends $.$hyoo_tree {
             pipeline(next) {
-                var _a;
-                return ((_a = this.$.$mol_state_arg.value('pipeline', next && next.join('~'))) !== null && _a !== void 0 ? _a : '').split('~').filter(Boolean);
+                const str = this.$.$mol_state_arg.value('pipeline', next && next.join('~'));
+                return str && str.split('~').filter(Boolean) || super.pipeline();
             }
             pages() {
                 return [
@@ -10826,7 +10826,7 @@ var $;
             }
             source(next) {
                 var _a;
-                return (_a = this.$.$mol_state_arg.value('source', next)) !== null && _a !== void 0 ? _a : '';
+                return (_a = this.$.$mol_state_arg.value('source', next)) !== null && _a !== void 0 ? _a : super.source();
             }
             transform(index, next) {
                 var _a;
