@@ -3787,6 +3787,18 @@ var $node = $node || {};
 var $;
 (function ($) {
     var _a;
+    const TextDecoder = (_a = globalThis.TextDecoder) !== null && _a !== void 0 ? _a : $node.util.TextDecoder;
+    function $mol_charset_decode(value, code = 'utf8') {
+        return new TextDecoder(code).decode(value);
+    }
+    $.$mol_charset_decode = $mol_charset_decode;
+})($ || ($ = {}));
+//decode.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var _a;
     const TextEncoder = (_a = globalThis.TextEncoder) !== null && _a !== void 0 ? _a : $node.util.TextEncoder;
     const encoder = new TextEncoder();
     function $mol_charset_encode(value) {
@@ -3795,18 +3807,6 @@ var $;
     $.$mol_charset_encode = $mol_charset_encode;
 })($ || ($ = {}));
 //encode.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var _a;
-    const TextDecoder = (_a = globalThis.TextDecoder) !== null && _a !== void 0 ? _a : $node.util.TextDecoder;
-    function $mol_charset_decode(value, code = 'utf8') {
-        return new TextDecoder(code).decode(value);
-    }
-    $.$mol_charset_decode = $mol_charset_decode;
-})($ || ($ = {}));
-//decode.js.map
 ;
 "use strict";
 var $;
@@ -3880,8 +3880,14 @@ var $;
             return match ? match[1].substring(1) : '';
         }
         text(next, force) {
-            const buffer = next === undefined ? undefined : $.$mol_charset_encode(next);
-            return $.$mol_charset_decode(this.buffer(buffer, force));
+            if (next === undefined) {
+                return $.$mol_charset_decode(this.buffer(undefined, force));
+            }
+            else {
+                const buffer = next === undefined ? undefined : $.$mol_charset_encode(next);
+                this.buffer(buffer, force);
+                return next;
+            }
         }
         fail(error) {
             this.buffer(error, $.$mol_mem_force_fail);
@@ -3929,9 +3935,6 @@ var $;
     __decorate([
         $.$mol_mem
     ], $mol_file.prototype, "exists", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_file.prototype, "text", null);
     __decorate([
         $.$mol_mem_key
     ], $mol_file, "absolute", null);
@@ -5969,7 +5972,10 @@ var $;
                 return decodeURIComponent(this.uri().split(this.host(), 2)[1]);
             }
             sub() {
-                return [this.Icon(), ...this.content()];
+                return [
+                    ...this.host() ? [this.Icon()] : [],
+                    ...this.content(),
+                ];
             }
         }
         __decorate([
@@ -6013,6 +6019,7 @@ var $;
         }
         Link(id) {
             const obj = new this.$.$mol_text_link();
+            obj.target = () => this.link_target(id);
             return obj;
         }
         Image(id) {
@@ -6054,6 +6061,9 @@ var $;
         }
         block_type(id) {
             return "";
+        }
+        link_target(id) {
+            return "_blank";
         }
         header_level(id) {
             return 0;
@@ -10261,6 +10271,11 @@ var $;
                 this.Theme()
             ];
         }
+        pipeline(val) {
+            if (val !== undefined)
+                return val;
+            return [];
+        }
         Placeholder() {
             return null;
         }
@@ -10464,6 +10479,9 @@ var $;
             return obj;
         }
     }
+    __decorate([
+        $.$mol_mem
+    ], $hyoo_tree.prototype, "pipeline", null);
     __decorate([
         $.$mol_mem_key
     ], $hyoo_tree.prototype, "Result", null);

@@ -296,6 +296,7 @@ $mol_text $mol_list
 		type <= block_type!id \
 	Span!id $mol_text_span
 	Link!id $mol_text_link
+		target <= link_target!id \_blank
 	Image!id $mol_text_image
 	Header!id $mol_text_header
 		level <= header_level!id 0
@@ -488,6 +489,7 @@ $mol_icon_cross $mol_icon path \M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12
 $hyoo_tree $mol_book2
 	plugins /
 		<= Theme $mol_theme_auto
+	pipeline?val /string
 	Placeholder null
 	pages /
 		<= Presets $mol_page
