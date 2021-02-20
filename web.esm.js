@@ -8273,7 +8273,7 @@ var $;
         function sequence(open, separator, close) {
             return (input, belt) => [
                 ...open ? [input.data(open)] : [],
-                input.struct(separator && input.kids.length > 1 ? 'indent' : 'line', [].concat(...input.kids.map((kid, index) => [
+                input.struct(separator && input.kids.length > 2 ? 'indent' : 'line', [].concat(...input.kids.map((kid, index) => [
                     kid.struct('line', [
                         ...kid.list([kid]).hack(belt),
                         ...(separator && index < input.kids.length - 1) ? [kid.data(separator)] : [],
@@ -8342,10 +8342,10 @@ var $;
                 '(^)': sequence('(', ' ^ ', ')'),
                 '(&&)': sequence('(', ' && ', ')'),
                 '(||)': sequence('(', ' || ', ')'),
-                '(,)': sequence('(', ',', ')'),
-                '{;}': sequence('{', ';', '}'),
-                '[,]': sequence('[', ',', ']'),
-                '{,}': sequence('{', ',', '}'),
+                '(,)': sequence('(', ', ', ')'),
+                '{;}': sequence('{', '; ', '}'),
+                '[,]': sequence('[', ', ', ']'),
+                '{,}': sequence('{', ', ', '}'),
                 ':': duplet('[', ']: '),
                 '()': sequence('(', '', ')'),
                 '[]': sequence('[', '', ']'),

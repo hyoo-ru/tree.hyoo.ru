@@ -8445,7 +8445,7 @@ var $;
         function sequence(open, separator, close) {
             return (input, belt) => [
                 ...open ? [input.data(open)] : [],
-                input.struct(separator && input.kids.length > 1 ? 'indent' : 'line', [].concat(...input.kids.map((kid, index) => [
+                input.struct(separator && input.kids.length > 2 ? 'indent' : 'line', [].concat(...input.kids.map((kid, index) => [
                     kid.struct('line', [
                         ...kid.list([kid]).hack(belt),
                         ...(separator && index < input.kids.length - 1) ? [kid.data(separator)] : [],
@@ -8514,10 +8514,10 @@ var $;
                 '(^)': sequence('(', ' ^ ', ')'),
                 '(&&)': sequence('(', ' && ', ')'),
                 '(||)': sequence('(', ' || ', ')'),
-                '(,)': sequence('(', ',', ')'),
-                '{;}': sequence('{', ';', '}'),
-                '[,]': sequence('[', ',', ']'),
-                '{,}': sequence('{', ',', '}'),
+                '(,)': sequence('(', ', ', ')'),
+                '{;}': sequence('{', '; ', '}'),
+                '[,]': sequence('[', ', ', ']'),
+                '{,}': sequence('{', ', ', '}'),
                 ':': duplet('[', ']: '),
                 '()': sequence('(', '', ')'),
                 '[]': sequence('[', '', ']'),
@@ -14157,21 +14157,21 @@ var $;
 					[,]
 						1
 						2
-				`), '[\n\t1,\n\t2\n]\n');
+				`), '[1, 2]\n');
         },
         'last'() {
             $.$mol_assert_equal(convert(`
 					(,)
 						1
 						2
-				`), '(\n\t1,\n\t2\n)\n');
+				`), '(1, 2)\n');
         },
         'scope'() {
             $.$mol_assert_equal(convert(`
 					{;}
 						1
 						2
-				`), '{\n\t1;\n\t2\n}\n');
+				`), '{1; 2}\n');
         },
         'object'() {
             $.$mol_assert_equal(convert(`
@@ -14181,7 +14181,7 @@ var $;
 					{,}
 						foo
 						bar
-				`), '{\n\tfoo,\n\tbar\n}\n');
+				`), '{foo, bar}\n');
             $.$mol_assert_equal(convert(`
 					{,}
 						:
@@ -14190,7 +14190,7 @@ var $;
 						:
 							bar
 							2
-				`), '{\n\t["foo"]: 1,\n\t[bar]: 2\n}\n');
+				`), '{["foo"]: 1, [bar]: 2}\n');
         },
         'regexp'() {
             $.$mol_assert_equal(convert(`
@@ -14237,7 +14237,7 @@ var $;
 						(,)
 							2
 							3
-				`), '([0][1](\n\t2,\n\t3\n))\n');
+				`), '([0][1](2, 3))\n');
         },
         'function'() {
             $.$mol_assert_equal(convert(`
@@ -14340,7 +14340,7 @@ var $;
 						[,]
 							1
 							2
-				`), '[\n\tfoo,\n\tbar\n] = [\n\t1,\n\t2\n]\n');
+				`), '[foo, bar] = [1, 2]\n');
             $.$mol_assert_equal(convert(`
 					let foo
 				`), 'let foo\n');
