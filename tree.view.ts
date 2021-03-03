@@ -64,7 +64,7 @@ namespace $.$$ {
 			if( res instanceof Promise ) $mol_fail_hidden( res )
 			if( typeof res === 'string' ) return res
 			if( Object( res ) !== res ) return String( res )
-			if( !Reflect.getPrototypeOf( Reflect.getPrototypeOf( res ) ) ) return JSON.stringify( res, null, '\t' )
+			if( !Reflect.getPrototypeOf( Reflect.getPrototypeOf( res ) )! ) return JSON.stringify( res, null, '\t' )
 			if( Array.isArray( res ) ) return JSON.stringify( res, null, '\t' )
 			let mime = 'application/octet-stream'
 			if( res instanceof $mol_wasm_module ) {
