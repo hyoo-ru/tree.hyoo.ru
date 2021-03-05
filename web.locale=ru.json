@@ -1,10 +1,12 @@
 {
+	"$hyoo_tree_Add_hint": "Добавить шаг..",
+	"$hyoo_tree_Close_hint": "Убрать шаг",
 	"$hyoo_tree_Presets_title": "Пресеты",
 	"$hyoo_tree_Source_title": "Исходник tree пайплайна",
-	"$hyoo_tree_Transform_hint": "Найти трансформацию..",
 	"$hyoo_tree_source_hint": "Исходный текст",
 	"$mol_lights_toggle_hint": "Переключатель света",
 	"$mol_link_source_hint": "Исходные коды",
-	"$mol_select_hint": "Поиск..",
+	"$mol_select_Filter_hint": "Фильтр..",
+	"$mol_select_hint": "Выбрать..",
 	"$mol_select_no_options_message": "Нет вариантов"
 }

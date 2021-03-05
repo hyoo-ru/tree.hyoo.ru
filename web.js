@@ -2973,7 +2973,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("mol/book2/book2.view.css", "[mol_book2] {\n\tdisplay: flex;\n\tflex-flow: row nowrap;\n\talign-items: stretch;\n\toverflow: hidden;\n\tflex: 1 1 auto;\n\talign-self: stretch;\n\tmargin: 0;\n\tbox-shadow: 0 0 0 1px var(--mol_theme_line);\n\ttransform: translateZ(0);\n\ttransition: none;\n\toverflow: auto;\n\tscroll-snap-type: x proximity;\n}\n\n[mol_book2] > * {\n\tflex: none;\n\tscroll-snap-stop: always;\n\tscroll-snap-align: end;\n\tposition: relative;\n\tz-index: 0;\n\tmin-height: 100%;\n\tmax-height: 100%;\n\tmax-width: 100%;\n}\n\n[mol_book2_placeholder] {\n\tflex: 1 1 0;\n\t/* background: var(--mol_theme_back); */\n}\n");
+    $.$mol_style_attach("mol/book2/book2.view.css", "[mol_book2] {\n\tdisplay: flex;\n\tflex-flow: row nowrap;\n\talign-items: stretch;\n\toverflow: hidden;\n\tflex: 1 1 auto;\n\talign-self: stretch;\n\tmargin: 0;\n\tbox-shadow: 0 0 0 1px var(--mol_theme_line);\n\t/* transform: translateZ(0); */\n\ttransition: none;\n\toverflow: auto;\n\tscroll-snap-type: x proximity;\n}\n\n[mol_book2] > [mol_view] {\n\tflex: none;\n\tscroll-snap-stop: always;\n\tscroll-snap-align: end;\n\tposition: relative;\n\t/* z-index: 0; */\n\ttransform: none;\n\tmin-height: 100%;\n\tmax-height: 100%;\n\tmax-width: 100%;\n}\n\n[mol_book2_placeholder] {\n\tflex: 1 1 0;\n\t/* background: var(--mol_theme_back); */\n}\n");
 })($ || ($ = {}));
 //book2.view.css.js.map
 ;
@@ -3119,7 +3119,6 @@ var $;
     var $$;
     (function ($$) {
         const { per, rem } = $.$mol_style_unit;
-        const { calc } = $.$mol_style_func;
         $.$mol_style_define($$.$mol_page, {
             display: 'flex',
             margin: 0,
@@ -3136,7 +3135,6 @@ var $;
                 color: $.$mol_theme.back,
             },
             color: $.$mol_theme.text,
-            zIndex: 0,
             ':focus': {
                 outline: 'none',
             },
@@ -3153,7 +3151,6 @@ var $;
                     color: $.$mol_theme.back,
                 },
                 boxShadow: `0 0.5rem 0.5rem -0.5rem hsla(0,0%,0%,.25)`,
-                zIndex: 1,
             },
             Title: {
                 minHeight: rem(2),
@@ -6959,6 +6956,30 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    class $mol_icon_cross extends $.$mol_icon {
+        path() {
+            return "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z";
+        }
+    }
+    $.$mol_icon_cross = $mol_icon_cross;
+})($ || ($ = {}));
+//cross.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_icon_plus extends $.$mol_icon {
+        path() {
+            return "M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z";
+        }
+    }
+    $.$mol_icon_plus = $mol_icon_plus;
+})($ || ($ = {}));
+//plus.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
     class $mol_span extends $.$mol_object2 {
         constructor(uri, source, row, col, length) {
             super();
@@ -7276,810 +7297,6 @@ var $;
     $.$mol_tree2_from_string = $mol_tree2_from_string;
 })($ || ($ = {}));
 //string.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_meter extends $.$mol_plugin {
-        zoom() {
-            return 1;
-        }
-        width(val) {
-            if (val !== undefined)
-                return val;
-            return 0;
-        }
-        height(val) {
-            if (val !== undefined)
-                return val;
-            return 0;
-        }
-        left(val) {
-            if (val !== undefined)
-                return val;
-            return 0;
-        }
-        right(val) {
-            if (val !== undefined)
-                return val;
-            return 0;
-        }
-        bottom(val) {
-            if (val !== undefined)
-                return val;
-            return 0;
-        }
-        top(val) {
-            if (val !== undefined)
-                return val;
-            return 0;
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_meter.prototype, "width", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_meter.prototype, "height", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_meter.prototype, "left", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_meter.prototype, "right", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_meter.prototype, "bottom", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_meter.prototype, "top", null);
-    $.$mol_meter = $mol_meter;
-})($ || ($ = {}));
-//meter.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_meter extends $.$mol_meter {
-            rect() {
-                const node = this.dom_node();
-                const win = this.$.$mol_dom_context;
-                if (node !== $.$mol_dom_context.document.body) {
-                    new $.$mol_after_frame($.$mol_atom2.current.fresh);
-                    try {
-                        const { left, top, right, bottom, width, height } = node.getBoundingClientRect();
-                        return { left, top, right, bottom, width, height, zoom: win.devicePixelRatio || 1 };
-                    }
-                    catch (error) {
-                    }
-                }
-                const size = $.$mol_window.size();
-                return {
-                    zoom: win.devicePixelRatio || 1,
-                    left: 0,
-                    top: 0,
-                    right: size.width,
-                    bottom: size.height,
-                    width: size.width,
-                    height: size.height,
-                };
-            }
-            top() {
-                return this.rect().top;
-            }
-            bottom() {
-                return this.rect().bottom;
-            }
-            left() {
-                return this.rect().left;
-            }
-            right() {
-                return this.rect().right;
-            }
-            width() {
-                return this.rect().width;
-            }
-            height() {
-                return this.rect().height;
-            }
-            zoom() {
-                return this.rect().zoom;
-            }
-        }
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "rect", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "top", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "bottom", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "left", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "right", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "width", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "height", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_meter.prototype, "zoom", null);
-        $$.$mol_meter = $mol_meter;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//meter.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_pop extends $.$mol_view {
-        event() {
-            return {
-                keydown: (event) => this.keydown(event)
-            };
-        }
-        showed(val) {
-            if (val !== undefined)
-                return val;
-            return false;
-        }
-        plugins() {
-            return [
-                this.Meter()
-            ];
-        }
-        sub() {
-            return [
-                this.Anchor(),
-                this.Bubble()
-            ];
-        }
-        keydown(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        top() {
-            return this.Meter().top();
-        }
-        bottom() {
-            return this.Meter().bottom();
-        }
-        left() {
-            return this.Meter().left();
-        }
-        right() {
-            return this.Meter().right();
-        }
-        Meter() {
-            const obj = new this.$.$mol_meter();
-            return obj;
-        }
-        Anchor() {
-            return null;
-        }
-        align() {
-            return "bottom_center";
-        }
-        bubble_content() {
-            return [];
-        }
-        height_max() {
-            return 9999;
-        }
-        Bubble() {
-            const obj = new this.$.$mol_pop_bubble();
-            obj.align = () => this.align();
-            obj.content = () => this.bubble_content();
-            obj.height_max = () => this.height_max();
-            return obj;
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_pop.prototype, "showed", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_pop.prototype, "keydown", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_pop.prototype, "Meter", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_pop.prototype, "Bubble", null);
-    $.$mol_pop = $mol_pop;
-    class $mol_pop_bubble extends $.$mol_scroll {
-        sub() {
-            return this.content();
-        }
-        style() {
-            return Object.assign(Object.assign({}, super.style()), { maxHeight: this.height_max() });
-        }
-        attr() {
-            return Object.assign(Object.assign({}, super.attr()), { mol_pop_align: this.align(), tabindex: 0 });
-        }
-        content() {
-            return [];
-        }
-        height_max() {
-            return 9999;
-        }
-        align() {
-            return "";
-        }
-    }
-    $.$mol_pop_bubble = $mol_pop_bubble;
-})($ || ($ = {}));
-//pop.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_style_attach("mol/pop/pop.view.css", "[mol_pop] {\n\tposition: relative;\n\tdisplay: inline-flex;\n}\n\n[mol_pop]:hover {\n\tz-index: 4;\n}\n\n[mol_pop_bubble] {\n\tbox-shadow: 0 0 1rem hsla(0,0%,0%,.5);\n\tborder-radius: var(--mol_skin_round);\n\tposition: absolute;\n\tz-index: 3;\n\tbackground: var(--mol_theme_back);\n\tmax-width: none;\n\tmax-height: none;\n\toverflow: hidden;\n\toverflow-y: auto;\n\tword-break: normal;\n}\n\n[mol_pop_bubble][mol_scroll] {\n\tbackground: var(--mol_theme_back);\n}\n\n[mol_pop_bubble]:focus {\n\toutline: none;\n}\n\n[mol_pop_align=\"left_top\"] {\n\ttransform: translate(-100%);\n\tleft: 0;\n\tbottom: 0;\n}\n\n[mol_pop_align=\"left_center\"] {\n\ttransform: translate(-100%, -50%);\n\tleft: 0;\n\ttop: 50%;\n}\n\n[mol_pop_align=\"left_bottom\"] {\n\ttransform: translate(-100%);\n\tleft: 0;\n\ttop: 0;\n}\n\n[mol_pop_align=\"right_top\"] {\n\ttransform: translate(100%);\n\tright: 0;\n\tbottom: 0;\n}\n\n[mol_pop_align=\"right_center\"] {\n\ttransform: translate(100%, -50%);\n\tright: 0;\n\ttop: 50%;\n}\n\n[mol_pop_align=\"right_bottom\"] {\n\ttransform: translate(100%);\n\tright: 0;\n\ttop: 0;\n}\n\n[mol_pop_align=\"center\"] {\n\tleft: 50%;\n\ttop: 50%;\n\ttransform: translate(-50%, -50%);\n}\n\n[mol_pop_align=\"top_left\"] {\n\tright: 0;\n\tbottom: 100%;\n}\n\n[mol_pop_align=\"top_center\"] {\n\ttransform: translate(-50%);\n\tleft: 50%;\n\tbottom: 100%;\n}\n\n[mol_pop_align=\"top_right\"] {\n\tleft: 0;\n\tbottom: 100%;\n}\n\n[mol_pop_align=\"bottom_left\"] {\n\tright: 0;\n\ttop: 100%;\n}\n\n[mol_pop_align=\"bottom_center\"] {\n\ttransform: translate(-50%);\n\tleft: 50%;\n\ttop: 100%;\n}\n\n[mol_pop_align=\"bottom_right\"] {\n\tleft: 0;\n\ttop: 100%;\n}\n");
-})($ || ($ = {}));
-//pop.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_pop extends $.$mol_pop {
-            sub() {
-                return [
-                    this.Anchor(),
-                    ...this.showed() ? [this.Bubble()] : [],
-                ];
-            }
-            height_max() {
-                return this.$.$mol_window.size().height * 0.33;
-            }
-            align() {
-                const viewport = this.$.$mol_window.size();
-                const vert = this.top() > (viewport.height - this.bottom()) ? 'top' : 'bottom';
-                const hor = this.left() > (viewport.width - this.right()) ? 'left' : 'right';
-                return `${vert}_${hor}`;
-            }
-            keydown(event) {
-                if (event.defaultPrevented)
-                    return;
-                if (event.keyCode === $.$mol_keyboard_code.escape) {
-                    if (!this.showed())
-                        return;
-                    event.preventDefault();
-                    this.showed(false);
-                }
-            }
-        }
-        $$.$mol_pop = $mol_pop;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//pop.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_nav extends $.$mol_plugin {
-        cycle(val) {
-            if (val !== undefined)
-                return val;
-            return false;
-        }
-        mod_ctrl() {
-            return false;
-        }
-        mod_shift() {
-            return false;
-        }
-        mod_alt() {
-            return false;
-        }
-        keys_x(val) {
-            if (val !== undefined)
-                return val;
-            return [];
-        }
-        keys_y(val) {
-            if (val !== undefined)
-                return val;
-            return [];
-        }
-        current_x(val) {
-            if (val !== undefined)
-                return val;
-            return "";
-        }
-        current_y(val) {
-            if (val !== undefined)
-                return val;
-            return "";
-        }
-        event_up(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        event_down(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        event_left(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        event_right(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        event() {
-            return Object.assign(Object.assign({}, super.event()), { keydown: (event) => this.event_key(event) });
-        }
-        event_key(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "cycle", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "keys_x", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "keys_y", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "current_x", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "current_y", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "event_up", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "event_down", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "event_left", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "event_right", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_nav.prototype, "event_key", null);
-    $.$mol_nav = $mol_nav;
-})($ || ($ = {}));
-//nav.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_nav extends $.$mol_nav {
-            event_key(event) {
-                if (!event)
-                    return event;
-                if (event.defaultPrevented)
-                    return;
-                if (this.mod_ctrl() && !event.ctrlKey)
-                    return;
-                if (this.mod_shift() && !event.shiftKey)
-                    return;
-                if (this.mod_alt() && !event.altKey)
-                    return;
-                switch (event.keyCode) {
-                    case $.$mol_keyboard_code.up: return this.event_up(event);
-                    case $.$mol_keyboard_code.down: return this.event_down(event);
-                    case $.$mol_keyboard_code.left: return this.event_left(event);
-                    case $.$mol_keyboard_code.right: return this.event_right(event);
-                    case $.$mol_keyboard_code.pageUp: return this.event_up(event);
-                    case $.$mol_keyboard_code.pageDown: return this.event_down(event);
-                }
-            }
-            event_up(event) {
-                if (!event)
-                    return event;
-                const keys = this.keys_y();
-                if (keys.length < 2)
-                    return;
-                const index_y = this.index_y();
-                const index_old = index_y === null ? 0 : index_y;
-                const index_new = (index_old + keys.length - 1) % keys.length;
-                event.preventDefault();
-                if (index_old === 0 && !this.cycle())
-                    return;
-                this.current_y(this.keys_y()[index_new]);
-            }
-            event_down(event) {
-                if (!event)
-                    return event;
-                const keys = this.keys_y();
-                if (keys.length < 2)
-                    return;
-                const index_y = this.index_y();
-                const index_old = index_y === null ? keys.length - 1 : index_y;
-                const index_new = (index_old + 1) % keys.length;
-                event.preventDefault();
-                if (index_new === 0 && !this.cycle())
-                    return;
-                this.current_y(this.keys_y()[index_new]);
-            }
-            event_left(event) {
-                if (!event)
-                    return event;
-                const keys = this.keys_x();
-                if (keys.length < 2)
-                    return;
-                const index_x = this.index_x();
-                const index_old = index_x === null ? 0 : index_x;
-                const index_new = (index_old + keys.length - 1) % keys.length;
-                event.preventDefault();
-                if (index_old === 0 && !this.cycle())
-                    return;
-                this.current_x(this.keys_x()[index_new]);
-            }
-            event_right(event) {
-                if (!event)
-                    return event;
-                const keys = this.keys_x();
-                if (keys.length < 2)
-                    return;
-                const index_x = this.index_x();
-                const index_old = index_x === null ? keys.length - 1 : index_x;
-                const index_new = (index_old + 1) % keys.length;
-                event.preventDefault();
-                if (index_new === 0 && !this.cycle())
-                    return;
-                this.current_x(this.keys_x()[index_new]);
-            }
-            index_y() {
-                let index = this.keys_y().indexOf(this.current_y());
-                if (index < 0)
-                    return null;
-                return index;
-            }
-            index_x() {
-                let index = this.keys_x().indexOf(this.current_x());
-                if (index < 0)
-                    return null;
-                return index;
-            }
-        }
-        $$.$mol_nav = $mol_nav;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//nav.view.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    class $mol_select extends $.$mol_pop {
-        dictionary() {
-            return {};
-        }
-        options() {
-            return [];
-        }
-        value(val) {
-            if (val !== undefined)
-                return val;
-            return "";
-        }
-        Option_row(id) {
-            const obj = new this.$.$mol_button_minor();
-            obj.event_click = (event) => this.event_select(id, event);
-            obj.sub = () => this.option_content(id);
-            return obj;
-        }
-        No_options() {
-            const obj = new this.$.$mol_view();
-            obj.sub = () => [
-                this.no_options_message()
-            ];
-            return obj;
-        }
-        plugins() {
-            return [
-                ...super.plugins(),
-                this.Nav()
-            ];
-        }
-        showed(val) {
-            return this.options_showed(val);
-        }
-        Anchor() {
-            return this.Trigger();
-        }
-        bubble_content() {
-            return [
-                this.Menu()
-            ];
-        }
-        option_content_current() {
-            return [];
-        }
-        Filter() {
-            const obj = new this.$.$mol_string();
-            obj.value = (val) => this.filter_pattern(val);
-            obj.hint = () => this.filter_hint();
-            obj.submit = (event) => this.submit(event);
-            obj.enabled = () => this.enabled();
-            return obj;
-        }
-        Trigger_icon() {
-            const obj = new this.$.$mol_icon_chevron();
-            return obj;
-        }
-        event_select(id, event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        option_label(id) {
-            return "";
-        }
-        filter_pattern(val) {
-            if (val !== undefined)
-                return val;
-            return "";
-        }
-        Option_label(id) {
-            const obj = new this.$.$mol_dimmer();
-            obj.haystack = () => this.option_label(id);
-            obj.needle = () => this.filter_pattern();
-            return obj;
-        }
-        option_content(id) {
-            return [
-                this.Option_label(id)
-            ];
-        }
-        no_options_message() {
-            return this.$.$mol_locale.text('$mol_select_no_options_message');
-        }
-        nav_components() {
-            return [];
-        }
-        option_focused(component) {
-            if (component !== undefined)
-                return component;
-            return null;
-        }
-        nav_cycle(val) {
-            if (val !== undefined)
-                return val;
-            return true;
-        }
-        Nav() {
-            const obj = new this.$.$mol_nav();
-            obj.keys_y = () => this.nav_components();
-            obj.current_y = (component) => this.option_focused(component);
-            obj.cycle = (val) => this.nav_cycle(val);
-            return obj;
-        }
-        options_showed(val) {
-            if (val !== undefined)
-                return val;
-            return false;
-        }
-        open(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        trigger_content() {
-            return [];
-        }
-        Trigger() {
-            const obj = new this.$.$mol_button_minor();
-            obj.click = (event) => this.open(event);
-            obj.sub = () => this.trigger_content();
-            return obj;
-        }
-        menu_content() {
-            return [];
-        }
-        Menu() {
-            const obj = new this.$.$mol_list();
-            obj.rows = () => this.menu_content();
-            return obj;
-        }
-        hint() {
-            return this.$.$mol_locale.text('$mol_select_hint');
-        }
-        filter_hint() {
-            return this.hint();
-        }
-        submit(event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        enabled() {
-            return true;
-        }
-    }
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "value", null);
-    __decorate([
-        $.$mol_mem_key
-    ], $mol_select.prototype, "Option_row", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "No_options", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "Filter", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "Trigger_icon", null);
-    __decorate([
-        $.$mol_mem_key
-    ], $mol_select.prototype, "event_select", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "filter_pattern", null);
-    __decorate([
-        $.$mol_mem_key
-    ], $mol_select.prototype, "Option_label", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "option_focused", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "nav_cycle", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "Nav", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "options_showed", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "open", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "Trigger", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "Menu", null);
-    __decorate([
-        $.$mol_mem
-    ], $mol_select.prototype, "submit", null);
-    $.$mol_select = $mol_select;
-})($ || ($ = {}));
-//select.view.tree.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_match_text(query, values) {
-        const tags = query.toLowerCase().trim().split(/\s+/).filter(tag => tag);
-        if (tags.length === 0)
-            return () => true;
-        return (variant) => {
-            const vals = values(variant);
-            return tags.every(tag => vals.some(val => val.toLowerCase().indexOf(tag) >= 0));
-        };
-    }
-    $.$mol_match_text = $mol_match_text;
-})($ || ($ = {}));
-//text.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_style_attach("mol/select/select.view.css", "[mol_select] {\n\tdisplay: flex;\n\tword-break: normal;\n\talign-self: flex-start;\n}\n\n[mol_select_anchor] {\n\tdisplay: flex;\n\tflex: 1 1 auto;\n\tjustify-content: space-between;\n}\n\n[mol_select_option_row] {\n\tmin-width: 100%;\n\tpadding: 0;\n\tjustify-content: flex-start;\n}\n\n[mol_select_bubble] {\n\tmin-width: 100%;\n}\n\n[mol_select_filter] {\n\tz-index: 2;\n\topacity: 1 !important;\n\tflex: 1 1 auto;\n\talign-self: stretch;\n}\n\n[mol_select_option_label] {\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tmin-height: 1.5em;\n\tdisplay: block;\n}\n\n[mol_select_clear_option_content] {\n\tpadding: .5em 1rem .5rem 0;\n\ttext-align: left;\n\tbox-shadow: var(--mol_theme_line);\n\tflex: 1 0 auto;\n}\n\n[mol_select_no_options] {\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tdisplay: block;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_select_trigger] {\n\tpadding: 0;\n\tflex: 1 1 auto;\n\tdisplay: flex;\n\tjustify-content: flex-end;\n}\n\n[mol_select_trigger_icon] {\n\ttransform: rotateZ(90deg);\n\tmargin: .5rem .5rem .5rem -.5rem;\n}\n:hover > [mol_select_trigger_icon] {\n\ttransform: rotateZ(90deg) scale(1.25);\n}\n\n[mol_select_menu] {\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n");
-})($ || ($ = {}));
-//select.view.css.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_select extends $.$mol_select {
-            filter_pattern(next) {
-                this.focused();
-                return next || '';
-            }
-            open() {
-                this.options_showed(true);
-            }
-            options_showed(next = false) {
-                this.focused();
-                return next;
-            }
-            options() {
-                return Object.keys(this.dictionary());
-            }
-            options_filtered() {
-                let options = this.options();
-                options = options.filter($.$mol_match_text(this.filter_pattern(), (id) => [this.option_label(id)]));
-                const index = options.indexOf(this.value());
-                if (index >= 0)
-                    options = [...options.slice(0, index), ...options.slice(index + 1)];
-                return options;
-            }
-            option_label(id) {
-                const value = this.dictionary()[id];
-                return value == null ? id : value;
-            }
-            option_rows() {
-                if (this.options_filtered().length === 0)
-                    return [this.No_options()];
-                let options = this.options_filtered().map((option) => this.Option_row(option));
-                return options;
-            }
-            option_focused(component) {
-                if (component == null) {
-                    for (let comp of this.nav_components()) {
-                        if (comp && comp.focused())
-                            return comp;
-                    }
-                    return this.Filter();
-                }
-                if (this.options_showed()) {
-                    component.focused(true);
-                }
-                return component;
-            }
-            event_select(id, event) {
-                this.value(id);
-                this.focused(false);
-            }
-            nav_components() {
-                return [this.Filter(), ...this.option_rows()];
-            }
-            option_content_current() {
-                return this.option_content(this.value());
-            }
-            trigger_content() {
-                return (!this.value() && this.Filter())
-                    ? [this.Filter()]
-                    : [...this.option_content_current(), this.Trigger_icon()];
-            }
-            menu_content() {
-                return (this.value() && this.Filter())
-                    ? [this.Filter(), ...this.option_rows()]
-                    : this.option_rows();
-            }
-        }
-        __decorate([
-            $.$mol_mem
-        ], $mol_select.prototype, "filter_pattern", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_select.prototype, "options_showed", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_select.prototype, "options", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_select.prototype, "options_filtered", null);
-        __decorate([
-            $.$mol_mem
-        ], $mol_select.prototype, "option_focused", null);
-        $$.$mol_select = $mol_select;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-//select.view.js.map
 ;
 "use strict";
 var $;
@@ -9806,6 +9023,206 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_guard_defined(value) {
+        return value !== null && value !== undefined;
+    }
+    $.$mol_guard_defined = $mol_guard_defined;
+})($ || ($ = {}));
+//defined.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_guid(exists = () => false) {
+        for (;;) {
+            let id = Math.random().toString(36).substring(2, 10).toUpperCase();
+            if (exists(id))
+                continue;
+            return id;
+        }
+    }
+    $.$mol_guid = $mol_guid;
+})($ || ($ = {}));
+//guid.js.map
+;
+"use strict";
+//enforce.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    const { begin, end, letter, optional, repeat_greedy } = $.$mol_regexp;
+    const prop_signature = $.$mol_regexp.from([
+        begin,
+        { name: repeat_greedy(letter, 1) },
+        { key: optional(['!', repeat_greedy(letter, 0)]) },
+        { next: optional(['?', repeat_greedy(letter, 0)]) },
+        end,
+    ]);
+    function name_of(prop) {
+        return prop_signature.parse(prop.type).next().value.name;
+    }
+    function params_of(prop, ...val) {
+        const { key, next } = prop_signature.parse(prop.type).next().value;
+        return prop.struct('line', [
+            prop.data('( '),
+            ...key ? [
+                prop.data(key.slice(1) || 'key'),
+                prop.data(': any, '),
+            ] : [],
+            ...next ? [
+                prop.data(next.slice(1) || 'next'),
+                prop.data('?: '),
+                ...val,
+                prop.data(' '),
+            ] : [],
+            prop.data(')'),
+        ]);
+    }
+    function $mol_view_tree2_to_dts(descr) {
+        descr = $.$mol_view_tree2_classes(descr);
+        const types = [];
+        for (const klass of descr.kids) {
+            const parent = klass.kids[0];
+            const props = this.$mol_view_tree2_class_props(klass);
+            const aliases = [];
+            types.push(klass.struct('line', [
+                klass.data('export class '),
+                klass.data(klass.type),
+                parent.data(' extends '),
+                parent.data(parent.type),
+                klass.data(' {'),
+            ]), ...props.map(prop => {
+                const { name, key, next } = prop_signature.parse(prop.type).next().value;
+                const bind_res = (bind) => [
+                    bind.data('ReturnType< '),
+                    klass.data(klass.type),
+                    bind.data('["'),
+                    bind.kids[0].data(name_of(bind.kids[0])),
+                    bind.data('"] >'),
+                ];
+                const val = prop.hack({
+                    'null': (val, belt) => [val.data('any')],
+                    'true': (val, belt) => [val.data('boolean')],
+                    'false': (val, belt) => [val.data('boolean')],
+                    '@': (locale, belt) => locale.hack(belt),
+                    '<=>': bind_res,
+                    '<=': bind_res,
+                    '=>': bind_res,
+                    '*': (obj, belt) => [
+                        ...obj.select('^').kids.map(inherit => inherit.struct('line', [
+                            inherit.data('ReturnType< '),
+                            parent.data(parent.type),
+                            inherit.data('["'),
+                            prop.data(name),
+                            inherit.data('"] > & '),
+                        ])),
+                        obj.data('({ '),
+                        obj.struct('indent', obj.kids.map(field => {
+                            if (field.type === '^')
+                                return null;
+                            return field.struct('line', [
+                                field.data(field.type),
+                                field.data(': '),
+                                ...field.hack(belt),
+                                field.data(','),
+                            ]);
+                        }).filter(this.$mol_guard_defined)),
+                        obj.data('})'),
+                    ],
+                    '': (input, belt) => {
+                        if (input.type[0] === '/')
+                            return [
+                                input.data('readonly '),
+                                input.data(input.type.slice(1)),
+                                input.data('[]'),
+                            ];
+                        if (input.type[0] === '$') {
+                            const first = input.kids[0];
+                            if (first && first.type === '/') {
+                                types.push(first.data(`type ${input.type}__${this.$mol_guid()} = $mol_type_enforce< `), first.struct('indent', [
+                                    first.struct('line', [
+                                        ...input.hack(belt),
+                                        input.data(','),
+                                    ]),
+                                    input.data(`Parameters< ${input.type} >`),
+                                ]), input.data('>'));
+                            }
+                            else {
+                                for (const over of input.kids) {
+                                    const name = name_of(over);
+                                    const bind = over.kids[0];
+                                    if (bind.type === '=>') {
+                                        const pr = bind.kids[0];
+                                        const res = [
+                                            bind.data('ReturnType< '),
+                                            klass.data(input.type),
+                                            bind.data('["'),
+                                            over.data(name),
+                                            bind.data('"] >'),
+                                        ];
+                                        aliases.push(pr.struct('indent', [
+                                            pr.struct('line', [
+                                                pr.data(name_of(pr)),
+                                                bind.data(': '),
+                                                params_of(pr, ...res),
+                                                bind.data('=> '),
+                                                ...res,
+                                            ]),
+                                        ]));
+                                    }
+                                    types.push(over.data(`type ${input.type}__${name}_${this.$mol_guid()} = $mol_type_enforce< `), over.struct('indent', [
+                                        over.struct('line', [
+                                            ...over.hack(belt),
+                                            input.data(','),
+                                        ]),
+                                        over.struct('line', [
+                                            input.data('ReturnType< '),
+                                            input.data(input.type),
+                                            input.data('["'),
+                                            over.data(name),
+                                            input.data('"] >'),
+                                        ]),
+                                    ]), input.data('>'));
+                                }
+                            }
+                            return [
+                                input.data(input.type),
+                            ];
+                        }
+                        if (Number(input.type).toString() === input.type)
+                            return [
+                                input.data('number'),
+                            ];
+                        return [
+                            input.data(input.type || 'string'),
+                        ];
+                    },
+                });
+                return prop.struct('indent', [
+                    prop.struct('line', [
+                        prop.data(name),
+                        params_of(prop, ...val),
+                        prop.data(': '),
+                        ...val,
+                    ])
+                ]);
+            }), ...aliases, klass.data('}'), descr.data(''));
+        }
+        return descr.list([
+            descr.data('declare namespace $ {'),
+            descr.data(''),
+            descr.struct('indent', types),
+            descr.data('}'),
+        ]);
+    }
+    $.$mol_view_tree2_to_dts = $mol_view_tree2_to_dts;
+})($ || ($ = {}));
+//dts.js.map
+;
+"use strict";
+var $;
+(function ($) {
     const { optional, slash_back, byte, byte_except, repeat } = $.$mol_regexp;
     $.$hyoo_marked_line_content = repeat(byte, 1);
     const uri = repeat(byte_except(slash_back));
@@ -9819,16 +9236,15 @@ var $;
     const insertion = with_marker('++');
     const deletion = with_marker('--');
     const code = with_marker(';;');
-    function with_uri(content = $.$mol_regexp.from({
-        content: $.$hyoo_marked_line_content
-    })) {
-        return $.$mol_regexp.from([
-            optional([content, slash_back]),
-            { uri },
-        ]);
-    }
-    const link = with_marker('\\\\', with_uri());
-    const embed = with_marker('""', with_uri());
+    const with_uri = $.$mol_regexp.from([
+        optional([
+            { content: $.$hyoo_marked_line_content },
+            slash_back
+        ]),
+        { uri },
+    ]);
+    const link = with_marker('\\\\', with_uri);
+    const embed = with_marker('""', with_uri);
     const inline = $.$mol_regexp.from({ strong, emphasis, insertion, deletion, code, link, embed });
     $.$hyoo_marked_line = $.$mol_regexp.from({ inline });
 })($ || ($ = {}));
@@ -10278,14 +9694,650 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_icon_cross extends $.$mol_icon {
-        path() {
-            return "M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z";
+    class $mol_pop extends $.$mol_view {
+        event() {
+            return {
+                keydown: (event) => this.keydown(event)
+            };
+        }
+        showed(val) {
+            if (val !== undefined)
+                return val;
+            return false;
+        }
+        sub() {
+            return [
+                this.Anchor(),
+                this.Bubble()
+            ];
+        }
+        keydown(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        Anchor() {
+            return null;
+        }
+        align() {
+            return "bottom_center";
+        }
+        bubble_content() {
+            return [];
+        }
+        height_max() {
+            return 9999;
+        }
+        Bubble() {
+            const obj = new this.$.$mol_pop_bubble();
+            obj.align = () => this.align();
+            obj.content = () => this.bubble_content();
+            obj.height_max = () => this.height_max();
+            return obj;
         }
     }
-    $.$mol_icon_cross = $mol_icon_cross;
+    __decorate([
+        $.$mol_mem
+    ], $mol_pop.prototype, "showed", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_pop.prototype, "keydown", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_pop.prototype, "Bubble", null);
+    $.$mol_pop = $mol_pop;
+    class $mol_pop_bubble extends $.$mol_scroll {
+        sub() {
+            return this.content();
+        }
+        style() {
+            return Object.assign(Object.assign({}, super.style()), { maxHeight: this.height_max() });
+        }
+        attr() {
+            return Object.assign(Object.assign({}, super.attr()), { mol_pop_align: this.align(), tabindex: 0 });
+        }
+        content() {
+            return [];
+        }
+        height_max() {
+            return 9999;
+        }
+        align() {
+            return "";
+        }
+    }
+    $.$mol_pop_bubble = $mol_pop_bubble;
 })($ || ($ = {}));
-//cross.view.tree.js.map
+//pop.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_style_attach("mol/pop/pop.view.css", "[mol_pop] {\n\tposition: relative;\n\tdisplay: inline-flex;\n}\n\n[mol_pop]:hover {\n\tz-index: 4;\n}\n\n[mol_pop_bubble] {\n\tbox-shadow: 0 0 1rem hsla(0,0%,0%,.5);\n\tborder-radius: var(--mol_skin_round);\n\tposition: absolute;\n\tz-index: 3;\n\tbackground: var(--mol_theme_back);\n\tmax-width: none;\n\tmax-height: none;\n\toverflow: hidden;\n\toverflow-y: auto;\n\tword-break: normal;\n}\n\n[mol_pop_bubble][mol_scroll] {\n\tbackground: var(--mol_theme_back);\n}\n\n[mol_pop_bubble]:focus {\n\toutline: none;\n}\n\n[mol_pop_align=\"suspense\"] {\n\tdisplay: none;\n}\n\n[mol_pop_align=\"left_top\"] {\n\ttransform: translate(-100%);\n\tleft: 0;\n\tbottom: 0;\n}\n\n[mol_pop_align=\"left_center\"] {\n\ttransform: translate(-100%, -50%);\n\tleft: 0;\n\ttop: 50%;\n}\n\n[mol_pop_align=\"left_bottom\"] {\n\ttransform: translate(-100%);\n\tleft: 0;\n\ttop: 0;\n}\n\n[mol_pop_align=\"right_top\"] {\n\ttransform: translate(100%);\n\tright: 0;\n\tbottom: 0;\n}\n\n[mol_pop_align=\"right_center\"] {\n\ttransform: translate(100%, -50%);\n\tright: 0;\n\ttop: 50%;\n}\n\n[mol_pop_align=\"right_bottom\"] {\n\ttransform: translate(100%);\n\tright: 0;\n\ttop: 0;\n}\n\n[mol_pop_align=\"center\"] {\n\tleft: 50%;\n\ttop: 50%;\n\ttransform: translate(-50%, -50%);\n}\n\n[mol_pop_align=\"top_left\"] {\n\tright: 0;\n\tbottom: 100%;\n}\n\n[mol_pop_align=\"top_center\"] {\n\ttransform: translate(-50%);\n\tleft: 50%;\n\tbottom: 100%;\n}\n\n[mol_pop_align=\"top_right\"] {\n\tleft: 0;\n\tbottom: 100%;\n}\n\n[mol_pop_align=\"bottom_left\"] {\n\tright: 0;\n\ttop: 100%;\n}\n\n[mol_pop_align=\"bottom_center\"] {\n\ttransform: translate(-50%);\n\tleft: 50%;\n\ttop: 100%;\n}\n\n[mol_pop_align=\"bottom_right\"] {\n\tleft: 0;\n\ttop: 100%;\n}\n");
+})($ || ($ = {}));
+//pop.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_pop extends $.$mol_pop {
+            sub() {
+                return [
+                    this.Anchor(),
+                    ...this.showed() ? [this.Bubble()] : [],
+                ];
+            }
+            height_max() {
+                return this.$.$mol_window.size().height * 0.33;
+            }
+            align() {
+                const viewport = this.$.$mol_window.size();
+                const rect_bubble = this.view_rect();
+                if (!rect_bubble)
+                    return 'suspense';
+                const vert = rect_bubble.top > (viewport.height - rect_bubble.bottom) ? 'top' : 'bottom';
+                const hor = rect_bubble.left > (viewport.width - rect_bubble.right) ? 'left' : 'right';
+                return `${vert}_${hor}`;
+            }
+            keydown(event) {
+                if (event.defaultPrevented)
+                    return;
+                if (event.keyCode === $.$mol_keyboard_code.escape) {
+                    if (!this.showed())
+                        return;
+                    event.preventDefault();
+                    this.showed(false);
+                }
+            }
+        }
+        $$.$mol_pop = $mol_pop;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//pop.view.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_icon_dots_vertical extends $.$mol_icon {
+        path() {
+            return "M12,16C13.1,16 14,16.9 14,18C14,19.1 13.1,20 12,20C10.9,20 10,19.1 10,18C10,16.9 10.9,16 12,16M12,10C13.1,10 14,10.9 14,12C14,13.1 13.1,14 12,14C10.9,14 10,13.1 10,12C10,10.9 10.9,10 12,10M12,4C13.1,4 14,4.9 14,6C14,7.1 13.1,8 12,8C10.9,8 10,7.1 10,6C10,4.9 10.9,4 12,4Z";
+        }
+    }
+    $.$mol_icon_dots_vertical = $mol_icon_dots_vertical;
+})($ || ($ = {}));
+//vertical.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_nav extends $.$mol_plugin {
+        cycle(val) {
+            if (val !== undefined)
+                return val;
+            return false;
+        }
+        mod_ctrl() {
+            return false;
+        }
+        mod_shift() {
+            return false;
+        }
+        mod_alt() {
+            return false;
+        }
+        keys_x(val) {
+            if (val !== undefined)
+                return val;
+            return [];
+        }
+        keys_y(val) {
+            if (val !== undefined)
+                return val;
+            return [];
+        }
+        current_x(val) {
+            if (val !== undefined)
+                return val;
+            return "";
+        }
+        current_y(val) {
+            if (val !== undefined)
+                return val;
+            return "";
+        }
+        event_up(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        event_down(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        event_left(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        event_right(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        event() {
+            return Object.assign(Object.assign({}, super.event()), { keydown: (event) => this.event_key(event) });
+        }
+        event_key(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+    }
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "cycle", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "keys_x", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "keys_y", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "current_x", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "current_y", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "event_up", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "event_down", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "event_left", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "event_right", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_nav.prototype, "event_key", null);
+    $.$mol_nav = $mol_nav;
+})($ || ($ = {}));
+//nav.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_nav extends $.$mol_nav {
+            event_key(event) {
+                if (!event)
+                    return event;
+                if (event.defaultPrevented)
+                    return;
+                if (this.mod_ctrl() && !event.ctrlKey)
+                    return;
+                if (this.mod_shift() && !event.shiftKey)
+                    return;
+                if (this.mod_alt() && !event.altKey)
+                    return;
+                switch (event.keyCode) {
+                    case $.$mol_keyboard_code.up: return this.event_up(event);
+                    case $.$mol_keyboard_code.down: return this.event_down(event);
+                    case $.$mol_keyboard_code.left: return this.event_left(event);
+                    case $.$mol_keyboard_code.right: return this.event_right(event);
+                    case $.$mol_keyboard_code.pageUp: return this.event_up(event);
+                    case $.$mol_keyboard_code.pageDown: return this.event_down(event);
+                }
+            }
+            event_up(event) {
+                if (!event)
+                    return event;
+                const keys = this.keys_y();
+                if (keys.length < 2)
+                    return;
+                const index_y = this.index_y();
+                const index_old = index_y === null ? 0 : index_y;
+                const index_new = (index_old + keys.length - 1) % keys.length;
+                event.preventDefault();
+                if (index_old === 0 && !this.cycle())
+                    return;
+                this.current_y(this.keys_y()[index_new]);
+            }
+            event_down(event) {
+                if (!event)
+                    return event;
+                const keys = this.keys_y();
+                if (keys.length < 2)
+                    return;
+                const index_y = this.index_y();
+                const index_old = index_y === null ? keys.length - 1 : index_y;
+                const index_new = (index_old + 1) % keys.length;
+                event.preventDefault();
+                if (index_new === 0 && !this.cycle())
+                    return;
+                this.current_y(this.keys_y()[index_new]);
+            }
+            event_left(event) {
+                if (!event)
+                    return event;
+                const keys = this.keys_x();
+                if (keys.length < 2)
+                    return;
+                const index_x = this.index_x();
+                const index_old = index_x === null ? 0 : index_x;
+                const index_new = (index_old + keys.length - 1) % keys.length;
+                event.preventDefault();
+                if (index_old === 0 && !this.cycle())
+                    return;
+                this.current_x(this.keys_x()[index_new]);
+            }
+            event_right(event) {
+                if (!event)
+                    return event;
+                const keys = this.keys_x();
+                if (keys.length < 2)
+                    return;
+                const index_x = this.index_x();
+                const index_old = index_x === null ? keys.length - 1 : index_x;
+                const index_new = (index_old + 1) % keys.length;
+                event.preventDefault();
+                if (index_new === 0 && !this.cycle())
+                    return;
+                this.current_x(this.keys_x()[index_new]);
+            }
+            index_y() {
+                let index = this.keys_y().indexOf(this.current_y());
+                if (index < 0)
+                    return null;
+                return index;
+            }
+            index_x() {
+                let index = this.keys_x().indexOf(this.current_x());
+                if (index < 0)
+                    return null;
+                return index;
+            }
+        }
+        $$.$mol_nav = $mol_nav;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//nav.view.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_select extends $.$mol_pop {
+        dictionary() {
+            return {};
+        }
+        options() {
+            return [];
+        }
+        value(val) {
+            if (val !== undefined)
+                return val;
+            return "";
+        }
+        Option_row(id) {
+            const obj = new this.$.$mol_button_minor();
+            obj.event_click = (event) => this.event_select(id, event);
+            obj.sub = () => this.option_content(id);
+            return obj;
+        }
+        No_options() {
+            const obj = new this.$.$mol_view();
+            obj.sub = () => [
+                this.no_options_message()
+            ];
+            return obj;
+        }
+        plugins() {
+            return [
+                ...super.plugins(),
+                this.Nav()
+            ];
+        }
+        showed(val) {
+            return this.options_showed(val);
+        }
+        Anchor() {
+            return this.Trigger();
+        }
+        bubble_content() {
+            return [
+                this.Menu()
+            ];
+        }
+        Filter() {
+            const obj = new this.$.$mol_string();
+            obj.value = (val) => this.filter_pattern(val);
+            obj.hint = () => this.$.$mol_locale.text('$mol_select_Filter_hint');
+            obj.submit = (event) => this.submit(event);
+            obj.enabled = () => this.enabled();
+            return obj;
+        }
+        Trigger_icon() {
+            const obj = new this.$.$mol_icon_dots_vertical();
+            return obj;
+        }
+        event_select(id, event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        option_label(id) {
+            return "";
+        }
+        filter_pattern(val) {
+            if (val !== undefined)
+                return val;
+            return "";
+        }
+        Option_label(id) {
+            const obj = new this.$.$mol_dimmer();
+            obj.haystack = () => this.option_label(id);
+            obj.needle = () => this.filter_pattern();
+            return obj;
+        }
+        option_content(id) {
+            return [
+                this.Option_label(id)
+            ];
+        }
+        no_options_message() {
+            return this.$.$mol_locale.text('$mol_select_no_options_message');
+        }
+        nav_components() {
+            return [];
+        }
+        option_focused(component) {
+            if (component !== undefined)
+                return component;
+            return null;
+        }
+        nav_cycle(val) {
+            if (val !== undefined)
+                return val;
+            return true;
+        }
+        Nav() {
+            const obj = new this.$.$mol_nav();
+            obj.keys_y = () => this.nav_components();
+            obj.current_y = (component) => this.option_focused(component);
+            obj.cycle = (val) => this.nav_cycle(val);
+            return obj;
+        }
+        options_showed(val) {
+            if (val !== undefined)
+                return val;
+            return false;
+        }
+        open(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        trigger_content() {
+            return [];
+        }
+        hint() {
+            return this.$.$mol_locale.text('$mol_select_hint');
+        }
+        Trigger() {
+            const obj = new this.$.$mol_button_minor();
+            obj.click = (event) => this.open(event);
+            obj.sub = () => this.trigger_content();
+            obj.hint = () => this.hint();
+            return obj;
+        }
+        menu_content() {
+            return [];
+        }
+        Menu() {
+            const obj = new this.$.$mol_list();
+            obj.rows = () => this.menu_content();
+            return obj;
+        }
+        submit(event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        enabled() {
+            return true;
+        }
+    }
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "value", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $mol_select.prototype, "Option_row", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "No_options", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "Filter", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "Trigger_icon", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $mol_select.prototype, "event_select", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "filter_pattern", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $mol_select.prototype, "Option_label", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "option_focused", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "nav_cycle", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "Nav", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "options_showed", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "open", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "Trigger", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "Menu", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_select.prototype, "submit", null);
+    $.$mol_select = $mol_select;
+})($ || ($ = {}));
+//select.view.tree.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_match_text(query, values) {
+        const tags = query.toLowerCase().trim().split(/\s+/).filter(tag => tag);
+        if (tags.length === 0)
+            return () => true;
+        return (variant) => {
+            const vals = values(variant);
+            return tags.every(tag => vals.some(val => val.toLowerCase().indexOf(tag) >= 0));
+        };
+    }
+    $.$mol_match_text = $mol_match_text;
+})($ || ($ = {}));
+//text.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_style_attach("mol/select/select.view.css", "[mol_select] {\n\tdisplay: flex;\n\tword-break: normal;\n\talign-self: flex-start;\n}\n\n[mol_select_anchor] {\n\tdisplay: flex;\n\tflex: 1 1 auto;\n\tjustify-content: space-between;\n}\n\n[mol_select_option_row] {\n\tmin-width: 100%;\n\tpadding: 0;\n\tjustify-content: flex-start;\n}\n\n[mol_select_bubble] {\n\tmin-width: 100%;\n}\n\n[mol_select_filter] {\n\tz-index: 2;\n\topacity: 1 !important;\n\tflex: 1 1 auto;\n\talign-self: stretch;\n}\n\n[mol_select_option_label] {\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tmin-height: 1.5em;\n\tdisplay: block;\n}\n\n[mol_select_clear_option_content] {\n\tpadding: .5em 1rem .5rem 0;\n\ttext-align: left;\n\tbox-shadow: var(--mol_theme_line);\n\tflex: 1 0 auto;\n}\n\n[mol_select_no_options] {\n\tpadding: var(--mol_gap_text);\n\ttext-align: left;\n\tdisplay: block;\n\tcolor: var(--mol_theme_shade);\n}\n\n[mol_select_trigger] {\n\tpadding: 0;\n\tflex: 1 1 auto;\n\tdisplay: flex;\n}\n\n[mol_select_trigger] > * {\n\tmargin-right: -.75rem;\n}\n\n[mol_select_trigger] > *:last-child {\n\tmargin-right: 0;\n}\n\n[mol_select_menu] {\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n");
+})($ || ($ = {}));
+//select.view.css.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_select extends $.$mol_select {
+            filter_pattern(next) {
+                this.focused();
+                return next || '';
+            }
+            open() {
+                this.options_showed(true);
+            }
+            options_showed(next = false) {
+                this.focused();
+                return next;
+            }
+            options() {
+                return Object.keys(this.dictionary());
+            }
+            options_filtered() {
+                let options = this.options();
+                options = options.filter($.$mol_match_text(this.filter_pattern(), (id) => [this.option_label(id)]));
+                const index = options.indexOf(this.value());
+                if (index >= 0)
+                    options = [...options.slice(0, index), ...options.slice(index + 1)];
+                return options;
+            }
+            option_label(id) {
+                const value = this.dictionary()[id];
+                return value == null ? id : value;
+            }
+            option_rows() {
+                if (this.options_filtered().length === 0)
+                    return [this.No_options()];
+                let options = this.options_filtered().map((option) => this.Option_row(option));
+                return options;
+            }
+            option_focused(component) {
+                if (component == null) {
+                    for (let comp of this.nav_components()) {
+                        if (comp && comp.focused())
+                            return comp;
+                    }
+                    return null;
+                }
+                if (this.options_showed()) {
+                    component.focused(true);
+                }
+                return component;
+            }
+            event_select(id, event) {
+                this.value(id);
+                this.focused(false);
+            }
+            nav_components() {
+                return [this.Filter(), ...this.option_rows()];
+            }
+            trigger_content() {
+                return [
+                    ...this.option_content(this.value()),
+                    this.Trigger_icon(),
+                ];
+            }
+            menu_content() {
+                return (this.options().length > 1 && this.Filter())
+                    ? [this.Filter(), ...this.option_rows()]
+                    : this.option_rows();
+            }
+        }
+        __decorate([
+            $.$mol_mem
+        ], $mol_select.prototype, "filter_pattern", null);
+        __decorate([
+            $.$mol_mem
+        ], $mol_select.prototype, "options_showed", null);
+        __decorate([
+            $.$mol_mem
+        ], $mol_select.prototype, "options", null);
+        __decorate([
+            $.$mol_mem
+        ], $mol_select.prototype, "options_filtered", null);
+        __decorate([
+            $.$mol_mem
+        ], $mol_select.prototype, "option_focused", null);
+        $$.$mol_select = $mol_select;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+//select.view.js.map
 ;
 "use strict";
 var $;
@@ -10310,9 +10362,11 @@ var $;
         }
         Result(index) {
             const obj = new this.$.$mol_page();
-            obj.Title = () => null;
             obj.title = () => this.transform(index);
-            obj.head = () => this.result_head(index);
+            obj.tools = () => [
+                this.Close(index),
+                this.Add(index)
+            ];
             obj.body = () => [
                 this.Result_text(index)
             ];
@@ -10415,8 +10469,14 @@ var $;
             ];
             return obj;
         }
+        Add_first() {
+            const obj = new this.$.$mol_view();
+            return obj;
+        }
         source_tools() {
-            return [];
+            return [
+                this.Add_first()
+            ];
         }
         source_default() {
             return "";
@@ -10442,16 +10502,38 @@ var $;
             ];
             return obj;
         }
-        transform(index, val) {
+        transform(index) {
+            return "";
+        }
+        Close_icon(index) {
+            const obj = new this.$.$mol_icon_cross();
+            return obj;
+        }
+        close(index, event) {
+            if (event !== undefined)
+                return event;
+            return null;
+        }
+        Close(index) {
+            const obj = new this.$.$mol_button_minor();
+            obj.hint = () => this.$.$mol_locale.text('$hyoo_tree_Close_hint');
+            obj.sub = () => [
+                this.Close_icon(index)
+            ];
+            obj.click = (event) => this.close(index, event);
+            return obj;
+        }
+        Add_icon(index) {
+            const obj = new this.$.$mol_icon_plus();
+            return obj;
+        }
+        add(index, val) {
             if (val !== undefined)
                 return val;
-            return "$mol_tree2_from_string";
+            return "";
         }
-        Transform(index) {
-            const obj = new this.$.$mol_select();
-            obj.hint = () => this.$.$mol_locale.text('$hyoo_tree_Transform_hint');
-            obj.value = (val) => this.transform(index, val);
-            obj.options = () => [
+        transform_options() {
+            return [
                 "$mol_tree2_from_string",
                 "$mol_tree2_to_string",
                 "$mol_tree2_from_json",
@@ -10469,6 +10551,7 @@ var $;
                 "$mol_tree2_bin_from_bytes",
                 "$mol_tree2_bin_to_bytes",
                 "$mol_view_tree2_to_text",
+                "$mol_view_tree2_to_dts",
                 "$hyoo_marked_tree_from_line",
                 "$hyoo_marked_tree_to_js",
                 "$mol_json_from_string",
@@ -10476,30 +10559,14 @@ var $;
                 "$mol_jack_transform",
                 "$mol_js_eval"
             ];
+        }
+        Add(index) {
+            const obj = new this.$.$mol_select();
+            obj.hint = () => this.$.$mol_locale.text('$hyoo_tree_Add_hint');
+            obj.Trigger_icon = () => this.Add_icon(index);
+            obj.value = (val) => this.add(index, val);
+            obj.options = () => this.transform_options();
             return obj;
-        }
-        Close_icon(index) {
-            const obj = new this.$.$mol_icon_cross();
-            return obj;
-        }
-        close(index, event) {
-            if (event !== undefined)
-                return event;
-            return null;
-        }
-        Close(index) {
-            const obj = new this.$.$mol_button_minor();
-            obj.sub = () => [
-                this.Close_icon(index)
-            ];
-            obj.click = (event) => this.close(index, event);
-            return obj;
-        }
-        result_head(index) {
-            return [
-                this.Transform(index),
-                this.Close(index)
-            ];
         }
         result_text(index) {
             return null;
@@ -10558,16 +10625,13 @@ var $;
     ], $hyoo_tree.prototype, "Presets", null);
     __decorate([
         $.$mol_mem
+    ], $hyoo_tree.prototype, "Add_first", null);
+    __decorate([
+        $.$mol_mem
     ], $hyoo_tree.prototype, "Source_text", null);
     __decorate([
         $.$mol_mem
     ], $hyoo_tree.prototype, "Source", null);
-    __decorate([
-        $.$mol_mem_key
-    ], $hyoo_tree.prototype, "transform", null);
-    __decorate([
-        $.$mol_mem_key
-    ], $hyoo_tree.prototype, "Transform", null);
     __decorate([
         $.$mol_mem_key
     ], $hyoo_tree.prototype, "Close_icon", null);
@@ -10577,6 +10641,15 @@ var $;
     __decorate([
         $.$mol_mem_key
     ], $hyoo_tree.prototype, "Close", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $hyoo_tree.prototype, "Add_icon", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $hyoo_tree.prototype, "add", null);
+    __decorate([
+        $.$mol_mem_key
+    ], $hyoo_tree.prototype, "Add", null);
     __decorate([
         $.$mol_mem_key
     ], $hyoo_tree.prototype, "Result_text", null);
@@ -10657,7 +10730,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$mol_style_attach("hyoo/tree/tree.view.css", "[hyoo_tree_body] {\n\tdisplay: flex;\n}\n\n[hyoo_tree_presets_list] {\n\tpadding: var(--mol_gap_block);\n}\n\n[hyoo_tree_source] {\n\tflex: 1 0 auto;\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n[hyoo_tree_source_body] {\n\tpadding: var(--mol_gap_block);\n}\n\n[hyoo_tree_result] {\n\tflex: 1 0 auto;\n\toutline: 0 0 0 1px var(--mol_theme_line);\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n[hyoo_tree_result_head] {\n\tjustify-content: space-between;\n}\n\n[hyoo_tree_result_body] {\n\tpadding: var(--mol_gap_block);\n}\n\n[hyoo_tree_source_text],\n[hyoo_tree_result_text] {\n\tmax-width: 40rem;\n}\n");
+    $.$mol_style_attach("hyoo/tree/tree.view.css", "[hyoo_tree_body] {\n\tdisplay: flex;\n}\n\n[hyoo_tree_presets_list] {\n\tpadding: var(--mol_gap_block);\n}\n\n[hyoo_tree_source] {\n\tflex: 1 0 auto;\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n[hyoo_tree_source_body] {\n\tpadding: var(--mol_gap_block);\n}\n\n[hyoo_tree_result] {\n\tflex: 1 0 auto;\n\toutline: 0 0 0 1px var(--mol_theme_line);\n\tdisplay: flex;\n\tflex-direction: column;\n}\n\n[hyoo_tree_result_head] {\n}\n\n[hyoo_tree_result_body] {\n\tpadding: var(--mol_gap_block);\n}\n\n[hyoo_tree_source_text],\n[hyoo_tree_result_text] {\n\tmax-width: 40rem;\n}\n");
 })($ || ($ = {}));
 //tree.view.css.js.map
 ;
@@ -10671,18 +10744,23 @@ var $;
                 const str = this.$.$mol_state_arg.value('pipeline', next && next.join('~'));
                 return str && str.split('~').filter(Boolean) || super.pipeline();
             }
+            add(index, next) {
+                if (next) {
+                    this.pipeline([
+                        ...this.pipeline().slice(0, index + 1),
+                        next,
+                    ]);
+                }
+                return '';
+            }
+            Add_first() {
+                return this.Add(-1);
+            }
             pages() {
                 return [
                     this.Presets(),
                     this.Source(),
                     ...this.pipeline().map((transform, index) => this.Result(index)),
-                    this.Result(this.pipeline().length),
-                ];
-            }
-            result_head(index) {
-                return [
-                    this.Transform(index),
-                    ...this.pipeline()[index] ? [this.Close(index)] : [],
                 ];
             }
             source(next) {
@@ -10748,9 +10826,6 @@ var $;
         __decorate([
             $.$mol_mem
         ], $hyoo_tree.prototype, "pages", null);
-        __decorate([
-            $.$mol_mem_key
-        ], $hyoo_tree.prototype, "result_head", null);
         __decorate([
             $.$mol_mem
         ], $hyoo_tree.prototype, "source", null);

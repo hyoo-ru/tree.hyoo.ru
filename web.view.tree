@@ -396,26 +396,13 @@ $mol_textarea $mol_view
 			text <= value
 			render_visible_only false
 
-$mol_meter $mol_plugin
-	zoom 1
-	-
-	width?val 0
-	height?val 0
-	-
-	left?val 0
-	right?val 0
-	bottom?val 0
-	top?val 0
+$mol_icon_cross $mol_icon path \M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z
+
+$mol_icon_plus $mol_icon path \M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z
 
 $mol_pop $mol_view
 	event * keydown?event <=> keydown?event null
 	showed?val false
-	plugins /$mol_plugin
-		<= Meter $mol_meter
-			top => top
-			bottom => bottom
-			left => left
-			right => right
 	sub /
 		<= Anchor null
 		<= Bubble $mol_pop_bubble
@@ -432,6 +419,8 @@ $mol_pop_bubble $mol_scroll
 		^
 		mol_pop_align <= align \
 		tabindex 0
+
+$mol_icon_dots_vertical $mol_icon path \M12,16C13.1,16 14,16.9 14,18C14,19.1 13.1,20 12,20C10.9,20 10,19.1 10,18C10,16.9 10.9,16 12,16M12,10C13.1,10 14,10.9 14,12C14,13.1 13.1,14 12,14C10.9,14 10,13.1 10,12C10,10.9 10.9,10 12,10M12,4C13.1,4 14,4.9 14,6C14,7.1 13.1,8 12,8C10.9,8 10,7.1 10,6C10,4.9 10.9,4 12,4Z
 
 $mol_nav $mol_plugin
 	cycle?val false
@@ -476,19 +465,17 @@ $mol_select $mol_pop
 	showed?val <=> options_showed?val false
 	Anchor <= Trigger $mol_button_minor
 		click?event <=> open?event null
-		sub <= trigger_content /$mol_view_content
+		sub <= trigger_content /
+		hint <= hint @ \Pick..
 	bubble_content /
 		<= Menu $mol_list
 			rows <= menu_content /$mol_view
-	option_content_current /$mol_view_content
 	Filter $mol_string
 		value?val <=> filter_pattern?val \
-		hint <= filter_hint <= hint @ \Search..
+		hint @ \Filter..
 		submit?event <=> submit?event null
 		enabled <= enabled true
-	Trigger_icon $mol_icon_chevron
-
-$mol_icon_cross $mol_icon path \M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41Z
+	Trigger_icon $mol_icon_dots_vertical
 
 $hyoo_tree $mol_book2
 	plugins /
@@ -535,18 +522,24 @@ $hyoo_tree $mol_book2
 		<= Source $mol_page
 			title @ \Tree pipeline source
 			tools <= source_tools /$mol_view_content
+				<= Add_first $mol_view
 			body /
 				<= Source_text $mol_textarea
 					value?val <=> source?val <= source_default \
 					hint <= source_hint @ \view.tree source
 	Result!index $mol_page
-		Title null
-		title <= transform!index
-		head <= result_head!index /
-			<= Transform!index $mol_select
-				hint @ \Search transform..
-				value?val <=> transform!index?val \$mol_tree2_from_string
-				options /
+		title <= transform!index \
+		tools /
+			<= Close!index $mol_button_minor
+				hint @ \Remove step
+				sub /
+					<= Close_icon!index $mol_icon_cross
+				click?event <=> close!index?event null
+			<= Add!index $mol_select
+				hint @ \Add step..
+				Trigger_icon <= Add_icon!index $mol_icon_plus
+				value?val <=> add!index?val \
+				options <= transform_options /
 					\$mol_tree2_from_string
 					\$mol_tree2_to_string
 					\$mol_tree2_from_json
@@ -564,16 +557,13 @@ $hyoo_tree $mol_book2
 					\$mol_tree2_bin_from_bytes
 					\$mol_tree2_bin_to_bytes
 					\$mol_view_tree2_to_text
+					\$mol_view_tree2_to_dts
 					\$hyoo_marked_tree_from_line
 					\$hyoo_marked_tree_to_js
 					\$mol_json_from_string
 					\$mol_json_to_string
 					\$mol_jack_transform
 					\$mol_js_eval
-			<= Close!index $mol_button_minor 
-				sub /
-					<= Close_icon!index $mol_icon_cross
-				click?event <=> close!index?event null
 		body /
 			<= Result_text!index $mol_text_code
 				render_visible_only false
