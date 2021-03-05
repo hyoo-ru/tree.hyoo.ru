@@ -20,19 +20,6 @@ namespace $.$$ {
 			return ''
 		}
 		
-		Add_first() {
-			return this.Add(-1)
-		}
-
-		@ $mol_mem
-		pages() {
-			return [
-				this.Presets() ,
-				this.Source() ,
-				... this.pipeline().map( ( transform, index )=> this.Result( index ) ),
-			]
-		}
-
 		@ $mol_mem
 		source( next? : string ) {
 			return this.$.$mol_state_arg.value( 'source' , next ) ?? super.source()
@@ -48,7 +35,27 @@ namespace $.$$ {
 			])
 			return pipeline[ index ] ?? null
 		}
-
+		
+		@ $mol_mem
+		transform_options() {
+			
+			const map = this.transform_map()
+			const pipeline = this.pipeline()
+			const last = pipeline[ pipeline.length - 1 ]
+			const type = last ? map[ last ].output.split('.').reverse() : [ 'text' ]
+			
+			return Object.keys( map ).filter( id => {
+				
+				const diff = $mol_diff_path( type , map[ id ].input.split('.').reverse() )
+				if( !diff.prefix.length ) return false
+				
+				if( diff.suffix.every( s => s.length ) ) return false
+				
+				return true
+			} )
+			
+		}
+		
 		@ $mol_mem_key
 		result( index: number ): string | $mol_tree2 | Uint8Array | $mol_wasm_module {
 			
@@ -65,9 +72,9 @@ namespace $.$$ {
 
 		}
 
-		@ $mol_mem_key
-		result_text( index: number ): string {
-			let res = $mol_try( ()=> this.result( index ) )
+		@ $mol_mem
+		result_text(): string {
+			let res = $mol_try( ()=> this.result( this.pipeline().length - 1 ) )
 			if( res instanceof Promise ) $mol_fail_hidden( res )
 			if( typeof res === 'string' ) return res
 			if( Object( res ) !== res ) return String( res )

@@ -7,7 +7,7 @@
 }
 
 [hyoo_tree_source] {
-	flex: 1 0 auto;
+	flex: 1 0 30rem;
 	display: flex;
 	flex-direction: column;
 }
@@ -17,20 +17,12 @@
 }
 
 [hyoo_tree_result] {
-	flex: 1 0 auto;
+	flex: 1 0 30rem;
 	outline: 0 0 0 1px var(--mol_theme_line);
 	display: flex;
 	flex-direction: column;
 }
 
-[hyoo_tree_result_head] {
-}
-
 [hyoo_tree_result_body] {
 	padding: var(--mol_gap_block);
-}
-
-[hyoo_tree_source_text],
-[hyoo_tree_result_text] {
-	max-width: 40rem;
 }
