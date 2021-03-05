@@ -43,18 +43,24 @@ $hyoo_tree $mol_book2
 		<= Source $mol_page
 			title @ \Tree pipeline source
 			tools <= source_tools /$mol_view_content
+				<= Add_first $mol_view
 			body /
 				<= Source_text $mol_textarea
 					value?val <=> source?val <= source_default \
 					hint <= source_hint @ \view.tree source
 	Result!index $mol_page
-		Title null
-		title <= transform!index
-		head <= result_head!index /
-			<= Transform!index $mol_select
-				hint @ \Search transform..
-				value?val <=> transform!index?val \$mol_tree2_from_string
-				options /
+		title <= transform!index \
+		tools /
+			<= Close!index $mol_button_minor
+				hint @ \Remove step
+				sub /
+					<= Close_icon!index $mol_icon_cross
+				click?event <=> close!index?event null
+			<= Add!index $mol_select
+				hint @ \Add step..
+				Trigger_icon <= Add_icon!index $mol_icon_plus
+				value?val <=> add!index?val \
+				options <= transform_options /
 					\$mol_tree2_from_string
 					\$mol_tree2_to_string
 					\$mol_tree2_from_json
@@ -72,16 +78,13 @@ $hyoo_tree $mol_book2
 					\$mol_tree2_bin_from_bytes
 					\$mol_tree2_bin_to_bytes
 					\$mol_view_tree2_to_text
+					\$mol_view_tree2_to_dts
 					\$hyoo_marked_tree_from_line
 					\$hyoo_marked_tree_to_js
 					\$mol_json_from_string
 					\$mol_json_to_string
 					\$mol_jack_transform
 					\$mol_js_eval
-			<= Close!index $mol_button_minor 
-				sub /
-					<= Close_icon!index $mol_icon_cross
-				click?event <=> close!index?event null
 		body /
 			<= Result_text!index $mol_text_code
 				render_visible_only false

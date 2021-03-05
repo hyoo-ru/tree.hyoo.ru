@@ -7,6 +7,22 @@ namespace $.$$ {
 			const str = this.$.$mol_state_arg.value( 'pipeline', next && next.join( '~' ) )
 			return str && str.split( '~' ).filter( Boolean ) || super.pipeline()
 		}
+		
+		add( index: number, next?: string ) {
+			
+			if( next ) {
+				this.pipeline([
+					... this.pipeline().slice( 0, index + 1 ),
+					next,
+				])
+			}
+			
+			return ''
+		}
+		
+		Add_first() {
+			return this.Add(-1)
+		}
 
 		@ $mol_mem
 		pages() {
@@ -14,15 +30,6 @@ namespace $.$$ {
 				this.Presets() ,
 				this.Source() ,
 				... this.pipeline().map( ( transform, index )=> this.Result( index ) ),
-				this.Result( this.pipeline().length ),
-			]
-		}
-
-		@ $mol_mem_key
-		result_head( index: number ) {
-			return [
-				this.Transform( index ),
-				... this.pipeline()[ index ] ? [ this.Close( index ) ] : [],
 			]
 		}
 
@@ -64,7 +71,7 @@ namespace $.$$ {
 			if( res instanceof Promise ) $mol_fail_hidden( res )
 			if( typeof res === 'string' ) return res
 			if( Object( res ) !== res ) return String( res )
-			if( !Reflect.getPrototypeOf( Reflect.getPrototypeOf( res ) ) ) return JSON.stringify( res, null, '\t' )
+			if( !Reflect.getPrototypeOf( Reflect.getPrototypeOf( res )! ) ) return JSON.stringify( res, null, '\t' )
 			if( Array.isArray( res ) ) return JSON.stringify( res, null, '\t' )
 			let mime = 'application/octet-stream'
 			if( res instanceof $mol_wasm_module ) {
