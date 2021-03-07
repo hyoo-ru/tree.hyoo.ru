@@ -1658,7 +1658,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    const $mol_jack: Record<string, $mol_tree2_belt<{}>>;
+    const $mol_jack: $mol_tree2_belt<{}>;
     function $mol_jack_transform(code: $mol_tree2): $mol_tree2;
 }
 
@@ -2774,14 +2774,21 @@ declare namespace $.$$ {
 
 declare namespace $ {
     class $mol_text_code_row extends $mol_paragraph {
+        attr(): {
+            mol_text_code_row_numb: number;
+        };
         text(): string;
         minimal_height(): number;
         Token(id: any): $mol_text_code_token;
         Token_link(id: any): $mol_text_code_token_link;
+        numb(): number;
         token_type(id: any): string;
         token_text(id: any): string;
         highlight(): string;
     }
+}
+
+declare namespace $.$$ {
 }
 
 declare namespace $.$$ {
@@ -2807,6 +2814,7 @@ declare namespace $ {
         text(): string;
         text_lines(): readonly string[];
         Row(id: any): $$.$mol_text_code_row;
+        row_numb(id: any): number;
         row_text(id: any): string;
         highlight(): string;
     }
@@ -2820,6 +2828,7 @@ declare namespace $.$$ {
         text_lines(): readonly string[];
         rows(): $mol_text_code_row[];
         row_text(index: number): string;
+        row_numb(index: number): number;
     }
 }
 
