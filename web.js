@@ -10848,7 +10848,6 @@ var $;
             const obj = new this.$.$mol_text_code();
             obj.render_visible_only = () => false;
             obj.text = () => this.result_text();
-            obj.sidebar_showed = () => true;
             return obj;
         }
         Result() {
