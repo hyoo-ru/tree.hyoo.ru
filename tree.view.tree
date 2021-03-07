@@ -136,4 +136,3 @@ $hyoo_tree $mol_book2
 				<= Result_text $mol_text_code
 					render_visible_only false
 					text <= result_text null
-					sidebar_showed true
