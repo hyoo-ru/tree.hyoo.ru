@@ -9707,7 +9707,7 @@ var $;
             return obj;
         }
         sidebar_showed() {
-            return true;
+            return false;
         }
         row_numb(id) {
             return 0;
