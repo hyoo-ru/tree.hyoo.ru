@@ -2328,11 +2328,11 @@ var $;
                 kids[index].force_render(path);
             }
         }
-        async ensure_visible(view) {
+        async ensure_visible(view, align = "start") {
             const path = this.view_find(v => v === view).next().value;
             this.force_render(new Set(path));
             await $.$mol_fiber_warp();
-            view.dom_node().scrollIntoView();
+            view.dom_node().scrollIntoView({ block: align });
         }
     }
     $mol_view.watchers = new Set();
@@ -7383,7 +7383,7 @@ var $;
                 return null;
             }
             minimal_height() {
-                return Math.max(super.minimal_height() || 32);
+                return Math.max(super.minimal_height(), 40);
             }
             target() {
                 return (this.uri_native().origin === $.$mol_dom_context.location.origin) ? '_self' : '_blank';
@@ -10136,6 +10136,7 @@ var $;
         }
         bubble_content() {
             return [
+                this.Filter(),
                 this.Menu()
             ];
         }
@@ -10381,7 +10382,7 @@ var $;
             }
             menu_content() {
                 return [
-                    ...this.nav_components(),
+                    ...this.option_rows(),
                     ...(this.options_filtered().length === 0) ? [this.No_options()] : []
                 ];
             }
