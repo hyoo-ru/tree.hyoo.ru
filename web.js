@@ -3204,7 +3204,7 @@ var $;
         hack(belt, context = {}) {
             return [].concat(...this.kids.map(child => {
                 let handle = belt[child.type] || belt[''];
-                if (!handle) {
+                if (!handle || handle === Object.prototype[child.type]) {
                     handle = (input, belt, context) => [
                         input.clone(input.hack(belt, context), context.span)
                     ];
