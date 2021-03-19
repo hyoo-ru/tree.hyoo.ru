@@ -1580,7 +1580,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_guid(exists?: (id: string) => boolean): string;
+    function $mol_guid(length?: number, exists?: (id: string) => boolean): string;
 }
 
 declare namespace $ {
