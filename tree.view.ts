@@ -42,7 +42,9 @@ namespace $.$$ {
 			const map = this.transform_map()
 			const pipeline = this.pipeline()
 			const last = pipeline[ pipeline.length - 1 ]
-			const type = last ? map[ last ].output.split('.').reverse() : [ 'text' ]
+			
+			const type = last ? map[ last ].output.split('.').filter( Boolean ).reverse() : [ 'text' ]
+			if( !type.length ) return Object.keys( map )
 			
 			return Object.keys( map ).filter( id => {
 				
