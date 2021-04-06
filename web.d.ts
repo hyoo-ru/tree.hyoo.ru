@@ -1539,6 +1539,10 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_view_tree2_to_locale(this: $, tree2_module: $mol_tree2): $mol_view_tree2_locales;
+}
+
+declare namespace $ {
     type $mol_type_intersect<Union> = (Union extends any ? (_: Union) => void : never) extends ((_: infer Intersection) => void) ? Intersection : never;
 }
 
@@ -3143,6 +3147,10 @@ declare namespace $ {
                 output: string;
             };
             $mol_view_tree2_to_text: {
+                input: string;
+                output: string;
+            };
+            $mol_view_tree2_to_locale: {
                 input: string;
                 output: string;
             };
