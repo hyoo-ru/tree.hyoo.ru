@@ -2310,7 +2310,7 @@ var $;
 						:
 							bar
 							2
-				`), '{["foo"]: 1, [bar]: 2}\n');
+				`), '{"foo": 1, [bar]: 2}\n');
         },
         'regexp'() {
             $.$mol_assert_equal(convert(`
@@ -2341,19 +2341,19 @@ var $;
             $.$mol_assert_equal(convert(`
 					()
 						foo
-						[,] \\bar
-						[,] 1
-				`), '(foo["bar"][1])\n');
+						[] \\bar
+						[] 1
+				`), '(foo.bar[1])\n');
             $.$mol_assert_equal(convert(`
 					()
 						foo
-						[,] 1
+						[] 1
 						(,)
 				`), '(foo[1]())\n');
             $.$mol_assert_equal(convert(`
 					()
 						[,] 0
-						[,] 1
+						[] 1
 						(,)
 							2
 							3
