@@ -3466,6 +3466,21 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_dom_parse(text, type = 'application/xhtml+xml') {
+        const parser = new $.$mol_dom_context.DOMParser();
+        const doc = parser.parseFromString(text, type);
+        const error = doc.getElementsByTagName('parsererror');
+        if (error.length)
+            throw new Error(error[0].textContent);
+        return doc;
+    }
+    $.$mol_dom_parse = $mol_dom_parse;
+})($ || ($ = {}));
+//parse.js.map
+;
+"use strict";
+var $;
+(function ($) {
     const mapping = {
         '<': '&lt;',
         '>': '&gt;',
@@ -3562,6 +3577,68 @@ var $;
     $.$mol_tree2_xml_to_text = $mol_tree2_xml_to_text;
 })($ || ($ = {}));
 //text.js.map
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_tree2_xml_from_dom(dom) {
+        switch (dom.nodeType) {
+            case dom.DOCUMENT_NODE: {
+                let kids = [];
+                for (const kid of dom.childNodes) {
+                    kids.push($mol_tree2_xml_from_dom(kid));
+                }
+                return $.$mol_tree2.list(kids);
+            }
+            case dom.PROCESSING_INSTRUCTION_NODE: {
+                return $.$mol_tree2.struct('?', [
+                    $.$mol_tree2.struct(dom.nodeName, dom.nodeValue.split(' ').map(chunk => {
+                        const [, name, value] = /^(.*?)(?:="(.*?)")?$/.exec(chunk);
+                        const kids = value ? [$.$mol_tree2.data(value)] : [];
+                        return $.$mol_tree2.struct(name, kids);
+                    }))
+                ]);
+            }
+            case dom.DOCUMENT_TYPE_NODE: {
+                const dom2 = dom;
+                return $.$mol_tree2.struct('!', [
+                    $.$mol_tree2.struct('DOCTYPE', [
+                        $.$mol_tree2.struct(dom2.name)
+                    ])
+                ]);
+            }
+            case dom.ELEMENT_NODE: {
+                let kids = [];
+                for (const attr of dom.attributes) {
+                    kids.push($.$mol_tree2.struct('@', [
+                        $.$mol_tree2.struct(attr.nodeName, [
+                            $.$mol_tree2.data(attr.nodeValue)
+                        ])
+                    ]));
+                }
+                for (const kid of dom.childNodes) {
+                    const k = $mol_tree2_xml_from_dom(kid);
+                    if (k.type || k.value)
+                        kids.push(k);
+                }
+                return $.$mol_tree2.struct(dom.nodeName, kids);
+            }
+            case dom.COMMENT_NODE: {
+                return $.$mol_tree2.struct('--', [
+                    $.$mol_tree2.data(dom.nodeValue)
+                ]);
+            }
+            case dom.TEXT_NODE: {
+                if (!dom.nodeValue.trim())
+                    return $.$mol_tree2.list([]);
+                return $.$mol_tree2.data(dom.nodeValue.replace(/\s+/g, ' '));
+            }
+        }
+        return $.$mol_fail(new Error(`Unsupported node ${dom.nodeName}`));
+    }
+    $.$mol_tree2_xml_from_dom = $mol_tree2_xml_from_dom;
+})($ || ($ = {}));
+//dom.js.map
 ;
 "use strict";
 var $;
@@ -4886,21 +4963,6 @@ var $;
     $.$mol_file = $mol_file;
 })($ || ($ = {}));
 //file.js.map
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_dom_parse(text, type = 'application/xhtml+xml') {
-        const parser = new $.$mol_dom_context.DOMParser();
-        const doc = parser.parseFromString(text, type);
-        const error = doc.getElementsByTagName('parsererror');
-        if (error.length)
-            throw new Error(error[0].textContent);
-        return doc;
-    }
-    $.$mol_dom_parse = $mol_dom_parse;
-})($ || ($ = {}));
-//parse.js.map
 ;
 "use strict";
 var $;
@@ -10731,9 +10793,17 @@ var $;
                     input: "grammar.tree",
                     output: "grammar.tree"
                 },
+                "$mol_dom_parse": {
+                    input: "text",
+                    output: "dom"
+                },
                 "$mol_tree2_xml_to_text": {
                     input: "xml.tree",
                     output: "text.tree"
+                },
+                "$mol_tree2_xml_from_dom": {
+                    input: "dom",
+                    output: "xml.tree"
                 },
                 "$mol_tree2_js_to_text": {
                     input: "js.tree",
@@ -11107,6 +11177,17 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_dom_serialize(node) {
+        const serializer = new $.$mol_dom_context.XMLSerializer;
+        return serializer.serializeToString(node);
+    }
+    $.$mol_dom_serialize = $mol_dom_serialize;
+})($ || ($ = {}));
+//serialize.js.map
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_base64_encode(src) {
         throw new Error('Not implemented');
     }
@@ -11214,6 +11295,8 @@ var $;
                     return res;
                 if (Object(res) !== res)
                     return String(res);
+                if (res instanceof $.$mol_dom_context.Node)
+                    return $.$mol_dom_serialize(res);
                 if (!Reflect.getPrototypeOf(Reflect.getPrototypeOf(res)))
                     return JSON.stringify(res, null, '\t');
                 if (Array.isArray(res))

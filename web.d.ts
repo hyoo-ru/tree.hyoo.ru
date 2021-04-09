@@ -1095,11 +1095,19 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_dom_parse(text: string, type?: DOMParserSupportedType): Document;
+}
+
+declare namespace $ {
     function $mol_html_encode(text: string): string;
 }
 
 declare namespace $ {
     function $mol_tree2_xml_to_text(xml: $mol_tree2): $mol_tree2;
+}
+
+declare namespace $ {
+    function $mol_tree2_xml_from_dom(dom: Node): $mol_tree2;
 }
 
 declare namespace $ {
@@ -1403,10 +1411,6 @@ declare namespace $ {
         find(include?: RegExp, exclude?: RegExp): $mol_file[];
         size(): number;
     }
-}
-
-declare namespace $ {
-    function $mol_dom_parse(text: string, type?: DOMParserSupportedType): Document;
 }
 
 declare namespace $ {
@@ -3094,7 +3098,15 @@ declare namespace $ {
                 input: string;
                 output: string;
             };
+            $mol_dom_parse: {
+                input: string;
+                output: string;
+            };
             $mol_tree2_xml_to_text: {
+                input: string;
+                output: string;
+            };
+            $mol_tree2_xml_from_dom: {
                 input: string;
                 output: string;
             };
@@ -3228,6 +3240,10 @@ declare namespace $ {
 
 declare namespace $ {
     function $mol_try<Result>(handler2: () => Result): Result | Error;
+}
+
+declare namespace $ {
+    function $mol_dom_serialize(node: Node): string;
 }
 
 declare namespace $ {
