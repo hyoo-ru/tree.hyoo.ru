@@ -6595,6 +6595,9 @@ var $;
                     from: (input, b, c) => {
                         return arg.hack(Object.assign(Object.create(belt_inner), b), c);
                     },
+                    clone: (input, b, c) => [
+                        arg.clone(input.hack(b, c)),
+                    ],
                 })), Object.assign(Object.assign({}, context), { span: arg.span }));
             };
             return [];
