@@ -628,6 +628,7 @@ declare namespace $ {
         dom_node(next?: Element): Element;
         dom_tree(next?: Element): Element;
         dom_node_actual(): Element;
+        auto(): void;
         render(): void;
         static view_classes(): (typeof $mol_view)[];
         view_names_owned(): string[];
@@ -3358,3 +3359,5 @@ declare namespace $ {
 declare namespace $ {
     function $mol_view_tree2_ts_method(this: $, owner_parts: $mol_view_tree2_prop, body: $mol_tree2, types?: boolean): $mol_tree2[];
 }
+
+export = $;
