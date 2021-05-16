@@ -4463,12 +4463,12 @@ var $;
                 section.push(...bytes([0x60], type.span));
                 const name = type.kids[0];
                 types_mapping.set(name.type, types_mapping.size);
-                const params = name.select('=>', '');
+                const params = name.select('=>', null);
                 section.push(...array_prolog(params));
                 for (const param of params.kids) {
                     section.push(...bytes([$.$mol_wasm_value_types[param.type]], param.span));
                 }
-                const results = name.select('<=', '');
+                const results = name.select('<=', null);
                 section.push(...array_prolog(results));
                 for (const result of results.kids) {
                     section.push(...bytes([$.$mol_wasm_value_types[result.type]], result.span));
@@ -5897,6 +5897,9 @@ var $;
 //intersect.js.map
 ;
 "use strict";
+//unicode.js.map
+;
+"use strict";
 var $;
 (function ($) {
     class $mol_regexp extends RegExp {
@@ -6002,19 +6005,32 @@ var $;
         static char_code(code) {
             return new $mol_regexp(`\\u${code.toString(16).padStart(4, '0')}`);
         }
-        static byte_except(...forbidden) {
+        static unicode_only(...category) {
+            return new $mol_regexp(`\\p{${category.join('=')}}`);
+        }
+        static unicode_except(...category) {
+            return new $mol_regexp(`\\P{${category.join('=')}}`);
+        }
+        static char_range(from, to) {
+            return new $mol_regexp(`${$mol_regexp.char_code(from)}..${$mol_regexp.char_code(to)}`);
+        }
+        static char_only(...allowed) {
+            const regexp = allowed.map(f => $mol_regexp.from(f).source).join('');
+            return new $mol_regexp(`[${regexp}]`);
+        }
+        static char_except(...forbidden) {
             const regexp = forbidden.map(f => $mol_regexp.from(f).source).join('');
             return new $mol_regexp(`[^${regexp}]`);
         }
     }
-    $mol_regexp.byte = $mol_regexp.from(/[\s\S]/);
+    $mol_regexp.char_any = $mol_regexp.from(/[\s\S]/);
     $mol_regexp.digit = $mol_regexp.from(/\d/);
     $mol_regexp.letter = $mol_regexp.from(/\w/);
     $mol_regexp.space = $mol_regexp.from(/\s/);
     $mol_regexp.tab = $mol_regexp.from(/\t/);
     $mol_regexp.slash_back = $mol_regexp.from(/\\/);
     $mol_regexp.word_break = $mol_regexp.from(/\b/);
-    $mol_regexp.line_end = $mol_regexp.from(/\r?\n/);
+    $mol_regexp.line_end = $mol_regexp.from(/(?:\r?\n|\r)/);
     $mol_regexp.begin = $mol_regexp.from(/^/);
     $mol_regexp.end = $mol_regexp.from(/$/);
     $mol_regexp.or = $mol_regexp.from(/|/);
@@ -6225,9 +6241,9 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    const { optional, slash_back, byte, byte_except, repeat } = $.$mol_regexp;
-    $.$hyoo_marked_line_content = repeat(byte, 1);
-    const uri = repeat(byte_except(slash_back));
+    const { optional, slash_back, char_any, char_except, repeat } = $.$mol_regexp;
+    $.$hyoo_marked_line_content = repeat(char_any, 1);
+    const uri = repeat(char_except(slash_back));
     function with_marker(marker, content = $.$mol_regexp.from({
         content: $.$hyoo_marked_line_content
     })) {
@@ -8264,8 +8280,13 @@ var $;
         autocomplete() {
             return false;
         }
+        auto() {
+            return [
+                this.selection_watcher()
+            ];
+        }
         field() {
-            return Object.assign(Object.assign({}, super.field()), { disabled: this.disabled(), value: this.value_changed(), placeholder: this.hint(), spellcheck: this.spellcheck(), autocomplete: this.autocomplete_native() });
+            return Object.assign(Object.assign({}, super.field()), { disabled: this.disabled(), value: this.value_changed(), placeholder: this.hint(), spellcheck: this.spellcheck(), autocomplete: this.autocomplete_native(), selectionEnd: this.selection_end(), selectionStart: this.selection_start() });
         }
         attr() {
             return Object.assign(Object.assign({}, super.attr()), { maxlength: this.length_max(), type: this.type() });
@@ -8277,6 +8298,9 @@ var $;
             return [
                 this.Submit()
             ];
+        }
+        selection_watcher() {
+            return null;
         }
         disabled() {
             return false;
@@ -8297,6 +8321,16 @@ var $;
         }
         autocomplete_native() {
             return "";
+        }
+        selection_end(val) {
+            if (val !== undefined)
+                return val;
+            return 0;
+        }
+        selection_start(val) {
+            if (val !== undefined)
+                return val;
+            return 0;
         }
         length_max() {
             return Infinity;
@@ -8334,6 +8368,12 @@ var $;
     ], $mol_string.prototype, "value", null);
     __decorate([
         $.$mol_mem
+    ], $mol_string.prototype, "selection_end", null);
+    __decorate([
+        $.$mol_mem
+    ], $mol_string.prototype, "selection_start", null);
+    __decorate([
+        $.$mol_mem
     ], $mol_string.prototype, "type", null);
     __decorate([
         $.$mol_mem
@@ -8368,6 +8408,7 @@ var $;
                 if (!next)
                     return;
                 this.value(next.target.value);
+                this.selection_change(next);
             }
             disabled() {
                 return !this.enabled();
@@ -8375,7 +8416,18 @@ var $;
             autocomplete_native() {
                 return this.autocomplete() ? 'on' : 'off';
             }
+            selection_watcher() {
+                return new $.$mol_dom_listener(this.$.$mol_dom_context.document, 'selectionchange', event => this.selection_change(event));
+            }
+            selection_change(event) {
+                const el = this.dom_node();
+                this.selection_start(el.selectionStart);
+                this.selection_end(el.selectionEnd);
+            }
         }
+        __decorate([
+            $.$mol_mem
+        ], $mol_string.prototype, "selection_watcher", null);
         $$.$mol_string = $mol_string;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
@@ -9049,7 +9101,8 @@ var $;
                 return `https://favicon.yandex.net/favicon/${this.host()}?color=0,0,0,0&size=32&stub=1`;
             }
             host() {
-                const url = new URL(this.uri());
+                const base = this.$.$mol_state_arg.href();
+                const url = new URL(this.uri(), base);
                 return url.hostname;
             }
             title() {
