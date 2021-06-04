@@ -6134,11 +6134,10 @@ var $;
     $mol_regexp.begin = $mol_regexp.from(/^/gsu);
     $mol_regexp.end = $mol_regexp.from(/$/gsu);
     $mol_regexp.or = $mol_regexp.from(/|/gsu);
-    $mol_regexp.line_end = $mol_regexp.from([
-        [['\r'], '\n'],
-        $mol_regexp.or,
-        '\r',
-    ]);
+    $mol_regexp.line_end = $mol_regexp.from({
+        win_end: [['\r'], '\n'],
+        mac_end: '\r',
+    });
     $.$mol_regexp = $mol_regexp;
 })($ || ($ = {}));
 //regexp.js.map
@@ -6347,7 +6346,7 @@ var $;
 var $;
 (function ($) {
     const { optional, slash_back, char_any, char_except, repeat } = $.$mol_regexp;
-    $.$hyoo_marked_line_content = repeat(char_any, 1);
+    $.$hyoo_marked_line_content = repeat(char_except('\r\n'), 1);
     const uri = repeat(char_except(slash_back));
     function with_marker(marker, content = $.$mol_regexp.from({
         content: $.$hyoo_marked_line_content
