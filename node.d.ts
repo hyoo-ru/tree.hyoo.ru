@@ -2939,6 +2939,7 @@ declare namespace $ {
     class $mol_select_list extends $mol_view {
         value(val?: any): readonly string[];
         dictionary(): {};
+        minimal_height(): number;
         Badge(index: any): $mol_button_minor;
         Pick(): $$.$mol_select;
         badge_title(index: any): string;
@@ -2961,7 +2962,7 @@ declare namespace $.$$ {
     class $mol_select_list extends $.$mol_select_list {
         value(val?: string[]): readonly string[];
         pick(key: string): string;
-        options(): string[];
+        options(): readonly string[];
         options_pickable(): readonly string[];
         option_title(key: string): string;
         badge_title(index: number): string;
