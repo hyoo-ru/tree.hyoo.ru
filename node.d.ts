@@ -532,7 +532,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_dom_render_children(el: Element, childNodes: NodeList | Array<Node | string | null>): void;
+    function $mol_dom_render_children(el: Element | DocumentFragment, childNodes: NodeList | Array<Node | string | null>): void;
 }
 
 declare namespace $ {
@@ -1409,7 +1409,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_view_tree2_value_type(this: $, val: $mol_tree2): "number" | "locale" | "string" | "object" | "null" | "bool" | "dict" | "get" | "bind" | "put" | "list";
+    function $mol_view_tree2_value_type(this: $, val: $mol_tree2): "number" | "locale" | "object" | "string" | "null" | "bool" | "dict" | "get" | "bind" | "put" | "list";
 }
 
 declare namespace $ {
@@ -3016,6 +3016,10 @@ declare namespace $.$$ {
             col: string;
         }): $mol_view;
         cell_content(id: {
+            row: string[];
+            col: string;
+        }): any[];
+        cell_content_text(id: {
             row: string[];
             col: string;
         }): any[];
