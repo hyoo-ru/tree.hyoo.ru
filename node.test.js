@@ -14651,6 +14651,20 @@ var $;
             const inc = instance.get('increase');
             $_1.$mol_assert_like(inc(2), 3);
         },
+        'export function that returns pair'($) {
+            const code = $.$mol_tree2_from_string(`
+				type pair
+					<= i32
+					<= i32
+				func pair
+					i32.const 1
+					i32.const 2
+				export pair func pair
+			`);
+            const instance = $_1.$mol_tree2_wasm_to_module(code).instance();
+            const pair = instance.get('pair');
+            $_1.$mol_assert_like(pair(), [1, 2]);
+        },
     });
 })($ || ($ = {}));
 //bin.test.js.map
