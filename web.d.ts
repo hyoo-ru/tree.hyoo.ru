@@ -1698,22 +1698,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_diff_path<Item>(...paths: Item[][]): {
-        prefix: Item[];
-        suffix: Item[][];
-    };
-}
-
-declare namespace $ {
-    class $mol_error_mix extends Error {
-        errors: Error[];
-        constructor(message: string, ...errors: Error[]);
-        toJSON(): string;
-    }
-}
-
-declare namespace $ {
-    function $mol_compare_deep<Value>(a: Value, b: Value): boolean;
+    function $mol_compare_deep<Value>(left: Value, right: Value): boolean;
 }
 
 declare namespace $ {
@@ -3018,6 +3003,13 @@ declare namespace $ {
         Result_text(): $$.$mol_text_code;
         Result(): $$.$mol_page;
     }
+}
+
+declare namespace $ {
+    function $mol_diff_path<Item>(...paths: Item[][]): {
+        prefix: Item[];
+        suffix: Item[][];
+    };
 }
 
 declare namespace $ {
