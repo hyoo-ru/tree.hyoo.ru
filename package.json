@@ -327,8 +327,8 @@
     "$mol_base64_encode_encode.ts"
   ],
   "dependencies": {
-    "jsdom": "*",
     "colorette": "*",
+    "jsdom": "*",
     "chokidar": "*"
   }
 }
