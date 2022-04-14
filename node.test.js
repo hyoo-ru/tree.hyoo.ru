@@ -11370,6 +11370,9 @@ var $;
                 return val;
             return "";
         }
+        option_label_default() {
+            return "";
+        }
         Option_row(id) {
             const obj = new this.$.$mol_button_minor();
             obj.event_click = (event) => this.event_select(id, event);
@@ -11569,7 +11572,7 @@ var $;
             }
             option_label(id) {
                 const value = this.dictionary()[id];
-                return value == null ? id : value;
+                return (value == null ? id : value) || this.option_label_default();
             }
             option_rows() {
                 return this.options_filtered().map((option) => this.Option_row(option));
@@ -11603,7 +11606,7 @@ var $;
             trigger_content() {
                 return [
                     ...this.option_content(this.value()),
-                    ...!this.value() ? [this.Trigger_icon()] : [],
+                    this.Trigger_icon(),
                 ];
             }
             menu_content() {
