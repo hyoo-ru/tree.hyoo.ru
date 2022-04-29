@@ -107,6 +107,7 @@
     "$mol_error_syntax",
     "$mol_error",
     "$mol_tree2_from_json",
+    "$mol_tree2_to_json",
     "$mol_tree2_grammar_check",
     "$mol_tree2_grammar",
     "$mol_dom_parse",

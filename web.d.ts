@@ -971,6 +971,10 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_tree2_to_json(this: $, tree: $mol_tree2): unknown;
+}
+
+declare namespace $ {
     function $mol_tree2_grammar_check(grammar: $mol_tree2): $mol_tree2;
 }
 
@@ -3234,6 +3238,10 @@ declare namespace $ {
                 output: string;
             };
             $mol_tree2_from_json: {
+                input: string;
+                output: string;
+            };
+            $mol_tree2_to_json: {
                 input: string;
                 output: string;
             };
