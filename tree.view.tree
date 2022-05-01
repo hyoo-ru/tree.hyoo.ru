@@ -9,6 +9,9 @@ $hyoo_tree $mol_book2
 		$mol_tree2_from_json *
 			input \json
 			output \tree
+		$mol_tree2_to_json *
+			input \tree
+			output \json
 		$mol_tree2_grammar_check *
 			input \grammar.tree
 			output \grammar.tree
