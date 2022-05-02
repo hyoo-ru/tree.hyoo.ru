@@ -1527,7 +1527,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/theme/theme.css", ":root {\n\t--mol_theme_hue: 210deg;\n\t--mol_theme_luma: 1;\n\t--mol_theme_image: none;\n}\n\n[mol_theme] {\n\t\n\tbackground-color: var(--mol_theme_back);\n\tcolor: var(--mol_theme_text);\n\tfill: var(--mol_theme_text);\n\t\n\t--mol_theme_back: hsl( var(--mol_theme_hue), 50% , calc( 54% + 44% * var(--mol_theme_luma) ) );\n\t--mol_theme_text: hsl( var(--mol_theme_hue), 0% , calc( 50% - 30% * var(--mol_theme_luma) ) );\n\t--mol_theme_field: hsl( var(--mol_theme_hue), 0%, calc( 50% + 50% * var(--mol_theme_luma) ), .2 );\n\t\n\t--mol_theme_card: hsl( var(--mol_theme_hue), 0%, 50%, .05 );\n\t--mol_theme_hover: hsl( var(--mol_theme_hue), 0%, 50%, .1 );\n\t--mol_theme_line: hsl( var(--mol_theme_hue), 0%, 50%, .25 );\n\t--mol_theme_shade: hsl( var(--mol_theme_hue), 0%, 50%, 1 );\n\t\n\t--mol_theme_control: hsl( var(--mol_theme_hue), 50%, calc( 55% - 10% * var(--mol_theme_luma) ) );\n\t--mol_theme_current: hsl( calc( var(--mol_theme_hue) + 120deg ), 70%, calc( 60% - 10% * var(--mol_theme_luma) ) );\n\t--mol_theme_focus: hsl( calc( var(--mol_theme_hue) + 240deg ), 80%, calc( 50% - 10% * var(--mol_theme_luma) ) );\n\t\n}\n\n[mol_theme=\"$mol_theme_light\"] {\n\t--mol_theme_luma: 1;\n\t--mol_theme_image: none;\n}\n\n[mol_theme=\"$mol_theme_dark\"] {\n\t--mol_theme_luma: -1;\n\t--mol_theme_image: invert(1) hue-rotate( 180deg );\n}\n\n[mol_theme=\"$mol_theme_base\"] {\n\t--mol_theme_luma: -2;\n\t--mol_theme_back: hsl( var(--mol_theme_hue), 50%, 40% );\n\t--mol_theme_hover: hsl( var(--mol_theme_hue), 60%, 30% );\n\t--mol_theme_current: hsl( var(--mol_theme_hue), 100%, 20% );\n}\n\n[mol_theme=\"$mol_theme_current\"] {\n\t--mol_theme_back: hsl( calc( var(--mol_theme_hue) + 120deg ), 50%, calc( 55% + 15% * var(--mol_theme_luma) ) );\n}\n\n[mol_theme=\"$mol_theme_accent\"] {\n\t--mol_theme_luma: -2;\n\t--mol_theme_back: hsl( calc( var(--mol_theme_hue) + 240deg ), 50%, 40% );\n\t--mol_theme_hover: hsl( calc( var(--mol_theme_hue) + 240deg ), 50%, 35% );\n}\n\n[mol_theme=\"$mol_theme_accent\"] [mol_theme=\"$mol_theme_accent\"] {\n\t--mol_theme_back: black;\n}\n");
+    $mol_style_attach("mol/theme/theme.css", ":root {\n\t--mol_theme_hue: 210deg;\n\t--mol_theme_luma: 1;\n\t--mol_theme_image: none;\n}\n\n[mol_theme] {\n\t\n\tbackground-color: var(--mol_theme_back);\n\tcolor: var(--mol_theme_text);\n\tfill: var(--mol_theme_text);\n}\n\t\n:root, [mol_theme] {\n\t--mol_theme_back: hsl( var(--mol_theme_hue), 50% , calc( 54% + 44% * var(--mol_theme_luma) ) );\n\t--mol_theme_text: hsl( var(--mol_theme_hue), 0% , calc( 50% - 30% * var(--mol_theme_luma) ) );\n\t--mol_theme_field: hsl( var(--mol_theme_hue), 0%, calc( 50% + 50% * var(--mol_theme_luma) ), .2 );\n\t\n\t--mol_theme_card: hsl( var(--mol_theme_hue), 0%, 50%, .05 );\n\t--mol_theme_hover: hsl( var(--mol_theme_hue), 0%, 50%, .1 );\n\t--mol_theme_line: hsl( var(--mol_theme_hue), 0%, 50%, .25 );\n\t--mol_theme_shade: hsl( var(--mol_theme_hue), 0%, 50%, 1 );\n\t\n\t--mol_theme_control: hsl( var(--mol_theme_hue), 50%, calc( 55% - 10% * var(--mol_theme_luma) ) );\n\t--mol_theme_current: hsl( calc( var(--mol_theme_hue) + 120deg ), 70%, calc( 60% - 10% * var(--mol_theme_luma) ) );\n\t--mol_theme_focus: hsl( calc( var(--mol_theme_hue) + 240deg ), 80%, calc( 50% - 10% * var(--mol_theme_luma) ) );\n\t\n}\n\n[mol_theme=\"$mol_theme_light\"] {\n\t--mol_theme_luma: 1;\n\t--mol_theme_image: none;\n}\n\n[mol_theme=\"$mol_theme_dark\"] {\n\t--mol_theme_luma: -1;\n\t--mol_theme_image: invert(1) hue-rotate( 180deg );\n}\n\n[mol_theme=\"$mol_theme_base\"] {\n\t--mol_theme_luma: -2;\n\t--mol_theme_back: hsl( var(--mol_theme_hue), 50%, 40% );\n\t--mol_theme_hover: hsl( var(--mol_theme_hue), 60%, 30% );\n\t--mol_theme_current: hsl( var(--mol_theme_hue), 100%, 20% );\n}\n\n[mol_theme=\"$mol_theme_current\"] {\n\t--mol_theme_back: hsl( calc( var(--mol_theme_hue) + 120deg ), 50%, calc( 55% + 15% * var(--mol_theme_luma) ) );\n}\n\n[mol_theme=\"$mol_theme_accent\"] {\n\t--mol_theme_luma: -2;\n\t--mol_theme_back: hsl( calc( var(--mol_theme_hue) + 240deg ), 50%, 40% );\n\t--mol_theme_hover: hsl( calc( var(--mol_theme_hue) + 240deg ), 50%, 35% );\n}\n\n[mol_theme=\"$mol_theme_accent\"] [mol_theme=\"$mol_theme_accent\"] {\n\t--mol_theme_back: black;\n}\n");
 })($ || ($ = {}));
 //mol/theme/-css/theme.css.ts
 ;
@@ -4519,13 +4519,9 @@ var $;
             const parents = this.parents;
             for (let i = 1; i < parents.length; i++) {
                 const parent = parents[i];
-                if (key && key.value === parent.key?.value)
-                    finded_key = parent.key;
-                if (next && next.value === parent.next?.value)
+                if (next && parent.next)
                     finded_next = parent.next;
             }
-            if (key && !finded_key)
-                return this.$.$mol_fail($mol_view_tree2_error_str `Key ${key.value} at ${key.span} not found at ${this.parents.map(parent => parent.src.span)}`);
             if (next && !finded_next)
                 return this.$.$mol_fail($mol_view_tree2_error_str `Next ${next.value} at ${next.span} not found at ${this.parents.map(parent => parent.src.span)}`);
             const first_method = parents.length > 1 ? parents[1] : undefined;
@@ -4864,25 +4860,25 @@ var $;
     const err = $mol_view_tree2_error_str;
     function $mol_view_tree2_prop_split(src) {
         const prop_name = src.type;
-        let key_pos = prop_name.indexOf('!');
+        let key_pos = prop_name.indexOf('*');
         let next_pos = prop_name.indexOf('?');
+        let next_pos_orig = next_pos;
         if (next_pos === -1)
             next_pos = prop_name.length;
-        if (key_pos === -1)
-            key_pos = next_pos;
+        const name_end = (key_pos === -1) ? next_pos : key_pos;
         if (key_pos > next_pos)
             return this.$mol_fail(err `Index argument must be before next argument at ${src.span}, use ${example1}`);
-        const name = prop_name.substring(0, key_pos);
-        const key = key_pos === next_pos ? '' : prop_name.substring(key_pos + 1, next_pos);
+        const name = prop_name.substring(0, name_end);
+        const key = key_pos < 0 ? '' : prop_name.substring(key_pos + 1, next_pos);
         const next = prop_name.substring(next_pos + 1);
         if ((key && !regular_regex.test(key))
-            || (next && !regular_regex.test(name)))
-            return this.$mol_fail(err `Only regular chars and digits allowed at ${src.span}, use ${example2}`);
+            || (next && !regular_regex.test(next)))
+            return this.$mol_fail(err `Only regular chars and digits allowed ${key} ${next} at ${src.span}, use ${example2}`);
         return {
             src,
             name: $mol_tree2.data(name, [], src.span.slice(0, name.length)),
-            key: key ? $mol_tree2.data(key, [], src.span.slice(key_pos, key_pos + key.length)) : undefined,
-            next: next ? $mol_tree2.data(next, [], src.span.slice(next_pos, next_pos + next.length)) : undefined
+            key: key_pos >= 0 ? $mol_tree2.data(key ? JSON.stringify(key) : 'id', [], src.span.slice(key_pos, key_pos + key.length)) : undefined,
+            next: next_pos_orig >= 0 ? $mol_tree2.data(next || 'next', [], src.span.slice(next_pos, next_pos + next.length)) : undefined
         };
     }
     $.$mol_view_tree2_prop_split = $mol_view_tree2_prop_split;
@@ -4891,8 +4887,9 @@ var $;
         'having!key?next <= owner!key?next'
     ]);
     const example2 = new $mol_view_tree2_error_suggestions([
-        'having!key',
-        'having!key?next',
+        'having#',
+        'having#key',
+        'having#key?next',
         'having',
     ]);
 })($ || ($ = {}));
@@ -4936,7 +4933,7 @@ var $;
     $.$mol_view_tree2_prop_signature = $mol_regexp.from([
         begin,
         { name: repeat_greedy(letter, 1) },
-        { key: optional(['!', repeat_greedy(letter, 0)]) },
+        { key: optional(['*', repeat_greedy(letter, 0)]) },
         { next: optional(['?', repeat_greedy(letter, 0)]) },
         end,
     ]);
@@ -4967,7 +4964,15 @@ var $;
 (function ($) {
     const err = $mol_view_tree2_error_str;
     function $mol_view_tree2_class_props(klass) {
-        const props = this.$mol_view_tree2_class_super(klass);
+        let props = this.$mol_view_tree2_class_super(klass);
+        props = props.clone(props.hack({
+            '': (node, belt) => {
+                const normal = node.type.replace(/!\w+/, '*');
+                if (node.type === normal)
+                    return [node.clone(node.hack(belt))];
+                return [node.struct(normal, node.hack(belt))];
+            }
+        }));
         const props_inner = [];
         const props_root = props.hack({
             '<=': (operator, belt) => {
@@ -5719,7 +5724,7 @@ var $;
             return value.data(type);
         if (Number(type).toString() === type)
             return value.data(type);
-        return this.$mol_fail(err `Value ${value.value} not allowed at ${value.span}, use ${example}`);
+        return this.$mol_fail(err `Value ${value.toString()} not allowed at ${value.span}, use ${example}`);
     }
     $.$mol_view_tree2_value = $mol_view_tree2_value;
     const example = new $mol_view_tree2_error_suggestions([
@@ -5826,7 +5831,7 @@ var $;
     function $mol_view_tree2_ts_function_declaration({ name, key, next }, types = false) {
         const sub = [name.data('(')];
         if (key)
-            sub.push(key);
+            sub.push(key.data('id'));
         if (types && key)
             sub.push(key.data(': any'));
         if (key && next)
@@ -6280,11 +6285,11 @@ var $;
         return prop.struct('line', [
             prop.data('( '),
             ...key ? [
-                prop.data(key.slice(1) || 'key'),
+                prop.data('id'),
                 prop.data(': any, '),
             ] : [],
             ...next ? [
-                prop.data(next.slice(1) || 'next'),
+                prop.data('next'),
                 prop.data('?: '),
                 ...val,
                 prop.data(' '),
@@ -6442,8 +6447,15 @@ var $;
     function params_of(prop) {
         const { key, next } = [...prop.type.matchAll($mol_view_tree2_prop_signature)][0].groups;
         return prop.struct('(,)', [
-            ...key ? [prop.struct(key.slice(1) || 'key')] : [],
-            ...next ? [prop.struct(next.slice(1) || 'next')] : [],
+            ...key ? [prop.struct('id')] : [],
+            ...next ? [prop.struct('next')] : [],
+        ]);
+    }
+    function args_of(prop) {
+        const { key, next } = [...prop.type.matchAll($mol_view_tree2_prop_signature)][0].groups;
+        return prop.struct('(,)', [
+            ...key ? [key.length > 1 ? prop.data(key.slice(1)) : prop.struct('id')] : [],
+            ...next ? [prop.struct('next')] : [],
         ]);
     }
     function $mol_view_tree2_to_js(descr) {
@@ -6464,17 +6476,14 @@ var $;
                             res.struct('[]', [
                                 res.data(name_of(res)),
                             ]),
-                            params_of(bind.kids[0]),
+                            args_of(bind.kids[0]),
                         ]),
                     ];
                 };
                 const decorate = () => {
                     return prop.struct('()', [
-                        prop.struct('__decorate'),
+                        prop.struct(key ? '$mol_mem_key' : '$mol_mem'),
                         prop.struct('(,)', [
-                            prop.struct('[,]', [
-                                prop.struct(key ? '$mol_mem_key' : '$mol_mem'),
-                            ]),
                             prop.struct('()', [
                                 klass.clone([]),
                                 prop.struct('[]', [
@@ -6482,7 +6491,6 @@ var $;
                                 ]),
                             ]),
                             prop.data(name),
-                            prop.struct('null'),
                         ]),
                     ]);
                 };
@@ -6565,7 +6573,7 @@ var $;
                                                     over.struct('[]', [
                                                         over.data(name),
                                                     ]),
-                                                    params_of(over),
+                                                    args_of(over),
                                                 ]),
                                             ])
                                         ]),
@@ -9550,7 +9558,7 @@ var $;
         row_ids() {
             return [];
         }
-        row_id(index) {
+        row_id(id) {
             return null;
         }
         col_ids() {
@@ -10628,7 +10636,7 @@ var $;
             obj.selection = (val) => this.selection(val);
             return obj;
         }
-        row_numb(index) {
+        row_numb(id) {
             return 0;
         }
         highlight() {
@@ -10638,7 +10646,7 @@ var $;
             const obj = new this.$.$mol_text_code();
             obj.text = () => this.value();
             obj.render_visible_only = () => false;
-            obj.row_numb = (index) => this.row_numb(index);
+            obj.row_numb = (id) => this.row_numb(id);
             obj.sidebar_showed = () => this.sidebar_showed();
             obj.highlight = () => this.highlight();
             return obj;
@@ -11480,10 +11488,10 @@ var $;
         dictionary() {
             return {};
         }
-        Badge(index) {
+        Badge(id) {
             const obj = new this.$.$mol_button_minor();
-            obj.title = () => this.badge_title(index);
-            obj.click = (event) => this.remove(index, event);
+            obj.title = () => this.badge_title(id);
+            obj.click = (event) => this.remove(id, event);
             obj.hint = () => this.badge_hint();
             obj.enabled = () => this.drop_enabled();
             return obj;
@@ -11493,16 +11501,16 @@ var $;
             obj.align_hor = () => this.align_hor();
             obj.options = () => this.options_pickable();
             obj.value = (val) => this.pick(val);
-            obj.option_label = (key) => this.option_title(key);
+            obj.option_label = (id) => this.option_title(id);
             obj.trigger_enabled = () => this.pick_enabled();
             obj.hint = () => this.pick_hint();
             obj.Trigger_icon = () => this.Pick_icon();
             return obj;
         }
-        badge_title(index) {
+        badge_title(id) {
             return "badge";
         }
-        remove(index, event) {
+        remove(id, event) {
             if (event !== undefined)
                 return event;
             return null;
@@ -11530,7 +11538,7 @@ var $;
                 return val;
             return "";
         }
-        option_title(key) {
+        option_title(id) {
             return "";
         }
         pick_enabled() {

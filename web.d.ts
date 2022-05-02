@@ -2696,7 +2696,7 @@ declare namespace $ {
     class $mol_grid extends $mol_view {
         row_height(): number;
         row_ids(): readonly string[][];
-        row_id(index: any): any;
+        row_id(id: any): any;
         col_ids(): readonly any[];
         records(): {};
         record(id: any): any;
@@ -2989,7 +2989,7 @@ declare namespace $ {
         length_max(): number;
         selection(val?: any): readonly number[];
         Edit(): $mol_textarea_edit;
-        row_numb(index: any): number;
+        row_numb(id: any): number;
         highlight(): string;
         View(): $$.$mol_text_code;
     }
@@ -3188,10 +3188,10 @@ declare namespace $ {
     class $mol_select_list extends $mol_view {
         value(val?: any): readonly string[];
         dictionary(): {};
-        Badge(index: any): $mol_button_minor;
+        Badge(id: any): $mol_button_minor;
         Pick(): $$.$mol_select;
-        badge_title(index: any): string;
-        remove(index: any, event?: any): any;
+        badge_title(id: any): string;
+        remove(id: any, event?: any): any;
         badge_hint(): string;
         enabled(): boolean;
         drop_enabled(): boolean;
@@ -3199,7 +3199,7 @@ declare namespace $ {
         options(): readonly string[];
         options_pickable(): readonly string[];
         pick(val?: any): string;
-        option_title(key: any): string;
+        option_title(id: any): string;
         pick_enabled(): boolean;
         pick_hint(): string;
         Pick_icon(): $mol_icon_plus;
