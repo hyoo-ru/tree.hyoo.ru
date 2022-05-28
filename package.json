@@ -207,6 +207,7 @@
     "$mol_support",
     "$mol_page",
     "$mol_textarea",
+    "$mol_stack",
     "$mol_text_code",
     "$mol_text",
     "$mol_paragraph",
