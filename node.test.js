@@ -1164,9 +1164,6 @@ var $;
 //mol/wire/solo/solo.ts
 ;
 "use strict";
-//mol/type/error/error.ts
-;
-"use strict";
 var $;
 (function ($) {
     function $mol_wire_plex(host, field, descr) {
@@ -2778,6 +2775,9 @@ var $;
 ;
 "use strict";
 //mol/type/result/result.ts
+;
+"use strict";
+//mol/type/error/error.ts
 ;
 "use strict";
 //mol/type/override/override.ts
@@ -4890,7 +4890,7 @@ var $;
             if (prev)
                 return this.$.$mol_fail($mol_view_tree2_error_str `Locale key \`${key}\` at ${operator.span} conflicts with same at ${prev.span}`);
             this.locale_nodes.set(key, val);
-            this.locales[key] = val.value;
+            this.locales[key] = val.text();
             return operator.struct('line', body);
         }
     }
