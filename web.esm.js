@@ -8602,8 +8602,7 @@ var $;
             return 7;
         }
         width_limit() {
-            const obj = new this.$.Infinity();
-            return obj;
+            return +Infinity;
         }
         sub() {
             return [
@@ -8611,9 +8610,6 @@ var $;
             ];
         }
     }
-    __decorate([
-        $mol_mem
-    ], $mol_paragraph.prototype, "width_limit", null);
     $.$mol_paragraph = $mol_paragraph;
 })($ || ($ = {}));
 //mol/paragraph/-view.tree/paragraph.view.tree.ts
@@ -9544,8 +9540,7 @@ var $;
             return "text";
         }
         length_max() {
-            const obj = new this.$.Infinity();
-            return obj;
+            return +Infinity;
         }
         type(val) {
             if (val !== undefined)
@@ -9581,9 +9576,6 @@ var $;
     __decorate([
         $mol_mem
     ], $mol_string.prototype, "value", null);
-    __decorate([
-        $mol_mem
-    ], $mol_string.prototype, "length_max", null);
     __decorate([
         $mol_mem
     ], $mol_string.prototype, "type", null);
@@ -9713,8 +9705,7 @@ var $;
             return true;
         }
         length_max() {
-            const obj = new this.$.Infinity();
-            return obj;
+            return +Infinity;
         }
         selection(val) {
             if (val !== undefined)
@@ -9758,9 +9749,6 @@ var $;
     __decorate([
         $mol_mem
     ], $mol_textarea.prototype, "value", null);
-    __decorate([
-        $mol_mem
-    ], $mol_textarea.prototype, "length_max", null);
     __decorate([
         $mol_mem
     ], $mol_textarea.prototype, "selection", null);

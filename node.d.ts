@@ -2320,7 +2320,7 @@ declare namespace $ {
     class $mol_paragraph extends $mol_view {
         line_height(): number;
         letter_width(): number;
-        width_limit(): any;
+        width_limit(): number;
         sub(): readonly any[];
     }
 }
@@ -2687,7 +2687,7 @@ declare namespace $ {
             inputMode: string;
         };
         attr(): {
-            maxlength: any;
+            maxlength: number;
             type: string;
         };
         event(): {
@@ -2706,7 +2706,7 @@ declare namespace $ {
         selection_end(): number;
         selection_start(): number;
         keyboard(): string;
-        length_max(): any;
+        length_max(): number;
         type(val?: any): string;
         event_change(event?: any): any;
         event_key_press(event?: any): any;
@@ -2749,7 +2749,7 @@ declare namespace $ {
         value(val?: any): string;
         hint(): string;
         enabled(): boolean;
-        length_max(): any;
+        length_max(): number;
         selection(val?: any): readonly number[];
         Edit(): $mol_textarea_edit;
         row_numb(id: any): number;
