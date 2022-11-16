@@ -65,8 +65,8 @@ declare namespace $ {
         get $(): $;
         set $(next: $);
         static create<Instance>(this: new (init?: (instance: any) => void) => Instance, init?: (instance: $mol_type_writable<Instance>) => void): Instance;
-        static [Symbol.toPrimitive](): any;
-        static toString(): any;
+        static [Symbol.toPrimitive](): unknown;
+        static toString(): unknown;
         destructor(): void;
         toString(): any;
         toJSON(): any;
@@ -1481,10 +1481,8 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    let $mol_view_tree2_prop_signature: $mol_regexp<{
-        readonly name: string;
-        readonly key: string;
-        readonly next: string;
+    let $mol_view_tree2_prop_signature: $mol_regexp<{} | {
+        [x: string]: string;
     }>;
 }
 
@@ -1760,19 +1758,11 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    let $hyoo_marked_line_content: $mol_regexp<{}>;
-    let $hyoo_marked_line: $mol_regexp<{
-        readonly inline: string;
-        readonly code: string;
-        readonly embed: string;
-        readonly strong: string;
-        readonly emphasis: string;
-        readonly insertion: string;
-        readonly deletion: string;
-        readonly link: string;
-        readonly uri: string;
-        content: string;
-        readonly marker: string;
+    let $hyoo_marked_line_content: $mol_regexp<{} | {
+        [x: string]: string;
+    }>;
+    let $hyoo_marked_line: $mol_regexp<{} | {
+        [x: string]: string;
     }>;
 }
 
