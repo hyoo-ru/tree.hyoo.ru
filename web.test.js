@@ -1590,6 +1590,9 @@ var $;
 //mol/key/key.test.tsx
 ;
 "use strict";
+//mol/type/foot/foot.test.ts
+;
+"use strict";
 var $;
 (function ($) {
     $mol_wire_log.active();
@@ -3358,12 +3361,6 @@ var $;
     });
 })($ || ($ = {}));
 //mol/func/is/class/class.test.ts
-;
-"use strict";
-//mol/type/foot/foot.test.ts
-;
-"use strict";
-//mol/type/foot/foot.ts
 ;
 "use strict";
 var $;
