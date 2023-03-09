@@ -6,6 +6,15 @@
 	flex: 1 0 30rem;
 }
 
+[hyoo_tree_source_text] {
+	width: max-content;
+}
+
 [hyoo_tree_result] {
 	flex: 1 0 30rem;
 }
+
+[hyoo_tree_result_text] {
+	width: max-content;
+}
+
