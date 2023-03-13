@@ -3036,8 +3036,10 @@ declare namespace $ {
     class $mol_select_list extends $mol_view {
         value(val?: any): readonly string[];
         dictionary(): {};
+        Badges(): readonly $mol_view[];
+        badges_list(): readonly $mol_view[];
         Badge(id: any): $mol_button_minor;
-        Pick(): $$.$mol_select;
+        sub(): readonly $mol_view[];
         badge_title(id: any): string;
         remove(id: any, event?: any): any;
         badge_hint(): string;
@@ -3051,6 +3053,7 @@ declare namespace $ {
         pick_enabled(): boolean;
         pick_hint(): string;
         Pick_icon(): $mol_icon_plus;
+        Pick(): $$.$mol_select;
     }
 }
 
@@ -3063,7 +3066,7 @@ declare namespace $.$$ {
         option_title(key: string): string;
         badge_title(index: number): string;
         pick_enabled(): boolean;
-        sub(): ($mol_button_minor | $mol_select)[];
+        Badges(): $mol_button_minor[];
         title(): string;
         remove(index: number): void;
     }
