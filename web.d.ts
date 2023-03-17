@@ -2862,6 +2862,7 @@ declare namespace $ {
         showed(val?: any): boolean;
         align_vert(): string;
         align_hor(): string;
+        prefer(): string;
         sub(): readonly any[];
         sub_visible(): readonly any[];
         Anchor(): any;
@@ -2870,7 +2871,7 @@ declare namespace $ {
         height_max(): number;
         Bubble(): $mol_pop_bubble;
     }
-    class $mol_pop_bubble extends $mol_scroll {
+    class $mol_pop_bubble extends $mol_view {
         sub(): readonly $mol_view_content[];
         style(): {
             maxHeight: number;
@@ -3000,6 +3001,7 @@ declare namespace $ {
         Nav(): $$.$mol_nav;
         menu_content(): readonly $mol_view[];
         Menu(): $$.$mol_list;
+        Bubble_pane(): $$.$mol_scroll;
         submit(event?: any): any;
         enabled(): boolean;
     }
@@ -3017,11 +3019,11 @@ declare namespace $.$$ {
         options_filtered(): readonly string[];
         option_label(id: string): any;
         option_rows(): $mol_button_minor[];
-        option_focused(component?: $mol_view): $mol_view | $mol_string | null;
+        option_focused(component?: $mol_view): $mol_view | $mol_button_minor | $mol_string | null;
         event_select(id: string, event?: MouseEvent): void;
         nav_components(): ($mol_button_minor | $mol_string)[];
         trigger_content(): readonly $mol_view_content[];
-        menu_content(): $mol_view[];
+        menu_content(): ($mol_view | $mol_button_minor)[];
     }
 }
 
