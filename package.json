@@ -231,8 +231,10 @@
     "$mol_syntax2_md",
     "$mol_syntax2",
     "$mol_button_copy",
+    "$mol_blob",
     "$mol_icon_clipboard_outline",
     "$mol_icon_clipboard",
+    "$mol_wire_sync",
     "$mol_string",
     "$mol_hotkey",
     "$mol_select_list",
@@ -253,8 +255,7 @@
     "$mol_base64",
     "$mol_offline_install",
     "$mol_offline",
-    "$mol_import",
-    "$mol_wire_sync"
+    "$mol_import"
   ],
   "dependencies": {
     "jsdom": "*",

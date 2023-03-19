@@ -2495,6 +2495,14 @@ declare namespace $.$$ {
 }
 
 declare namespace $ {
+    type $mol_blob = Blob;
+    let $mol_blob: {
+        new (blobParts?: BlobPart[] | undefined, options?: BlobPropertyBag | undefined): Blob;
+        prototype: Blob;
+    };
+}
+
+declare namespace $ {
     class $mol_icon_clipboard extends $mol_icon {
         path(): string;
     }
@@ -2508,15 +2516,28 @@ declare namespace $ {
 
 declare namespace $ {
     class $mol_button_copy extends $mol_button_minor {
-        text(): string;
+        data(): {
+            "text/plain": Blob;
+            "text/html": Blob;
+        };
         sub(): readonly any[];
-        title(): string;
+        text(): string;
+        text_blob(next?: any): Blob;
+        html(): string;
+        html_blob(next?: any): Blob;
         Icon(): $mol_icon_clipboard_outline;
+        title(): string;
     }
+}
+
+declare namespace $ {
+    function $mol_wire_sync<Host extends object>(obj: Host): (Host extends (...args: infer Args) => infer Res ? Res extends Promise<infer Res2> ? (...args: Args) => Res2 : Host : {}) & { [key in keyof Host]: Host[key] extends (...args: infer Args_1) => Promise<infer Res_1> ? (...args: Args_1) => Res_1 : Host[key]; };
 }
 
 declare namespace $.$$ {
     class $mol_button_copy extends $.$mol_button_copy {
+        html(): string;
+        attachments(): ClipboardItem[];
         click(event?: Event): void;
     }
 }
@@ -3230,6 +3251,7 @@ declare namespace $ {
         View(): $$.$mol_link;
         Json(): $$.$mol_link;
         Xml(): $$.$mol_link;
+        XmlTree(): $$.$mol_link;
         Js(): $$.$mol_link;
         Wasm(): $$.$mol_link;
         jack(): $$.$mol_link;
@@ -3282,10 +3304,6 @@ declare namespace $ {
 }
 
 declare namespace $ {
-}
-
-declare namespace $ {
-    function $mol_wire_sync<Host extends object>(obj: Host): (Host extends (...args: infer Args) => infer Res ? Res extends Promise<infer Res2> ? (...args: Args) => Res2 : Host : {}) & { [key in keyof Host]: Host[key] extends (...args: infer Args_1) => Promise<infer Res_1> ? (...args: Args_1) => Res_1 : Host[key]; };
 }
 
 declare namespace $ {
