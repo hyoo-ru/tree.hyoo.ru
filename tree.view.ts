@@ -94,13 +94,6 @@ namespace $.$$ {
 			return String( res )
 		}
 
-		close( index: number ) {
-			this.pipeline([
-				... this.pipeline().slice( 0, index ),
-				... this.pipeline().slice( index + 1 ),
-			])
-		}
-
 	}
 
 }
