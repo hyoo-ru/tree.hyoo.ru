@@ -11809,12 +11809,6 @@ var $;
                 }
                 return String(res);
             }
-            close(index) {
-                this.pipeline([
-                    ...this.pipeline().slice(0, index),
-                    ...this.pipeline().slice(index + 1),
-                ]);
-            }
         }
         __decorate([
             $mol_mem
