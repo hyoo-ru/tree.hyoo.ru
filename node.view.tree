@@ -254,7 +254,7 @@ $mol_text_code $mol_stack
 					highlight <= highlight \
 		<= Copy $mol_button_copy
 			hint @ \Copy whole code
-			text <= text
+			text <= text_export \
 
 $mol_hotkey $mol_plugin
 	event *
@@ -482,8 +482,7 @@ $mol_select_list $mol_view
 			trigger_enabled <= pick_enabled <= enabled true
 			hint <= pick_hint @ \Add..
 			Trigger_icon <= Pick_icon $mol_icon_plus
-		^
-			badges_list
+		^ badges_list
 
 $hyoo_tree $mol_book2
 	transform_map *
