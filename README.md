@@ -7,7 +7,7 @@ Tree — двумерный бинарно-безопасный формат п�
 ## Поддержка языками
 - Нативная поддержка в фреймворке [$mol](https://mol.hyoo.ru/#!section=view.tree)
 - Typescript npm [$mol_tree2](https://www.npmjs.com/package/mol_tree2)
-- [D](https://github.com/nin-jin/tree.d/blob/master/source/jin/tree.d)
+- На языке [D](https://github.com/nin-jin/tree.d/blob/master/source/jin/tree.d)
 - Приглашаем написать реализацию для Rust, Python или другой язык
 
 ## Поддержка IDE
@@ -24,7 +24,7 @@ Tree — двумерный бинарно-безопасный формат п�
 - [jack.d](https://github.com/nin-jin/jack.d)
 
 ## Репозитории GitHub
-- Сайт [tree.hyoo.ru](https://github.com/hyoo-ru/tree.hyoo.ru)
-- Реализация на [tree.d](https://github.com/nin-jin/tree.d)
 - $mol шаблонизатор [tree.view](https://github.com/hyoo-ru/mam_mol/tree/master/tree2)
+- Реализация на [tree.d](https://github.com/nin-jin/tree.d)
+- [jack.d](https://github.com/nin-jin/jack.d)
 
