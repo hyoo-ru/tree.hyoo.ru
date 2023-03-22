@@ -64,8 +64,15 @@ namespace $.$$ {
 			const func = this.pipeline()[ index ]
 			if( !func ) return ''
 			
-			const arg = index ? this.result( index - 1 ) : this.source()
-
+			let arg = index ? this.result(index - 1) : this.source();
+			if (
+				func === "$mol_tree2_to_json" &&
+				typeof arg === "object" &&
+				"kids" in arg &&
+				arg.type === ""
+			) {
+				arg = arg.kids[0];
+			}
 			if( $mol_func_is_class( this.$[ func ] ) ) {
 				return new this.$[ func ]( arg ) ?? null
 			} else {
