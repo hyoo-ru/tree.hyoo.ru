@@ -1783,9 +1783,9 @@ declare namespace $ {
         readonly insertion: string;
         readonly deletion: string;
         readonly link: string;
-        readonly uri: string;
-        content: string;
         readonly marker: string;
+        readonly uri: string;
+        readonly content: string;
     }>;
 }
 
