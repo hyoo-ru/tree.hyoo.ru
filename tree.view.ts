@@ -61,7 +61,7 @@ namespace $.$$ {
 		@ $mol_mem_key
 		result( index: number ): string | $mol_tree2 | Uint8Array | $mol_wasm_module {
 			
-			const func = this.pipeline()[ index ]
+			const func = this.pipeline()[ index ] as keyof $
 			if( !func ) return ''
 			
 			const arg = index ? this.result( index - 1 ) : this.source()
