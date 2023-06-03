@@ -12019,6 +12019,5 @@ var $;
     $mol_style_attach("hyoo/tree/tree.view.css", "[hyoo_tree_presets] {\n\tflex: 0 0 20rem;\n}\n\n[hyoo_tree_source] {\n\tflex: 1 0 30rem;\n}\n\n[hyoo_tree_source_body] {\n\tflex-direction: row;\n}\n\n[hyoo_tree_result] {\n\tflex: 1 0 30rem;\n}\n\n[hyoo_tree_result_body] {\n\tflex-direction: row;\n}\n\n");
 })($ || ($ = {}));
 //hyoo/tree/-css/tree.view.css.ts
-;
-export default $
-//# sourceMappingURL=web.mjs.map
+
+//# sourceMappingURL=web.js.map
