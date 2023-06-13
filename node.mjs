@@ -12207,4 +12207,5 @@ var $;
 })($ || ($ = {}));
 //hyoo/tree/-css/tree.view.css.ts
 
+export default $
 //# sourceMappingURL=node.js.map
