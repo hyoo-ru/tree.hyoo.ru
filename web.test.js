@@ -733,6 +733,12 @@ var $;
         'three must be alike'() {
             $mol_assert_like([3], [3], [3]);
         },
+        'two object must be alike'() {
+            $mol_assert_like({ a: 1 }, { a: 1 });
+        },
+        'three object must be alike'() {
+            $mol_assert_like({ a: 1 }, { a: 1 }, { a: 1 });
+        },
     });
 })($ || ($ = {}));
 //mol/assert/assert.test.ts
@@ -4568,6 +4574,7 @@ var $;
 var $;
 (function ($) {
     function $mol_base64_decode_web(base64Str) {
+        base64Str = base64Str.replace(/-/g, '+').replace(/_/g, '/');
         return new Uint8Array($mol_dom_context.atob(base64Str).split('').map(c => c.charCodeAt(0)));
     }
     $.$mol_base64_decode_web = $mol_base64_decode_web;
