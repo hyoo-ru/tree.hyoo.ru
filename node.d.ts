@@ -2937,6 +2937,7 @@ declare namespace $.$$ {
         indent_inc(): void;
         indent_dec(): void;
         symbol_insert(event: KeyboardEvent): void;
+        clickable(next?: boolean): boolean;
         hover(event: PointerEvent): void;
         press(event: KeyboardEvent): void;
         row_numb(index: number): number;
