@@ -727,10 +727,10 @@ var $;
             $mol_assert_equal(2, 2, 2);
         },
         'two must be unique'() {
-            $mol_assert_unique([3], [3]);
+            $mol_assert_unique([2], [3]);
         },
         'three must be unique'() {
-            $mol_assert_unique([3], [3], [3]);
+            $mol_assert_unique([1], [2], [3]);
         },
         'two must be alike'() {
             $mol_assert_like([3], [3]);
@@ -1497,7 +1497,7 @@ var $;
             ], App, "result", null);
             $mol_assert_equal(App.result(), 1);
             App.condition(true);
-            $mol_assert_fail(() => App.result());
+            $mol_assert_fail(() => App.result(), 'test error');
             App.condition(false);
             $mol_assert_equal(App.result(), 1);
         },
@@ -3457,14 +3457,14 @@ var $;
         },
         'slice span - out of range'($) {
             const span = new $mol_span('test.ts', '', 1, 3, 5);
-            $mol_assert_fail(() => span.slice(-1, 3));
-            $mol_assert_fail(() => span.slice(1, 6));
-            $mol_assert_fail(() => span.slice(1, 10));
+            $mol_assert_fail(() => span.slice(-1, 3), `End value '3' can't be less than begin value (test.ts#1:3/5)`);
+            $mol_assert_fail(() => span.slice(1, 6), `End value '6' out of range (test.ts#1:3/5)`);
+            $mol_assert_fail(() => span.slice(1, 10), `End value '10' out of range (test.ts#1:3/5)`);
         },
         'error handling'($) {
             const span = new $mol_span('test.ts', '', 1, 3, 4);
-            const error = span.error('Some error\n');
-            $mol_assert_equal(error.message, 'Some error\ntest.ts#1:3/4');
+            const error = span.error('Some error');
+            $mol_assert_equal(error.message, 'Some error (test.ts#1:3/4)');
         }
     });
 })($ || ($ = {}));
@@ -4817,7 +4817,7 @@ var $;
 						a!? $mol_object
 							expanded <=> cell_expanded!? null
 				`);
-            });
+            }, `Cannot destructure property 'name' of 'prop_parts(...)' as it is undefined. at ?#3:7/3`);
         },
         'Bidi bind with default object'($) {
             const { Foo } = run(`
@@ -5114,7 +5114,7 @@ var $;
             const bar = Bar.make({ $: $2 });
             $mol_assert_equal(bar.Cls(1).a(), bar.b(1));
             $mol_assert_like(bar.b(1), { some: 123 });
-            $mol_assert_unique(bar.Cls(1).a(), bar.b(2));
+            $mol_assert_equal(bar.Cls(1).a() === bar.b(2), false);
         }
     });
 })($ || ($ = {}));
@@ -5167,13 +5167,13 @@ var $;
 					Foo $mol_object
 						a!? null
 				`);
-            });
+            }, `Cannot destructure property 'name' of 'prop_parts(...)' as it is undefined. at ?#3:7/3`);
             $mol_assert_fail(() => {
                 run(`
 					Foo $mol_object
 						b! 1
 				`);
-            });
+            }, `Cannot destructure property 'name' of 'prop_parts(...)' as it is undefined. at ?#3:7/2`);
         },
         'two classes'($) {
             const { A2, B2 } = run(`
@@ -5314,14 +5314,11 @@ var $;
 						case tree FOO
 				`)
                 .toString());
-            $mol_assert_fail(() => {
-                $.$mol_tree2_from_string(`
+            $mol_assert_fail(() => $.$mol_tree2_from_string(`
 					test
 						case \\foo
 						case \\bar
-				`)
-                    .hack(root);
-            });
+				`).hack(root), 'args[0] ≠ args[1]\n\\foo\n\n---\n\\bar\n\ntest\n?#2:6/4');
         },
         'jack test'($) {
             const tests = $.$mol_tree2_from_string(`

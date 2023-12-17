@@ -176,11 +176,6 @@
     "$mol_charset_encoding",
     "$mol_charset_encode",
     "$mol_compare_array",
-    "$hyoo_lingua_translate",
-    "$hyoo_lingua",
-    "$mol_huggingface",
-    "$mol_fetch",
-    "$mol_action",
     "$mol_view_tree2_to_locale",
     "$mol_view_tree2_to_dts",
     "$mol_guard",
@@ -196,7 +191,6 @@
     "$mol_json",
     "$mol_jack",
     "$mol_assert",
-    "$mol_dom_serialize",
     "$mol_wasm_module",
     "$mol_wasm_instance",
     "$mol_js_eval",
@@ -204,6 +198,7 @@
     "$mol_theme_auto",
     "$mol_lights",
     "$mol_state_arg",
+    "$mol_action",
     "$mol_lights_toggle",
     "$mol_check_icon",
     "$mol_check",
@@ -262,6 +257,7 @@
     "$mol_func_is_class",
     "$mol_func_is",
     "$mol_try",
+    "$mol_dom_serialize",
     "$mol_base64_encode",
     "$mol_base64",
     "$mol_offline_install",
@@ -270,7 +266,6 @@
   ],
   "dependencies": {
     "jsdom": "*",
-    "chokidar": "*",
-    "undici": "*"
+    "chokidar": "*"
   }
 }
