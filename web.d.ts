@@ -2292,6 +2292,7 @@ declare namespace $ {
         target(): string;
         file_name(): string;
         current(): boolean;
+        relation(): string;
         event_click(event?: any): any;
         click(event?: any): any;
     }
