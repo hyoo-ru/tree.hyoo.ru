@@ -43,10 +43,10 @@ namespace $.$$ {
 			const pipeline = this.pipeline()
 			const last = pipeline[ pipeline.length - 1 ]
 			
-			const type = last ? map[ last ].output.split('.').filter( Boolean ).reverse() : [ 'text' ]
+			const type = last ? map[ last as keyof typeof map ].output.split('.').filter( Boolean ).reverse() : [ 'text' ]
 			if( !type.length ) return Object.keys( map )
 			
-			return Object.keys( map ).filter( id => {
+			return (Object.keys( map ) as (keyof typeof map)[]).filter( id => {
 				
 				const diff = $mol_diff_path( type , map[ id ].input.split('.').reverse() )
 				if( !diff.prefix.length ) return false
