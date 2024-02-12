@@ -3122,9 +3122,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     class $mol_dom_listener extends $mol_object {
@@ -3303,6 +3300,9 @@ var $;
 
 ;
 "use strict";
+
+;
+"use strict";
 var $;
 (function ($) {
     var $$;
@@ -3425,16 +3425,16 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $.$mol_mem_cached = $mol_wire_probe;
 })($ || ($ = {}));
+
+;
+"use strict";
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -5273,325 +5273,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_view_tree2_to_locale(module) {
-        const locales = {};
-        const descr = $mol_view_tree2_classes(module);
-        for (const klass of descr.kids) {
-            const props = this.$mol_view_tree2_class_props(klass);
-            const acc = { chain: [] };
-            for (const prop of props) {
-                const { name } = this.$mol_view_tree2_prop_parts(prop);
-                prop.hack({
-                    '': (input, belt, context) => {
-                        if (input.type[0] === '@') {
-                            const chain = context.chain?.join('_');
-                            const path = `${klass.type}_${name}${chain.length ? `_${chain}` : ''}`;
-                            locales[path] = input.kids[0].value;
-                        }
-                        if (input.type[0] === '*') {
-                            for (const field of input.kids) {
-                                if (field.type === '^')
-                                    continue;
-                                const field_name = field.type.replace(/\?\w*$/, '');
-                                field.hack(belt, {
-                                    ...context,
-                                    chain: [
-                                        ...context.chain ?? [],
-                                        field_name
-                                    ]
-                                });
-                            }
-                        }
-                        if (/^[$A-Z]/.test(input.type)) {
-                            for (const over of input.kids) {
-                                if (over.type === '/')
-                                    continue;
-                                const oname = this.$mol_view_tree2_prop_parts(over).name;
-                                const bind = over.kids[0];
-                                if (bind.type === '@') {
-                                    const path = `${klass.type}_${name}_${oname}`;
-                                    locales[path] = bind.kids[0].value;
-                                }
-                            }
-                        }
-                        return [input];
-                    }
-                }, acc);
-            }
-        }
-        return locales;
-    }
-    $.$mol_view_tree2_to_locale = $mol_view_tree2_to_locale;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const err = $mol_view_tree2_error_str;
-    function name_of(prop) {
-        const name = prop.type
-            ? this.$mol_view_tree2_prop_parts(prop).name
-            : prop.value;
-        if (!name) {
-            this.$mol_fail(err `Required valid prop name at ${prop.span}`);
-        }
-        return prop.data(name);
-    }
-    function channel_signature(prop, ...val) {
-        const { name, key, next } = this.$mol_view_tree2_prop_parts(prop);
-        if (next && !val[0]?.value) {
-            this.$mol_fail(err `Type empty for next value at ${prop.span}`);
-        }
-        return prop.struct('line', [
-            prop.data(name),
-            prop.data('( '),
-            ...key ? [
-                prop.data('id'),
-                prop.data(': any' + (next ? ', ' : '')),
-            ] : [],
-            ...next ? [
-                prop.data('next'),
-                prop.data('?: '),
-                ...val,
-                prop.data(' '),
-            ] : [],
-            prop.data(')'),
-        ]);
-    }
-    function return_type(klass, input) {
-        return [
-            input.data('ReturnType< '),
-            klass,
-            input.data('[\''),
-            name_of.call(this, input),
-            input.data('\'] >'),
-        ];
-    }
-    function parameters(klass, input, pick_index) {
-        const result = [
-            input.data('Parameters< '),
-            klass,
-            input.data('[\''),
-            name_of.call(this, input),
-            input.data(`'] >`),
-        ];
-        if (pick_index !== undefined) {
-            result.push(input.data(`[${pick_index}]`));
-        }
-        return result;
-    }
-    function primitive_type(input) {
-        let type = 'string';
-        if (input.type && $mol_view_tree2_value_number(input.type))
-            type = 'number';
-        if (input.type === 'true' || input.type === 'false')
-            type = 'boolean';
-        return input.data(type);
-    }
-    function readonly_arr(input, infered) {
-        return [
-            input.data('readonly('),
-            infered.length === 1 ? infered[0] : input.struct('indent', infered),
-            input.data(')[]'),
-        ];
-    }
-    function type_enforce(name, a, b) {
-        return name.struct('line', [
-            name.data(`type ${name.value.replace(/<.*>/g, '')}__${this.$mol_guid()} = $mol_type_enforce<`),
-            name.struct('indent', [
-                a[0].struct('line', a),
-                a[0].data(','),
-                b[0].struct('line', b),
-            ]),
-            name.data('>'),
-        ]);
-    }
-    function $mol_view_tree2_to_dts(tree) {
-        const descr = $mol_view_tree2_classes(tree);
-        const types = [];
-        for (const klass of descr.kids) {
-            const parent = this.$mol_view_tree2_child(klass);
-            const props = this.$mol_view_tree2_class_props(klass);
-            const aliases = [];
-            const context = { objects: [] };
-            types.push(klass.struct('line', [
-                klass.data('export class '),
-                klass.data(klass.type),
-                parent.data(' extends '),
-                parent.data(parent.type),
-                klass.data(' {'),
-            ]), ...props.map(prop => {
-                const val = prop.hack({
-                    'null': val => {
-                        const kid = val.kids[0];
-                        return kid?.type
-                            ? [kid.data(kid.type), val.data(' | null')]
-                            : [val.data('any')];
-                    },
-                    'true': val => [val.data('boolean')],
-                    'false': val => [val.data('boolean')],
-                    '@': (locale, belt) => locale.hack(belt),
-                    '<=>': (input) => return_type.call(this, klass.data(klass.type), this.$mol_view_tree2_child(input)),
-                    '<=': (input) => return_type.call(this, klass.data(klass.type), this.$mol_view_tree2_child(input)),
-                    '=>': () => [],
-                    '^': (input) => {
-                        const host = input.kids.length ? klass : parent;
-                        return return_type.call(this, host.data(host.type), input.kids.length ? input.kids[0] : prop);
-                    },
-                    '=': (input) => {
-                        const left = input.kids[0];
-                        const right = left.kids[0];
-                        const left_parts = this.$mol_view_tree2_prop_parts(left);
-                        const right_parts = this.$mol_view_tree2_prop_parts(right);
-                        let conflict;
-                        if (left_parts.next && right_parts.next)
-                            conflict = 'next';
-                        if (left_parts.key && right_parts.key)
-                            conflict = 'key';
-                        if (conflict) {
-                            this.$mol_fail(err `Only one "${conflict}" allowed: ${left_parts[conflict]} at ${left.span} or ${right_parts[conflict]} at ${right.span}`);
-                        }
-                        const main = klass.data(klass.type);
-                        const prop_parts = this.$mol_view_tree2_prop_parts(prop);
-                        const method = prop.data(`${klass.type}_${prop_parts.name}`);
-                        const second_main = left_parts.key || left_parts.next ? main : left.struct('line', return_type.call(this, main, left));
-                        const second_key = left_parts.next || left_parts.key ? left : right;
-                        if (prop_parts.key) {
-                            types.push(type_enforce.call(this, method, parameters.call(this, main, prop, 0), parameters.call(this, second_main, second_key, 0)));
-                        }
-                        if (prop_parts.next) {
-                            types.push(type_enforce.call(this, method, parameters.call(this, main, prop, prop_parts.key ? 1 : 0), parameters.call(this, second_main, second_key, (left_parts.next ? left_parts : right_parts).key ? 1 : 0)));
-                        }
-                        return return_type.call(this, left.struct('line', return_type.call(this, main, left)), name_of.call(this, right));
-                    },
-                    '': (input, belt, context) => {
-                        if (input.type[0] === '*') {
-                            let unions = [];
-                            const hacked = [].concat(...input.kids.map(kid => {
-                                if (kid.type[0] === '^') {
-                                    unions = unions.concat(kid.data(' & '), kid.hack_self(belt, context));
-                                    return [];
-                                }
-                                const child = this.$mol_view_tree2_child(kid);
-                                const ret = child.hack_self(belt);
-                                return kid.struct('line', kid.type.match(/(?:\*|\?)/)
-                                    ? [
-                                        channel_signature.call(this, kid, ...ret),
-                                        kid.data(': '),
-                                        ...ret,
-                                        kid.data(','),
-                                    ]
-                                    : [
-                                        kid.data('\''),
-                                        kid.data(kid.type || kid.value),
-                                        kid.data('\': '),
-                                        ...ret,
-                                        kid.data(','),
-                                    ]);
-                            }));
-                            if (input.type.length > 1 || !hacked.length) {
-                                return [
-                                    input.data('Record<string, '),
-                                    input.data(input.type.slice(1) || 'any'),
-                                    input.data('>'),
-                                    ...unions
-                                ];
-                            }
-                            return [
-                                input.data('({ '),
-                                input.struct('indent', hacked),
-                                input.data('}) '),
-                                ...unions
-                            ];
-                        }
-                        if (input.type[0] === '/') {
-                            const array_type = [
-                                input.type.length > 1
-                                    ? input.data(input.type.slice(1))
-                                    : input.data('any')
-                            ];
-                            if (array_type[0].value === 'any') {
-                                return readonly_arr(input, array_type);
-                            }
-                            for (const kid of input.kids) {
-                                let result = kid.hack_self(belt, context);
-                                const val = result[0].value;
-                                if (val === 'string') {
-                                    result = kid.value.includes('`')
-                                        ? [kid.data(JSON.stringify(kid.value))]
-                                        : [kid.data('`'), kid, kid.data('`')];
-                                }
-                                else if (val === 'boolean')
-                                    result = [kid.data(kid.type)];
-                                else if (kid.type[0] === '^') {
-                                    result.push((kid.kids[0] ?? prop).data('[number]'));
-                                }
-                                else
-                                    continue;
-                                types.push(type_enforce.call(this, input.data(`${klass.type}_${prop.type.replace(/[\?\*]*/g, '')}`), result, array_type));
-                            }
-                            return readonly_arr(input, array_type);
-                        }
-                        if ($mol_view_tree2_class_match(input)) {
-                            const first = input.kids[0];
-                            if (first?.type[0] === '/') {
-                                const args = first.kids.map((kid, index) => {
-                                    const result = kid.hack_self(belt, context);
-                                    if (index !== 0)
-                                        result.unshift(kid.data(', '));
-                                    return kid.struct('line', result);
-                                });
-                                types.push(type_enforce.call(this, first.data(input.type), [
-                                    first.data('[ '),
-                                    ...args,
-                                    first.data(' ]'),
-                                ], [
-                                    input.data(`ConstructorParameters< typeof `),
-                                    input.data(input.type),
-                                    input.data(` >`),
-                                ]));
-                            }
-                            else
-                                for (const over of input.kids) {
-                                    const name = name_of.call(this, over);
-                                    const bind = this.$mol_view_tree2_child(over);
-                                    if (bind.type === '=>')
-                                        continue;
-                                    types.push(type_enforce.call(this, over.data(`${input.type}__${name.value}`), over.hack(belt), return_type.call(this, input.data(input.type), over)));
-                                }
-                            return [
-                                input.data(input.type),
-                            ];
-                        }
-                        return [
-                            primitive_type(input)
-                        ];
-                    },
-                }, context);
-                return prop.struct('indent', [
-                    prop.struct('line', [
-                        channel_signature.call(this, prop, ...val),
-                        prop.data(': '),
-                        ...val,
-                    ])
-                ]);
-            }).filter($mol_guard_defined), ...aliases, klass.data('}'), descr.data(''));
-        }
-        return descr.list([
-            descr.data('declare namespace $ {'),
-            descr.data(''),
-            descr.struct('indent', types),
-            descr.data('}'),
-        ]);
-    }
-    $.$mol_view_tree2_to_dts = $mol_view_tree2_to_dts;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
     $.$mol_mem_persist = $mol_wire_solid;
 })($ || ($ = {}));
 
@@ -6398,6 +6079,335 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_view_tree2_to_text(tree) {
+        return this.$mol_tree2_js_to_text(this.$mol_view_tree2_to_js(tree));
+    }
+    $.$mol_view_tree2_to_text = $mol_view_tree2_to_text;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_view_tree2_to_locale(module) {
+        const locales = {};
+        const descr = $mol_view_tree2_classes(module);
+        for (const klass of descr.kids) {
+            const props = this.$mol_view_tree2_class_props(klass);
+            const acc = { chain: [] };
+            for (const prop of props) {
+                const { name } = this.$mol_view_tree2_prop_parts(prop);
+                prop.hack({
+                    '': (input, belt, context) => {
+                        if (input.type[0] === '@') {
+                            const chain = context.chain?.join('_');
+                            const path = `${klass.type}_${name}${chain.length ? `_${chain}` : ''}`;
+                            locales[path] = input.kids[0].value;
+                        }
+                        if (input.type[0] === '*') {
+                            for (const field of input.kids) {
+                                if (field.type === '^')
+                                    continue;
+                                const field_name = field.type.replace(/\?\w*$/, '');
+                                field.hack(belt, {
+                                    ...context,
+                                    chain: [
+                                        ...context.chain ?? [],
+                                        field_name
+                                    ]
+                                });
+                            }
+                        }
+                        if (/^[$A-Z]/.test(input.type)) {
+                            for (const over of input.kids) {
+                                if (over.type === '/')
+                                    continue;
+                                const oname = this.$mol_view_tree2_prop_parts(over).name;
+                                const bind = over.kids[0];
+                                if (bind.type === '@') {
+                                    const path = `${klass.type}_${name}_${oname}`;
+                                    locales[path] = bind.kids[0].value;
+                                }
+                            }
+                        }
+                        return [input];
+                    }
+                }, acc);
+            }
+        }
+        return locales;
+    }
+    $.$mol_view_tree2_to_locale = $mol_view_tree2_to_locale;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    const err = $mol_view_tree2_error_str;
+    function name_of(prop) {
+        const name = prop.type
+            ? this.$mol_view_tree2_prop_parts(prop).name
+            : prop.value;
+        if (!name) {
+            this.$mol_fail(err `Required valid prop name at ${prop.span}`);
+        }
+        return prop.data(name);
+    }
+    function channel_signature(prop, ...val) {
+        const { name, key, next } = this.$mol_view_tree2_prop_parts(prop);
+        if (next && !val[0]?.value) {
+            this.$mol_fail(err `Type empty for next value at ${prop.span}`);
+        }
+        return prop.struct('line', [
+            prop.data(name),
+            prop.data('( '),
+            ...key ? [
+                prop.data('id'),
+                prop.data(': any' + (next ? ', ' : '')),
+            ] : [],
+            ...next ? [
+                prop.data('next'),
+                prop.data('?: '),
+                ...val,
+                prop.data(' '),
+            ] : [],
+            prop.data(')'),
+        ]);
+    }
+    function return_type(klass, input) {
+        return [
+            input.data('ReturnType< '),
+            klass,
+            input.data('[\''),
+            name_of.call(this, input),
+            input.data('\'] >'),
+        ];
+    }
+    function parameters(klass, input, pick_index) {
+        const result = [
+            input.data('Parameters< '),
+            klass,
+            input.data('[\''),
+            name_of.call(this, input),
+            input.data(`'] >`),
+        ];
+        if (pick_index !== undefined) {
+            result.push(input.data(`[${pick_index}]`));
+        }
+        return result;
+    }
+    function primitive_type(input) {
+        let type = 'string';
+        if (input.type && $mol_view_tree2_value_number(input.type))
+            type = 'number';
+        if (input.type === 'true' || input.type === 'false')
+            type = 'boolean';
+        return input.data(type);
+    }
+    function readonly_arr(input, infered) {
+        return [
+            input.data('readonly('),
+            infered.length === 1 ? infered[0] : input.struct('indent', infered),
+            input.data(')[]'),
+        ];
+    }
+    function type_enforce(name, a, b) {
+        return name.struct('line', [
+            name.data(`type ${name.value.replace(/<.*>/g, '')}__${this.$mol_guid()} = $mol_type_enforce<`),
+            name.struct('indent', [
+                a[0].struct('line', a),
+                a[0].data(','),
+                b[0].struct('line', b),
+            ]),
+            name.data('>'),
+        ]);
+    }
+    function $mol_view_tree2_to_dts(tree) {
+        const descr = $mol_view_tree2_classes(tree);
+        const types = [];
+        for (const klass of descr.kids) {
+            const parent = this.$mol_view_tree2_child(klass);
+            const props = this.$mol_view_tree2_class_props(klass);
+            const aliases = [];
+            const context = { objects: [] };
+            types.push(klass.struct('line', [
+                klass.data('export class '),
+                klass.data(klass.type),
+                parent.data(' extends '),
+                parent.data(parent.type),
+                klass.data(' {'),
+            ]), ...props.map(prop => {
+                const val = prop.hack({
+                    'null': val => {
+                        const kid = val.kids[0];
+                        return kid?.type
+                            ? [kid.data(kid.type), val.data(' | null')]
+                            : [val.data('any')];
+                    },
+                    'true': val => [val.data('boolean')],
+                    'false': val => [val.data('boolean')],
+                    '@': (locale, belt) => locale.hack(belt),
+                    '<=>': (input) => return_type.call(this, klass.data(klass.type), this.$mol_view_tree2_child(input)),
+                    '<=': (input) => return_type.call(this, klass.data(klass.type), this.$mol_view_tree2_child(input)),
+                    '=>': () => [],
+                    '^': (input) => {
+                        const host = input.kids.length ? klass : parent;
+                        return return_type.call(this, host.data(host.type), input.kids.length ? input.kids[0] : prop);
+                    },
+                    '=': (input) => {
+                        const left = input.kids[0];
+                        const right = left.kids[0];
+                        const left_parts = this.$mol_view_tree2_prop_parts(left);
+                        const right_parts = this.$mol_view_tree2_prop_parts(right);
+                        let conflict;
+                        if (left_parts.next && right_parts.next)
+                            conflict = 'next';
+                        if (left_parts.key && right_parts.key)
+                            conflict = 'key';
+                        if (conflict) {
+                            this.$mol_fail(err `Only one "${conflict}" allowed: ${left_parts[conflict]} at ${left.span} or ${right_parts[conflict]} at ${right.span}`);
+                        }
+                        const main = klass.data(klass.type);
+                        const prop_parts = this.$mol_view_tree2_prop_parts(prop);
+                        const method = prop.data(`${klass.type}_${prop_parts.name}`);
+                        const second_main = left_parts.key || left_parts.next ? main : left.struct('line', return_type.call(this, main, left));
+                        const second_key = left_parts.next || left_parts.key ? left : right;
+                        if (prop_parts.key) {
+                            types.push(type_enforce.call(this, method, parameters.call(this, main, prop, 0), parameters.call(this, second_main, second_key, 0)));
+                        }
+                        if (prop_parts.next) {
+                            types.push(type_enforce.call(this, method, parameters.call(this, main, prop, prop_parts.key ? 1 : 0), parameters.call(this, second_main, second_key, (left_parts.next ? left_parts : right_parts).key ? 1 : 0)));
+                        }
+                        return return_type.call(this, left.struct('line', return_type.call(this, main, left)), name_of.call(this, right));
+                    },
+                    '': (input, belt, context) => {
+                        if (input.type[0] === '*') {
+                            let unions = [];
+                            const hacked = [].concat(...input.kids.map(kid => {
+                                if (kid.type[0] === '^') {
+                                    unions = unions.concat(kid.data(' & '), kid.hack_self(belt, context));
+                                    return [];
+                                }
+                                const child = this.$mol_view_tree2_child(kid);
+                                const ret = child.hack_self(belt);
+                                return kid.struct('line', kid.type.match(/(?:\*|\?)/)
+                                    ? [
+                                        channel_signature.call(this, kid, ...ret),
+                                        kid.data(': '),
+                                        ...ret,
+                                        kid.data(','),
+                                    ]
+                                    : [
+                                        kid.data('\''),
+                                        kid.data(kid.type || kid.value),
+                                        kid.data('\': '),
+                                        ...ret,
+                                        kid.data(','),
+                                    ]);
+                            }));
+                            if (input.type.length > 1 || !hacked.length) {
+                                return [
+                                    input.data('Record<string, '),
+                                    input.data(input.type.slice(1) || 'any'),
+                                    input.data('>'),
+                                    ...unions
+                                ];
+                            }
+                            return [
+                                input.data('({ '),
+                                input.struct('indent', hacked),
+                                input.data('}) '),
+                                ...unions
+                            ];
+                        }
+                        if (input.type[0] === '/') {
+                            const array_type = [
+                                input.type.length > 1
+                                    ? input.data(input.type.slice(1))
+                                    : input.data('any')
+                            ];
+                            if (array_type[0].value === 'any') {
+                                return readonly_arr(input, array_type);
+                            }
+                            for (const kid of input.kids) {
+                                let result = kid.hack_self(belt, context);
+                                const val = result[0].value;
+                                if (val === 'string') {
+                                    result = kid.value.includes('`')
+                                        ? [kid.data(JSON.stringify(kid.value))]
+                                        : [kid.data('`'), kid, kid.data('`')];
+                                }
+                                else if (val === 'boolean')
+                                    result = [kid.data(kid.type)];
+                                else if (kid.type[0] === '^') {
+                                    result.push((kid.kids[0] ?? prop).data('[number]'));
+                                }
+                                else
+                                    continue;
+                                types.push(type_enforce.call(this, input.data(`${klass.type}_${prop.type.replace(/[\?\*]*/g, '')}`), result, array_type));
+                            }
+                            return readonly_arr(input, array_type);
+                        }
+                        if ($mol_view_tree2_class_match(input)) {
+                            const first = input.kids[0];
+                            if (first?.type[0] === '/') {
+                                const args = first.kids.map((kid, index) => {
+                                    const result = kid.hack_self(belt, context);
+                                    if (index !== 0)
+                                        result.unshift(kid.data(', '));
+                                    return kid.struct('line', result);
+                                });
+                                types.push(type_enforce.call(this, first.data(input.type), [
+                                    first.data('[ '),
+                                    ...args,
+                                    first.data(' ]'),
+                                ], [
+                                    input.data(`ConstructorParameters< typeof `),
+                                    input.data(input.type),
+                                    input.data(` >`),
+                                ]));
+                            }
+                            else
+                                for (const over of input.kids) {
+                                    const name = name_of.call(this, over);
+                                    const bind = this.$mol_view_tree2_child(over);
+                                    if (bind.type === '=>')
+                                        continue;
+                                    types.push(type_enforce.call(this, over.data(`${input.type}__${name.value}`), over.hack(belt), return_type.call(this, input.data(input.type), over)));
+                                }
+                            return [
+                                input.data(input.type),
+                            ];
+                        }
+                        return [
+                            primitive_type(input)
+                        ];
+                    },
+                }, context);
+                return prop.struct('indent', [
+                    prop.struct('line', [
+                        channel_signature.call(this, prop, ...val),
+                        prop.data(': '),
+                        ...val,
+                    ])
+                ]);
+            }).filter($mol_guard_defined), ...aliases, klass.data('}'), descr.data(''));
+        }
+        return descr.list([
+            descr.data('declare namespace $ {'),
+            descr.data(''),
+            descr.struct('indent', types),
+            descr.data('}'),
+        ]);
+    }
+    $.$mol_view_tree2_to_dts = $mol_view_tree2_to_dts;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     const { optional, slash_back, char_any, char_except, repeat } = $mol_regexp;
     $.$hyoo_marked_line_content = repeat(char_except('\r\n'), 1);
     const uri = repeat(char_except(slash_back));
@@ -6793,9 +6803,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $.$mol_action = $mol_wire_method;
@@ -6927,6 +6934,9 @@ var $;
 
 ;
 "use strict";
+
+;
+"use strict";
 var $;
 (function ($) {
     var $$;
@@ -6962,9 +6972,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $.$mol_layer = $mol_style_prop('mol_layer', [
@@ -6989,6 +6996,9 @@ var $;
 (function ($) {
     $mol_style_attach("mol/speck/speck.view.css", "[mol_speck] {\n\tfont-size: .625rem;\n\tborder-radius: 1rem;\n\tmargin: -0.5rem -0.25rem;\n\talign-self: flex-start;\n\tmin-height: 1em;\n\tmin-width: .5em;\n\tvertical-align: sub;\n\tpadding: .25em .5em;\n\tposition: absolute;\n\tz-index: var(--mol_layer_speck);\n\ttext-align: center;\n\tline-height: 1;\n\tdisplay: inline-block;\n\twhite-space: nowrap;\n\ttext-overflow: ellipsis;\n\tuser-select: none;\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_button) = class $mol_button extends ($.$mol_view) {
@@ -7063,9 +7073,6 @@ var $;
 	($mol_mem(($.$mol_button.prototype), "clicks"));
 	($mol_mem(($.$mol_button.prototype), "event_key_press"));
 
-
-;
-"use strict";
 
 ;
 "use strict";
@@ -7178,6 +7185,9 @@ var $;
 
 ;
 "use strict";
+
+;
+"use strict";
 var $;
 (function ($) {
     var $$;
@@ -7262,13 +7272,13 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $mol_style_attach("mol/button/typed/typed.view.css", "[mol_button_typed] {\n\talign-content: center;\n\talign-items: center;\n\tpadding: var(--mol_gap_text);\n\tborder-radius: var(--mol_gap_round);\n\tgap: var(--mol_gap_space);\n\tuser-select: none;\n\tcursor: pointer;\n}\n\n[mol_button_typed][disabled] {\n\tpointer-events: none;\n}\n\n[mol_button_typed]:hover ,\n[mol_button_typed]:focus-visible {\n\tbackground-color: var(--mol_theme_hover);\n}\n\n[mol_button_typed]:active {\n\tcolor: var(--mol_theme_focus);\n}\n\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_button_minor) = class $mol_button_minor extends ($.$mol_button_typed) {};
@@ -7276,13 +7286,13 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $mol_style_attach("mol/button/minor/minor.view.css", "[mol_button_minor] {\n\tcolor: var(--mol_theme_control);\n}\n\n[mol_button_minor][disabled] {\n\tcolor: var(--mol_theme_shade);\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_check) = class $mol_check extends ($.$mol_button_minor) {
@@ -7328,9 +7338,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     function $mol_maybe(value) {
@@ -7345,6 +7352,9 @@ var $;
 (function ($) {
     $mol_style_attach("mol/check/check.css", "[mol_check] {\n\tflex: 0 0 auto;\n\tjustify-content: flex-start;\n\talign-content: center;\n\t/* align-items: flex-start; */\n\tborder: none;\n\tfont-weight: inherit;\n\tbox-shadow: none;\n\ttext-align: left;\n\tdisplay: inline-flex;\n\tflex-wrap: nowrap;\n}\n\n[mol_check_title] {\n\tflex-shrink: 1;\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -7383,13 +7393,13 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $mol_style_attach("mol/check/icon/icon.view.css", "[mol_check_icon]:where([mol_check_checked]) {\n\tcolor: var(--mol_theme_current);\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_svg) = class $mol_svg extends ($.$mol_view) {
@@ -7410,9 +7420,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 "use strict";
@@ -7440,6 +7447,9 @@ var $;
     ], $mol_state_time, "now", null);
     $.$mol_state_time = $mol_state_time;
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -7498,13 +7508,13 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $mol_style_attach("mol/svg/root/root.view.css", "[mol_svg_root] {\n\toverflow: hidden;\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_svg_path) = class $mol_svg_path extends ($.$mol_svg) {
@@ -7551,13 +7561,13 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $mol_style_attach("mol/icon/icon.view.css", "[mol_icon] {\n\tfill: currentColor;\n\tstroke: none;\n\twidth: 1em;\n\theight: 1.5em;\n\tflex: 0 0 auto;\n\tvertical-align: top;\n\tdisplay: inline-block;\n\tfilter: drop-shadow(0px 1px 1px var(--mol_theme_back));\n\ttransform-origin: center;\n}\n\n[mol_icon_path] {\n\ttransform-origin: center;\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_icon_brightness_6) = class $mol_icon_brightness_6 extends ($.$mol_icon) {
@@ -7892,9 +7902,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     let cache = null;
@@ -7904,6 +7911,9 @@ var $;
     }
     $.$mol_support_css_overflow_anchor = $mol_support_css_overflow_anchor;
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -8247,13 +8257,13 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     $mol_style_attach("mol/stack/stack.view.css", "[mol_stack] {\n\tdisplay: grid;\n\t/* width: max-content; */\n\t/* height: max-content; */\n\talign-items: flex-start;\n\tjustify-items: flex-start;\n}\n\n[mol_stack] > * {\n\tgrid-area: 1/1;\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_paragraph) = class $mol_paragraph extends ($.$mol_view) {
@@ -8570,9 +8580,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     class $mol_syntax2 {
@@ -8670,6 +8677,9 @@ var $;
         'code-punctuation': /[\-\[\]\{\}\(\)<=>~!\?@#%&\*_\+\\\/\|;:\.,\^]+?/,
     });
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -10480,9 +10490,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     function $mol_match_text(query, values) {
@@ -10496,6 +10503,9 @@ var $;
     }
     $.$mol_match_text = $mol_match_text;
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -11047,9 +11057,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     function $mol_diff_path(...paths) {
@@ -11202,6 +11209,9 @@ var $;
     ], $mol_import, "style", null);
     $.$mol_import = $mol_import;
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -14967,50 +14977,6 @@ var $;
 ;
 "use strict";
 var $;
-(function ($_1) {
-    const run = $mol_data_pipe($mol_tree2_from_string.bind($$), $mol_view_tree2_to_locale.bind($$));
-    $mol_test({
-        'Locale simple'($) {
-            const locales = run(`
-				Foo Object
-					localized @ \\bla
-			`);
-            $mol_assert_equal(locales['Foo_localized'], 'bla');
-        },
-        'Locale structural'($) {
-            const locales = run(`
-				Foo Object
-					bar *
-						loc @ \\v1
-						baz *
-							loc2 @ \\v2
-			`);
-            $mol_assert_equal(locales['Foo_bar_loc'], 'v1');
-            $mol_assert_equal(locales['Foo_bar_baz_loc2'], 'v2');
-        },
-        'Locale factory'($) {
-            const locales = run(`
-				Bar Object
-					loc \\v0
-				Foo Object
-					button Bar
-						loc @ \\v1
-			`);
-            $mol_assert_equal(locales['Foo_button_loc'], 'v1');
-        },
-        'Locale bidi bind localized'($) {
-            const locales = run(`
-				Foo Object
-					a? <=> b? @ \\v1
-			`);
-            $mol_assert_equal(locales['Foo_b'], 'v1');
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
 (function ($) {
     $mol_test({
         'local get set delete'() {
@@ -15113,364 +15079,6 @@ var $;
 })($ || ($ = {}));
 
 ;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'strong'() {
-            const res = [...'**text**'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.strong, '**text**');
-            $mol_assert_equal(res.marker, '**');
-            $mol_assert_equal(res.content, 'text');
-        },
-        'emphasis'() {
-            const res = [...'//text//'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.emphasis, '//text//');
-            $mol_assert_equal(res.marker, '//');
-            $mol_assert_equal(res.content, 'text');
-        },
-        'insertion'() {
-            const res = [...'++text++'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.insertion, '++text++');
-            $mol_assert_equal(res.marker, '++');
-            $mol_assert_equal(res.content, 'text');
-        },
-        'deletion'() {
-            const res = [...'--text--'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.deletion, '--text--');
-            $mol_assert_equal(res.marker, '--');
-            $mol_assert_equal(res.content, 'text');
-        },
-        'code'() {
-            const res = [...';;text;;'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.code, ';;text;;');
-            $mol_assert_equal(res.marker, ';;');
-            $mol_assert_equal(res.content, 'text');
-        },
-        'nested simple'() {
-            const res = [...'**//foo//bar**'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.strong, '**//foo//bar**');
-            $mol_assert_equal(res.marker, '**');
-            $mol_assert_equal(res.content, '//foo//bar');
-        },
-        'nested simple overlap'() {
-            const res = [...'**//foo**bar//'.matchAll($hyoo_marked_line)];
-            $mol_assert_equal(res[0].groups.strong, '**//foo**');
-            $mol_assert_equal(res[0].groups.marker, '**');
-            $mol_assert_equal(res[0].groups.content, '//foo');
-            $mol_assert_equal(res[1][0], 'bar//');
-        },
-        'link'() {
-            const res = [...'\\\\text\\url\\\\'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.link, '\\\\text\\url\\\\');
-            $mol_assert_equal(res.marker, '\\\\');
-            $mol_assert_equal(res.content, 'text');
-            $mol_assert_equal(res.uri, 'url');
-        },
-        'embed'() {
-            const res = [...'""text\\url""'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.embed, '""text\\url""');
-            $mol_assert_equal(res.marker, '""');
-            $mol_assert_equal(res.content, 'text');
-            $mol_assert_equal(res.uri, 'url');
-        },
-        'link with embed'() {
-            const res = [...'\\\\""text\\url1""\\url2\\\\'.matchAll($hyoo_marked_line)][0].groups;
-            $mol_assert_equal(res.link, '\\\\""text\\url1""\\url2\\\\');
-            $mol_assert_equal(res.marker, '\\\\');
-            $mol_assert_equal(res.content, '""text\\url1""');
-            $mol_assert_equal(res.uri, 'url2');
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($_1) {
-    $mol_test({
-        'test'($) {
-            const root = {
-                ...$mol_jack,
-                'foo': input => [input.struct('FOO')],
-                'FOO': input => [input.struct('FAIL')],
-            };
-            $mol_assert_like($.$mol_tree2_from_string(`
-					test
-						case foo
-						case tree FOO
-				`)
-                .hack(root)
-                .toString(), $.$mol_tree2_from_string(`
-					test
-						case foo
-						case tree FOO
-				`)
-                .toString());
-            $mol_assert_fail(() => $.$mol_tree2_from_string(`
-					test
-						case \\foo
-						case \\bar
-				`).hack(root), 'args[0] ≠ args[1]\n\\foo\n\n---\n\\bar\n\ntest\n?#2:6/4');
-        },
-        'jack test'($) {
-            const tests = $.$mol_tree2_from_string(`
-				test
-					name \\commented code
-					case
-						one
-						no two
-					case tree
-						ONE
-				test
-					name \\name of struct node as value node
-					case type
-						one
-						\\one
-					case tree
-						\\ONE
-						\\
-				test
-					name \\kids of struct node
-					case kids tree one two
-					case tree two
-				test
-					name \\first element of list
-					case head
-						one
-						two
-						three
-					case tree ONE
-				test
-					name \\list without first element
-					case headless
-						one
-						two
-						three
-					case tree
-						TWO
-						THREE
-				test
-					name \\reversed list
-					case reversed
-						one
-						two
-						three
-					case tree
-						THREE
-						TWO
-						ONE
-				test
-					name \\quote tree
-					name \\make tree node by type, value and sub list
-					case tree head
-						\\
-						\\one
-							\\two
-						three
-					case struct
-						\\head
-						struct \\
-						data
-							\\one
-							\\two
-						struct \\three
-				test
-					name \\evaluated jack code
-					case jack head
-						one
-						two
-						three
-					case tree ONE
-				test
-					name \\define and use custom simple macro
-					case jack
-						hack PI float 3.14
-						hack pi PI
-						pi
-					case float 3.14
-				test
-					name \\define and use custom macro with arguments
-					case jack
-						hack tail head reversed from
-						tail
-							one
-							two
-							three
-					case tree THREE
-			`);
-            const res = tests.hack({
-                ...$mol_jack.meta,
-                'one': input => [input.struct('ONE')],
-                'two': input => [input.struct('TWO')],
-                'three': input => [input.struct('THREE')],
-                'ONE': input => [input.struct('XXX')],
-                'TWO': input => [input.struct('XXX')],
-                'THREE': input => [input.struct('XXX')],
-            });
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($_1) {
-    var $$;
-    (function ($$) {
-        $mol_test({
-            'handle clicks by default'($) {
-                let clicked = false;
-                const clicker = $mol_button.make({
-                    $,
-                    click: (event) => { clicked = true; },
-                });
-                const element = clicker.dom_tree();
-                const event = $mol_dom_context.document.createEvent('mouseevent');
-                event.initEvent('click', true, true);
-                element.dispatchEvent(event);
-                $mol_assert_ok(clicked);
-            },
-            'no handle clicks if disabled'($) {
-                let clicked = false;
-                const clicker = $mol_button.make({
-                    $,
-                    click: (event) => { clicked = true; },
-                    enabled: () => false,
-                });
-                const element = clicker.dom_tree();
-                const event = $mol_dom_context.document.createEvent('mouseevent');
-                event.initEvent('click', true, true);
-                element.dispatchEvent(event);
-                $mol_assert_not(clicked);
-            },
-            async 'Store error'($) {
-                const clicker = $mol_button.make({
-                    $,
-                    click: (event) => $.$mol_fail(new Error('Test error')),
-                });
-                const event = $mol_dom_context.document.createEvent('mouseevent');
-                $mol_assert_fail(() => clicker.event_activate(event), 'Test error');
-                await Promise.resolve();
-                $mol_assert_equal(clicker.status()[0].message, 'Test error');
-            },
-        });
-    })($$ = $_1.$$ || ($_1.$$ = {}));
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'all cases of using maybe'() {
-            $mol_assert_equal($mol_maybe(0)[0], 0);
-            $mol_assert_equal($mol_maybe(false)[0], false);
-            $mol_assert_equal($mol_maybe(null)[0], void 0);
-            $mol_assert_equal($mol_maybe(void 0)[0], void 0);
-            $mol_assert_equal($mol_maybe(void 0).map(v => v.toString())[0], void 0);
-            $mol_assert_equal($mol_maybe(0).map(v => v.toString())[0], '0');
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        $mol_test({
-            'Empty needle'() {
-                const app = new $mol_dimmer;
-                app.needle = () => '  ';
-                app.haystack = () => 'foo  bar';
-                $mol_assert_like(app.strings(), ['foo  bar']);
-            },
-            'Empty haystack'() {
-                const app = new $mol_dimmer;
-                app.needle = () => 'foo  bar';
-                app.haystack = () => '';
-                $mol_assert_like(app.strings(), ['']);
-            },
-            'Not found'() {
-                const app = new $mol_dimmer;
-                app.needle = () => 'foo';
-                app.haystack = () => ' bar ';
-                $mol_assert_like(app.strings(), [' bar ']);
-            },
-            'One found'() {
-                const app = new $mol_dimmer;
-                app.needle = () => 'foo';
-                app.haystack = () => ' barfoo ';
-                $mol_assert_like(app.strings(), [' bar', 'foo', ' ']);
-            },
-            'Multiple found'() {
-                const app = new $mol_dimmer;
-                app.needle = () => 'foo';
-                app.haystack = () => ' foobarfoo foo';
-                $mol_assert_like(app.strings(), [' ', 'foo', 'bar', 'foo', ' ', 'foo']);
-            },
-            'Fuzzy search'() {
-                const app = new $mol_dimmer;
-                app.needle = () => 'foo bar';
-                app.haystack = () => ' barfoo ';
-                $mol_assert_like(app.strings(), [' ', 'bar', '', 'foo', ' ']);
-            },
-        });
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        '$mol_syntax2_md_flow'() {
-            const check = (input, right) => {
-                const tokens = [];
-                $mol_syntax2_md_flow.tokenize(input, (...token) => tokens.push(token));
-                $mol_assert_like(tokens, right);
-            };
-            check('Hello,\nWorld..\r\n\r\n\nof Love!', [
-                ['block', 'Hello,\n', ['Hello,', '\n'], 0],
-                ['block', 'World..\r\n\r\n\n', ['World..', '\r\n\r\n\n'], 7],
-                ['block', 'of Love!', ['of Love!', ''], 19],
-            ]);
-            check('# Header1\n\nHello!\n\n## Header2', [
-                ['header', '# Header1\n\n', ['#', ' ', 'Header1', '\n\n'], 0],
-                ['block', 'Hello!\n\n', ['Hello!', '\n\n'], 11],
-                ['header', '## Header2', ['##', ' ', 'Header2', ''], 19],
-            ]);
-            check('```\nstart()\n```\n\n```jam.js\nrestart()\n```\n\nHello!\n\n```\nstop()\n```', [
-                ['code', '```\nstart()\n```\n\n', ['```', '', 'start()\n', '```', '\n\n'], 0],
-                ['code', '```jam.js\nrestart()\n```\n\n', ['```', 'jam.js', 'restart()\n', '```', '\n\n'], 17],
-                ['block', 'Hello!\n\n', ['Hello!', '\n\n'], 42],
-                ['code', '```\nstop()\n```', ['```', '', 'stop()\n', '```', ''], 50],
-            ]);
-            check('| header1 | header2\n|----|----\n| Cell11 | Cell12\n| Cell21 | Cell22\n\n| Cell11 | Cell12\n| Cell21 | Cell22\n', [
-                ['table', '| header1 | header2\n|----|----\n| Cell11 | Cell12\n| Cell21 | Cell22\n\n', ['| header1 | header2\n|----|----\n| Cell11 | Cell12\n| Cell21 | Cell22\n', '\n'], 0],
-                ['table', '| Cell11 | Cell12\n| Cell21 | Cell22\n', ['| Cell11 | Cell12\n| Cell21 | Cell22\n', ''], 68],
-            ]);
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_tree2_wasm_to_bytes = $mol_data_pipe($mol_tree2_wasm_to_bin, $mol_tree2_bin_to_bytes);
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_tree2_wasm_to_module = $mol_data_pipe($mol_tree2_wasm_to_bytes, $mol_wasm_module);
-})($ || ($ = {}));
-
-;
 	($.$mol_view_tree2_to_js_test_ex_array_slot_foo) = class $mol_view_tree2_to_js_test_ex_array_slot_foo extends ($.$mol_object) {
 		foot(){
 			return [
@@ -15509,9 +15117,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_simple_nan_foo) = class $mol_view_tree2_to_js_test_ex_simple_nan_foo extends ($.$mol_object) {
 		a(){
 			return NaN;
@@ -15535,9 +15140,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_structural_foo) = class $mol_view_tree2_to_js_test_ex_structural_foo extends ($.$mol_object) {
 		bar(){
 			return {
@@ -15551,9 +15153,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_array_union_foo) = class $mol_view_tree2_to_js_test_ex_array_union_foo extends ($.$mol_object) {
@@ -15571,9 +15170,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_array_number_foo) = class $mol_view_tree2_to_js_test_ex_array_number_foo extends ($.$mol_object) {
 		bar(){
 			return [
@@ -15585,9 +15181,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_bidi_indexed_foo) = class $mol_view_tree2_to_js_test_ex_bidi_indexed_foo extends ($.$mol_object) {
@@ -15603,18 +15196,12 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_array_boolean_foo) = class $mol_view_tree2_to_js_test_ex_array_boolean_foo extends ($.$mol_object) {
 		bar(){
 			return [false, true];
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_array_indexed_foo) = class $mol_view_tree2_to_js_test_ex_array_indexed_foo extends ($.$mol_object) {
@@ -15634,9 +15221,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_bidi_chaining_foo) = class $mol_view_tree2_to_js_test_ex_bidi_chaining_foo extends ($.$mol_object) {
 		a(next){
 			return (this.b(next));
@@ -15653,9 +15237,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_bidi_fallback_foo) = class $mol_view_tree2_to_js_test_ex_bidi_fallback_foo extends ($.$mol_object) {
 		bar1(next){
 			return (this.bar2(next));
@@ -15667,9 +15248,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_bidi_fallback_foo.prototype), "bar2"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_left_chaining_foo) = class $mol_view_tree2_to_js_test_ex_left_chaining_foo extends ($.$mol_object) {
@@ -15693,9 +15271,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_right_indexed_foo) = class $mol_view_tree2_to_js_test_ex_right_indexed_foo extends ($.$mol_object) {
 		a(next){
 			if(next !== undefined) return next;
@@ -15716,9 +15291,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_simple_string_foo) = class $mol_view_tree2_to_js_test_ex_simple_string_foo extends ($.$mol_object) {
 		hardcoded(){
 			return "First\nSecond";
@@ -15728,9 +15300,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_left_read_only_foo) = class $mol_view_tree2_to_js_test_ex_left_read_only_foo extends ($.$mol_object) {
@@ -15744,9 +15313,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_left_read_only_foo.prototype), "bar2"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_right_hierarchy_foo) = class $mol_view_tree2_to_js_test_ex_right_hierarchy_foo extends ($.$mol_object) {
@@ -15780,9 +15346,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_right_read_only_foo) = class $mol_view_tree2_to_js_test_ex_right_read_only_foo extends ($.$mol_object) {
 		a(id, next){
 			if(next !== undefined) return next;
@@ -15803,9 +15366,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_structural_dict_foo) = class $mol_view_tree2_to_js_test_ex_structural_dict_foo extends ($.$mol_object) {
 		bar(){
 			return {"alpha": 1, "beta": "a"};
@@ -15814,18 +15374,12 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_array_with_types_foo) = class $mol_view_tree2_to_js_test_ex_array_with_types_foo extends ($.$mol_object) {
 		arr(){
 			return [];
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_array_inheritance_foo) = class $mol_view_tree2_to_js_test_ex_array_inheritance_foo extends ($.$mol_object) {
@@ -15845,9 +15399,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_bidi_legacy_value_foo) = class $mol_view_tree2_to_js_test_ex_bidi_legacy_value_foo extends ($.$mol_object) {
 		a(next){
 			return (this.b(next));
@@ -15861,18 +15412,12 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_simple_typed_null_foo) = class $mol_view_tree2_to_js_test_ex_simple_typed_null_foo extends ($.$mol_object) {
 		a(){
 			return null;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_bidi_in_dictionary_foo) = class $mol_view_tree2_to_js_test_ex_bidi_in_dictionary_foo extends ($.$mol_object) {
@@ -15886,9 +15431,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_bidi_in_dictionary_foo.prototype), "run"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_right_in_left_foo) = class $mol_view_tree2_to_js_test_ex_right_in_left_foo extends ($.$mol_object) {
@@ -15923,14 +15465,8 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_simple_empty_class_foo) = class $mol_view_tree2_to_js_test_ex_simple_empty_class_foo extends ($.$mol_object) {};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_simple_two_classes_foo) = class $mol_view_tree2_to_js_test_ex_simple_two_classes_foo extends ($.$mol_object) {
@@ -15944,9 +15480,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_simple_factory_props_bar) = class $mol_view_tree2_to_js_test_ex_simple_factory_props_bar extends ($.$mol_object) {
@@ -15973,9 +15506,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_simple_default_indexed_foo) = class $mol_view_tree2_to_js_test_ex_simple_default_indexed_foo extends ($.$mol_object) {
 		a_b(id, next){
 			if(next !== undefined) return next;
@@ -15991,9 +15521,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_structural_complex_key_foo) = class $mol_view_tree2_to_js_test_ex_structural_complex_key_foo extends ($.$mol_object) {
 		dictionary(){
 			return {
@@ -16004,9 +15531,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_array_constructor_tuple_foo) = class $mol_view_tree2_to_js_test_ex_array_constructor_tuple_foo extends ($.$mol_object) {
@@ -16024,9 +15548,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_array_constructor_tuple_foo.prototype), "text_blob"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_left_second_level_index_bar) = class $mol_view_tree2_to_js_test_ex_left_second_level_index_bar extends ($.$mol_object) {
@@ -16054,18 +15575,12 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_structural_quoted_props_foo) = class $mol_view_tree2_to_js_test_ex_structural_quoted_props_foo extends ($.$mol_object) {
 		bar(){
 			return {"$a": 1, "b-t": {}};
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_structural_spread_other_foo) = class $mol_view_tree2_to_js_test_ex_structural_spread_other_foo extends ($.$mol_object) {
@@ -16077,9 +15592,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_array_of_array_or_object_foo) = class $mol_view_tree2_to_js_test_ex_array_of_array_or_object_foo extends ($.$mol_object) {
@@ -16095,9 +15607,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_bidi_localized_in_object_foo) = class $mol_view_tree2_to_js_test_ex_bidi_localized_in_object_foo extends ($.$mol_object) {
 		obj(){
 			return {"loc": (next) => (this.outer(next))};
@@ -16109,9 +15618,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_bidi_localized_in_object_foo.prototype), "outer"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_bidi_with_default_object_foo) = class $mol_view_tree2_to_js_test_ex_bidi_with_default_object_foo extends ($.$mol_object) {
@@ -16126,9 +15632,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_bidi_with_default_object_foo.prototype), "owner"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_left_in_array_and_object_bar) = class $mol_view_tree2_to_js_test_ex_left_in_array_and_object_bar extends ($.$mol_object) {
@@ -16156,9 +15659,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_bidi_indexed_second_level_bar) = class $mol_view_tree2_to_js_test_ex_bidi_indexed_second_level_bar extends ($.$mol_object) {
 		expanded(){
 			return "";
@@ -16181,9 +15681,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_array_spread_other_bar) = class $mol_view_tree2_to_js_test_ex_array_spread_other_bar extends ($.$mol_object) {
 		sup(){
 			return ["v1"];
@@ -16193,9 +15690,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_structural_with_inheritance_foo) = class $mol_view_tree2_to_js_test_ex_structural_with_inheritance_foo extends ($.$mol_object) {
@@ -16215,9 +15709,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_bidi_localized_default_value_foo) = class $mol_view_tree2_to_js_test_ex_bidi_localized_default_value_foo extends ($.$mol_object) {
 		a(next){
 			return (this.b(next));
@@ -16229,9 +15720,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_bidi_localized_default_value_foo.prototype), "b"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_simple_mutable_and_read_only_foo) = class $mol_view_tree2_to_js_test_ex_simple_mutable_and_read_only_foo extends ($.$mol_object) {
@@ -16247,18 +15735,12 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_structural_localized_prop_value_foo) = class $mol_view_tree2_to_js_test_ex_structural_localized_prop_value_foo extends ($.$mol_object) {
 		bar(){
 			return {"loc": (this.$.$mol_locale.text("$mol_view_tree2_to_js_test_ex_structural_localized_prop_value_foo_bar_loc")), "baz": {"loc2": (this.$.$mol_locale.text("$mol_view_tree2_to_js_test_ex_structural_localized_prop_value_foo_bar_baz_loc2"))}};
 		}
 	};
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_left_with_separate_default_and_comment_bar) = class $mol_view_tree2_to_js_test_ex_left_with_separate_default_and_comment_bar extends ($.$mol_object) {
@@ -16280,9 +15762,6 @@ var $;
 
 
 ;
-"use strict";
-
-;
 	($.$mol_view_tree2_to_js_test_ex_bidi_with_separate_default_in_right_part_foo) = class $mol_view_tree2_to_js_test_ex_bidi_with_separate_default_in_right_part_foo extends ($.$mol_object) {
 		b(next){
 			if(next !== undefined) return next;
@@ -16294,9 +15773,6 @@ var $;
 	};
 	($mol_mem(($.$mol_view_tree2_to_js_test_ex_bidi_with_separate_default_in_right_part_foo.prototype), "b"));
 
-
-;
-"use strict";
 
 ;
 	($.$mol_view_tree2_to_js_test_ex_bidi_doubing_right_part_with_same_default_foo) = class $mol_view_tree2_to_js_test_ex_bidi_doubing_right_part_with_same_default_foo extends ($.$mol_object) {
@@ -16316,9 +15792,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     class $mol_view_tree2_to_js_test_ex_klass_tuple extends $mol_object {
@@ -16332,6 +15805,102 @@ var $;
     }
     $.$mol_view_tree2_to_js_test_ex_klass_tuple = $mol_view_tree2_to_js_test_ex_klass_tuple;
 })($ || ($ = {}));
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -16364,6 +15933,45 @@ var $;
     ], $mol_view_tree2_to_js_test_ex_right_hierarchy_bar.prototype, "domain", null);
     $.$mol_view_tree2_to_js_test_ex_right_hierarchy_bar = $mol_view_tree2_to_js_test_ex_right_hierarchy_bar;
 })($ || ($ = {}));
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -16787,6 +16395,408 @@ var $;
             });
         }
     });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    const run = $mol_data_pipe($mol_tree2_from_string.bind($$), $mol_view_tree2_to_locale.bind($$));
+    $mol_test({
+        'Locale simple'($) {
+            const locales = run(`
+				Foo Object
+					localized @ \\bla
+			`);
+            $mol_assert_equal(locales['Foo_localized'], 'bla');
+        },
+        'Locale structural'($) {
+            const locales = run(`
+				Foo Object
+					bar *
+						loc @ \\v1
+						baz *
+							loc2 @ \\v2
+			`);
+            $mol_assert_equal(locales['Foo_bar_loc'], 'v1');
+            $mol_assert_equal(locales['Foo_bar_baz_loc2'], 'v2');
+        },
+        'Locale factory'($) {
+            const locales = run(`
+				Bar Object
+					loc \\v0
+				Foo Object
+					button Bar
+						loc @ \\v1
+			`);
+            $mol_assert_equal(locales['Foo_button_loc'], 'v1');
+        },
+        'Locale bidi bind localized'($) {
+            const locales = run(`
+				Foo Object
+					a? <=> b? @ \\v1
+			`);
+            $mol_assert_equal(locales['Foo_b'], 'v1');
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'strong'() {
+            const res = [...'**text**'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.strong, '**text**');
+            $mol_assert_equal(res.marker, '**');
+            $mol_assert_equal(res.content, 'text');
+        },
+        'emphasis'() {
+            const res = [...'//text//'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.emphasis, '//text//');
+            $mol_assert_equal(res.marker, '//');
+            $mol_assert_equal(res.content, 'text');
+        },
+        'insertion'() {
+            const res = [...'++text++'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.insertion, '++text++');
+            $mol_assert_equal(res.marker, '++');
+            $mol_assert_equal(res.content, 'text');
+        },
+        'deletion'() {
+            const res = [...'--text--'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.deletion, '--text--');
+            $mol_assert_equal(res.marker, '--');
+            $mol_assert_equal(res.content, 'text');
+        },
+        'code'() {
+            const res = [...';;text;;'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.code, ';;text;;');
+            $mol_assert_equal(res.marker, ';;');
+            $mol_assert_equal(res.content, 'text');
+        },
+        'nested simple'() {
+            const res = [...'**//foo//bar**'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.strong, '**//foo//bar**');
+            $mol_assert_equal(res.marker, '**');
+            $mol_assert_equal(res.content, '//foo//bar');
+        },
+        'nested simple overlap'() {
+            const res = [...'**//foo**bar//'.matchAll($hyoo_marked_line)];
+            $mol_assert_equal(res[0].groups.strong, '**//foo**');
+            $mol_assert_equal(res[0].groups.marker, '**');
+            $mol_assert_equal(res[0].groups.content, '//foo');
+            $mol_assert_equal(res[1][0], 'bar//');
+        },
+        'link'() {
+            const res = [...'\\\\text\\url\\\\'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.link, '\\\\text\\url\\\\');
+            $mol_assert_equal(res.marker, '\\\\');
+            $mol_assert_equal(res.content, 'text');
+            $mol_assert_equal(res.uri, 'url');
+        },
+        'embed'() {
+            const res = [...'""text\\url""'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.embed, '""text\\url""');
+            $mol_assert_equal(res.marker, '""');
+            $mol_assert_equal(res.content, 'text');
+            $mol_assert_equal(res.uri, 'url');
+        },
+        'link with embed'() {
+            const res = [...'\\\\""text\\url1""\\url2\\\\'.matchAll($hyoo_marked_line)][0].groups;
+            $mol_assert_equal(res.link, '\\\\""text\\url1""\\url2\\\\');
+            $mol_assert_equal(res.marker, '\\\\');
+            $mol_assert_equal(res.content, '""text\\url1""');
+            $mol_assert_equal(res.uri, 'url2');
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    $mol_test({
+        'test'($) {
+            const root = {
+                ...$mol_jack,
+                'foo': input => [input.struct('FOO')],
+                'FOO': input => [input.struct('FAIL')],
+            };
+            $mol_assert_like($.$mol_tree2_from_string(`
+					test
+						case foo
+						case tree FOO
+				`)
+                .hack(root)
+                .toString(), $.$mol_tree2_from_string(`
+					test
+						case foo
+						case tree FOO
+				`)
+                .toString());
+            $mol_assert_fail(() => $.$mol_tree2_from_string(`
+					test
+						case \\foo
+						case \\bar
+				`).hack(root), 'args[0] ≠ args[1]\n\\foo\n\n---\n\\bar\n\ntest\n?#2:6/4');
+        },
+        'jack test'($) {
+            const tests = $.$mol_tree2_from_string(`
+				test
+					name \\commented code
+					case
+						one
+						no two
+					case tree
+						ONE
+				test
+					name \\name of struct node as value node
+					case type
+						one
+						\\one
+					case tree
+						\\ONE
+						\\
+				test
+					name \\kids of struct node
+					case kids tree one two
+					case tree two
+				test
+					name \\first element of list
+					case head
+						one
+						two
+						three
+					case tree ONE
+				test
+					name \\list without first element
+					case headless
+						one
+						two
+						three
+					case tree
+						TWO
+						THREE
+				test
+					name \\reversed list
+					case reversed
+						one
+						two
+						three
+					case tree
+						THREE
+						TWO
+						ONE
+				test
+					name \\quote tree
+					name \\make tree node by type, value and sub list
+					case tree head
+						\\
+						\\one
+							\\two
+						three
+					case struct
+						\\head
+						struct \\
+						data
+							\\one
+							\\two
+						struct \\three
+				test
+					name \\evaluated jack code
+					case jack head
+						one
+						two
+						three
+					case tree ONE
+				test
+					name \\define and use custom simple macro
+					case jack
+						hack PI float 3.14
+						hack pi PI
+						pi
+					case float 3.14
+				test
+					name \\define and use custom macro with arguments
+					case jack
+						hack tail head reversed from
+						tail
+							one
+							two
+							three
+					case tree THREE
+			`);
+            const res = tests.hack({
+                ...$mol_jack.meta,
+                'one': input => [input.struct('ONE')],
+                'two': input => [input.struct('TWO')],
+                'three': input => [input.struct('THREE')],
+                'ONE': input => [input.struct('XXX')],
+                'TWO': input => [input.struct('XXX')],
+                'THREE': input => [input.struct('XXX')],
+            });
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    var $$;
+    (function ($$) {
+        $mol_test({
+            'handle clicks by default'($) {
+                let clicked = false;
+                const clicker = $mol_button.make({
+                    $,
+                    click: (event) => { clicked = true; },
+                });
+                const element = clicker.dom_tree();
+                const event = $mol_dom_context.document.createEvent('mouseevent');
+                event.initEvent('click', true, true);
+                element.dispatchEvent(event);
+                $mol_assert_ok(clicked);
+            },
+            'no handle clicks if disabled'($) {
+                let clicked = false;
+                const clicker = $mol_button.make({
+                    $,
+                    click: (event) => { clicked = true; },
+                    enabled: () => false,
+                });
+                const element = clicker.dom_tree();
+                const event = $mol_dom_context.document.createEvent('mouseevent');
+                event.initEvent('click', true, true);
+                element.dispatchEvent(event);
+                $mol_assert_not(clicked);
+            },
+            async 'Store error'($) {
+                const clicker = $mol_button.make({
+                    $,
+                    click: (event) => $.$mol_fail(new Error('Test error')),
+                });
+                const event = $mol_dom_context.document.createEvent('mouseevent');
+                $mol_assert_fail(() => clicker.event_activate(event), 'Test error');
+                await Promise.resolve();
+                $mol_assert_equal(clicker.status()[0].message, 'Test error');
+            },
+        });
+    })($$ = $_1.$$ || ($_1.$$ = {}));
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'all cases of using maybe'() {
+            $mol_assert_equal($mol_maybe(0)[0], 0);
+            $mol_assert_equal($mol_maybe(false)[0], false);
+            $mol_assert_equal($mol_maybe(null)[0], void 0);
+            $mol_assert_equal($mol_maybe(void 0)[0], void 0);
+            $mol_assert_equal($mol_maybe(void 0).map(v => v.toString())[0], void 0);
+            $mol_assert_equal($mol_maybe(0).map(v => v.toString())[0], '0');
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        $mol_test({
+            'Empty needle'() {
+                const app = new $mol_dimmer;
+                app.needle = () => '  ';
+                app.haystack = () => 'foo  bar';
+                $mol_assert_like(app.strings(), ['foo  bar']);
+            },
+            'Empty haystack'() {
+                const app = new $mol_dimmer;
+                app.needle = () => 'foo  bar';
+                app.haystack = () => '';
+                $mol_assert_like(app.strings(), ['']);
+            },
+            'Not found'() {
+                const app = new $mol_dimmer;
+                app.needle = () => 'foo';
+                app.haystack = () => ' bar ';
+                $mol_assert_like(app.strings(), [' bar ']);
+            },
+            'One found'() {
+                const app = new $mol_dimmer;
+                app.needle = () => 'foo';
+                app.haystack = () => ' barfoo ';
+                $mol_assert_like(app.strings(), [' bar', 'foo', ' ']);
+            },
+            'Multiple found'() {
+                const app = new $mol_dimmer;
+                app.needle = () => 'foo';
+                app.haystack = () => ' foobarfoo foo';
+                $mol_assert_like(app.strings(), [' ', 'foo', 'bar', 'foo', ' ', 'foo']);
+            },
+            'Fuzzy search'() {
+                const app = new $mol_dimmer;
+                app.needle = () => 'foo bar';
+                app.haystack = () => ' barfoo ';
+                $mol_assert_like(app.strings(), [' ', 'bar', '', 'foo', ' ']);
+            },
+        });
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        '$mol_syntax2_md_flow'() {
+            const check = (input, right) => {
+                const tokens = [];
+                $mol_syntax2_md_flow.tokenize(input, (...token) => tokens.push(token));
+                $mol_assert_like(tokens, right);
+            };
+            check('Hello,\nWorld..\r\n\r\n\nof Love!', [
+                ['block', 'Hello,\n', ['Hello,', '\n'], 0],
+                ['block', 'World..\r\n\r\n\n', ['World..', '\r\n\r\n\n'], 7],
+                ['block', 'of Love!', ['of Love!', ''], 19],
+            ]);
+            check('# Header1\n\nHello!\n\n## Header2', [
+                ['header', '# Header1\n\n', ['#', ' ', 'Header1', '\n\n'], 0],
+                ['block', 'Hello!\n\n', ['Hello!', '\n\n'], 11],
+                ['header', '## Header2', ['##', ' ', 'Header2', ''], 19],
+            ]);
+            check('```\nstart()\n```\n\n```jam.js\nrestart()\n```\n\nHello!\n\n```\nstop()\n```', [
+                ['code', '```\nstart()\n```\n\n', ['```', '', 'start()\n', '```', '\n\n'], 0],
+                ['code', '```jam.js\nrestart()\n```\n\n', ['```', 'jam.js', 'restart()\n', '```', '\n\n'], 17],
+                ['block', 'Hello!\n\n', ['Hello!', '\n\n'], 42],
+                ['code', '```\nstop()\n```', ['```', '', 'stop()\n', '```', ''], 50],
+            ]);
+            check('| header1 | header2\n|----|----\n| Cell11 | Cell12\n| Cell21 | Cell22\n\n| Cell11 | Cell12\n| Cell21 | Cell22\n', [
+                ['table', '| header1 | header2\n|----|----\n| Cell11 | Cell12\n| Cell21 | Cell22\n\n', ['| header1 | header2\n|----|----\n| Cell11 | Cell12\n| Cell21 | Cell22\n', '\n'], 0],
+                ['table', '| Cell11 | Cell12\n| Cell21 | Cell22\n', ['| Cell11 | Cell12\n| Cell21 | Cell22\n', ''], 68],
+            ]);
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_tree2_wasm_to_bytes = $mol_data_pipe($mol_tree2_wasm_to_bin, $mol_tree2_bin_to_bytes);
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_tree2_wasm_to_module = $mol_data_pipe($mol_tree2_wasm_to_bytes, $mol_wasm_module);
 })($ || ($ = {}));
 
 ;
