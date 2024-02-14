@@ -5968,14 +5968,9 @@ var $;
                         if (bind.type === '=>')
                             continue;
                         const over_name = name_of.call(this, over);
-                        const body = bind.type === '@' ? [
+                        const body = [
                             args_of.call(this, over),
-                            ...localized_string.hack({
-                                '#key': key => [bind.data(`${klass.type}_${name}_${over_name}`)],
-                            }),
-                        ] : [
-                            args_of.call(this, over),
-                            over.struct('()', over.hack(belt)),
+                            over.struct('()', over.hack(belt, { chain: [over.type] })),
                         ];
                         overrides.push(over.struct('=', [
                             over.struct('()', [
@@ -6123,11 +6118,7 @@ var $;
                                 if (over.type === '/')
                                     continue;
                                 const oname = this.$mol_view_tree2_prop_parts(over).name;
-                                const bind = over.kids[0];
-                                if (bind.type === '@') {
-                                    const path = `${klass.type}_${name}_${oname}`;
-                                    locales[path] = bind.kids[0].value;
-                                }
+                                over.hack(belt, { ...context, chain: [oname] });
                             }
                         }
                         return [input];
@@ -8996,7 +8987,7 @@ var $;
 		}
 		Copy(){
 			const obj = new this.$.$mol_button_copy();
-			(obj.hint) = () => (this.$.$mol_locale.text("$mol_text_code_Copy_hint"));
+			(obj.hint) = () => ((this.$.$mol_locale.text("$mol_text_code_Copy_hint")));
 			(obj.text) = () => ((this.text_export()));
 			return obj;
 		}
@@ -10207,7 +10198,7 @@ var $;
 		}
 		Clear(){
 			const obj = new this.$.$mol_button_minor();
-			(obj.hint) = () => (this.$.$mol_locale.text("$mol_search_Clear_hint"));
+			(obj.hint) = () => ((this.$.$mol_locale.text("$mol_search_Clear_hint")));
 			(obj.click) = (next) => ((this.clear(next)));
 			(obj.sub) = () => ([(this.Clear_icon())]);
 			return obj;
@@ -10964,7 +10955,7 @@ var $;
 		}
 		Presets(){
 			const obj = new this.$.$mol_page();
-			(obj.title) = () => (this.$.$mol_locale.text("$hyoo_tree_Presets_title"));
+			(obj.title) = () => ((this.$.$mol_locale.text("$hyoo_tree_Presets_title")));
 			(obj.tools) = () => ([(this.Lights()), (this.Github())]);
 			(obj.body) = () => ([(this.Presets_list())]);
 			return obj;
@@ -10991,7 +10982,7 @@ var $;
 		}
 		Source(){
 			const obj = new this.$.$mol_page();
-			(obj.title) = () => (this.$.$mol_locale.text("$hyoo_tree_Source_title"));
+			(obj.title) = () => ((this.$.$mol_locale.text("$hyoo_tree_Source_title")));
 			(obj.tools) = () => ((this.source_tools()));
 			(obj.body) = () => ([(this.Source_text())]);
 			return obj;
@@ -15489,6 +15480,9 @@ var $;
 		loc(){
 			return "v2";
 		}
+		deep(){
+			return {"loc": (this.$.$mol_locale.text("$mol_view_tree2_to_js_test_ex_simple_factory_props_bar_deep_loc"))};
+		}
 		some(){
 			return false;
 		}
@@ -15497,7 +15491,8 @@ var $;
 		button(){
 			const obj = new this.$.$mol_view_tree2_to_js_test_ex_simple_factory_props_bar();
 			(obj.some) = () => (true);
-			(obj.loc) = () => (this.$.$mol_locale.text("$mol_view_tree2_to_js_test_ex_simple_factory_props_foo_button_loc"));
+			(obj.loc) = () => ((this.$.$mol_locale.text("$mol_view_tree2_to_js_test_ex_simple_factory_props_foo_button_loc")));
+			(obj.deep) = () => ({"loc": (this.$.$mol_locale.text("$mol_view_tree2_to_js_test_ex_simple_factory_props_foo_button_deep_loc"))});
 			(obj.sub) = () => ([1]);
 			return obj;
 		}
@@ -16307,6 +16302,7 @@ var $;
             $mol_assert_ok(typeof foo.button().sub === 'function');
             $mol_assert_ok(typeof foo.button().some === 'function');
             $mol_assert_equal(foo.button().loc(), `$mol_view_tree2_to_js_test_ex_simple_factory_props_foo_button_loc`);
+            $mol_assert_equal(foo.button().deep().loc, `$mol_view_tree2_to_js_test_ex_simple_factory_props_foo_button_deep_loc`);
             $mol_assert_equal(foo.button().sub()[0], 1);
         },
         'simple nan'($) {
