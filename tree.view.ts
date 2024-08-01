@@ -61,15 +61,18 @@ namespace $.$$ {
 		@ $mol_mem_key
 		result( index: number ): string | $mol_tree2 | Uint8Array | $mol_wasm_module {
 			
-			const func = this.pipeline()[ index ] as keyof $
+			const func = this.pipeline()[ index ]
 			if( !func ) return ''
 			
 			const arg = index ? this.result( index - 1 ) : this.source()
+			const val = ( this.$ as any )[ func ] as any as Function
 
-			if( $mol_func_is_class( this.$[ func ] ) ) {
-				return new this.$[ func ]( arg ) ?? null
+			if( $mol_func_is_class( val ) ) {
+				return new val( arg )
+			} else if( typeof val === 'function' ) {
+				return val.call( arg ) ?? ''
 			} else {
-				return this.$[ func ]( arg ) ?? null
+				return ''
 			}
 
 		}
