@@ -11360,7 +11360,7 @@ var $;
                     return new val(arg);
                 }
                 else if (typeof val === 'function') {
-                    return val.call(arg) ?? '';
+                    return val.call(this.$, arg) ?? '';
                 }
                 else {
                     return '';
