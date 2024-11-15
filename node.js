@@ -3276,10 +3276,10 @@ var $;
 			return 0;
 		}
 		field(){
-			return {...(super.field()), "tabIndex": (this?.tabindex())};
+			return {...(super.field()), "tabIndex": (this.tabindex())};
 		}
 		event(){
-			return {...(super.event()), "scroll": (next) => (this?.event_scroll(next))};
+			return {...(super.event()), "scroll": (next) => (this.event_scroll(next))};
 		}
 	};
 	($mol_mem(($.$mol_scroll.prototype), "event_scroll"));
@@ -3573,7 +3573,7 @@ var $;
 			return "";
 		}
 		sub(){
-			return (this?.pages());
+			return (this.pages());
 		}
 		minimal_width(){
 			return 0;
@@ -3699,7 +3699,7 @@ var $;
 			return "";
 		}
 		attr(){
-			return {"mol_theme": (this?.theme())};
+			return {"mol_theme": (this.theme())};
 		}
 	};
 
@@ -3769,7 +3769,7 @@ var $;
             return chunks.join(' ');
         }
         static go(next) {
-            this.href(this.make_link(next));
+            this.href(this.link(next));
         }
         constructor(prefix = '') {
             super();
@@ -4410,13 +4410,13 @@ var $;
 			return null;
 		}
 		attr(){
-			return {...(super.attr()), "mol_theme": (this?.theme())};
+			return {...(super.attr()), "mol_theme": (this.theme())};
 		}
 		style(){
 			return {...(super.style()), "minHeight": "1em"};
 		}
 		sub(){
-			return [(this?.value())];
+			return [(this.value())];
 		}
 	};
 
@@ -4455,7 +4455,7 @@ var $;
 			return "";
 		}
 		hint_safe(){
-			return (this?.hint());
+			return (this.hint());
 		}
 		error(){
 			return "";
@@ -4474,26 +4474,26 @@ var $;
 		event(){
 			return {
 				...(super.event()), 
-				"click": (next) => (this?.event_activate(next)), 
-				"dblclick": (next) => (this?.clicks(next)), 
-				"keydown": (next) => (this?.event_key_press(next))
+				"click": (next) => (this.event_activate(next)), 
+				"dblclick": (next) => (this.clicks(next)), 
+				"keydown": (next) => (this.event_key_press(next))
 			};
 		}
 		attr(){
 			return {
 				...(super.attr()), 
-				"disabled": (this?.disabled()), 
+				"disabled": (this.disabled()), 
 				"role": "button", 
-				"tabindex": (this?.tab_index()), 
-				"title": (this?.hint_safe())
+				"tabindex": (this.tab_index()), 
+				"title": (this.hint_safe())
 			};
 		}
 		sub(){
-			return [(this?.title())];
+			return [(this.title())];
 		}
 		Speck(){
 			const obj = new this.$.$mol_speck();
-			(obj.value) = () => ((this?.error()));
+			(obj.value) = () => ((this.error()));
 			return obj;
 		}
 	};
@@ -4745,22 +4745,22 @@ var $;
 		}
 		Title(){
 			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ([(this?.title())]);
+			(obj.sub) = () => ([(this.title())]);
 			return obj;
 		}
 		label(){
-			return [(this?.Title())];
+			return [(this.Title())];
 		}
 		attr(){
 			return {
 				...(super.attr()), 
-				"mol_check_checked": (this?.checked()), 
-				"aria-checked": (this?.aria_checked()), 
-				"role": (this?.aria_role())
+				"mol_check_checked": (this.checked()), 
+				"aria-checked": (this.aria_checked()), 
+				"role": (this.aria_role())
 			};
 		}
 		sub(){
-			return [(this?.Icon()), (this?.label())];
+			return [(this.Icon()), (this.label())];
 		}
 	};
 	($mol_mem(($.$mol_check.prototype), "checked"));
@@ -4930,8 +4930,8 @@ var $;
 		attr(){
 			return {
 				...(super.attr()), 
-				"viewBox": (this?.view_box()), 
-				"preserveAspectRatio": (this?.aspect())
+				"viewBox": (this.view_box()), 
+				"preserveAspectRatio": (this.aspect())
 			};
 		}
 	};
@@ -4956,7 +4956,7 @@ var $;
 			return "path";
 		}
 		attr(){
-			return {...(super.attr()), "d": (this?.geometry())};
+			return {...(super.attr()), "d": (this.geometry())};
 		}
 	};
 
@@ -4971,7 +4971,7 @@ var $;
 		}
 		Path(){
 			const obj = new this.$.$mol_svg_path();
-			(obj.geometry) = () => ((this?.path()));
+			(obj.geometry) = () => ((this.path()));
 			return obj;
 		}
 		view_box(){
@@ -4984,7 +4984,7 @@ var $;
 			return 16;
 		}
 		sub(){
-			return [(this?.Path())];
+			return [(this.Path())];
 		}
 	};
 	($mol_mem(($.$mol_icon.prototype), "Path"));
@@ -5088,13 +5088,13 @@ var $;
 			return false;
 		}
 		Icon(){
-			return (this?.Lights_icon());
+			return (this.Lights_icon());
 		}
 		hint(){
 			return (this.$.$mol_locale.text("$mol_lights_toggle_hint"));
 		}
 		checked(next){
-			return (this?.lights(next));
+			return (this.lights(next));
 		}
 	};
 	($mol_mem(($.$mol_lights_toggle.prototype), "Lights_icon"));
@@ -5128,7 +5128,7 @@ var $;
 			return "";
 		}
 		hint_safe(){
-			return (this?.hint());
+			return (this.hint());
 		}
 		target(){
 			return "_self";
@@ -5147,7 +5147,7 @@ var $;
 			return null;
 		}
 		click(next){
-			return (this?.event_click(next));
+			return (this.event_click(next));
 		}
 		uri(){
 			return "";
@@ -5167,22 +5167,22 @@ var $;
 		attr(){
 			return {
 				...(super.attr()), 
-				"href": (this?.uri_toggle()), 
-				"title": (this?.hint_safe()), 
-				"target": (this?.target()), 
-				"download": (this?.file_name()), 
-				"mol_link_current": (this?.current()), 
-				"rel": (this?.relation())
+				"href": (this.uri_toggle()), 
+				"title": (this.hint_safe()), 
+				"target": (this.target()), 
+				"download": (this.file_name()), 
+				"mol_link_current": (this.current()), 
+				"rel": (this.relation())
 			};
 		}
 		sub(){
-			return [(this?.title())];
+			return [(this.title())];
 		}
 		arg(){
 			return {};
 		}
 		event(){
-			return {...(super.event()), "click": (next) => (this?.click(next))};
+			return {...(super.event()), "click": (next) => (this.click(next))};
 		}
 	};
 	($mol_mem(($.$mol_link.prototype), "event_click"));
@@ -5345,7 +5345,7 @@ var $;
 			return (this.$.$mol_locale.text("$mol_link_source_hint"));
 		}
 		sub(){
-			return [(this?.Icon())];
+			return [(this.Icon())];
 		}
 	};
 	($mol_mem(($.$mol_link_source.prototype), "Icon"));
@@ -5372,7 +5372,7 @@ var $;
 			return 0;
 		}
 		sub(){
-			return (this?.rows());
+			return (this.rows());
 		}
 		Empty(){
 			const obj = new this.$.$mol_view();
@@ -5380,12 +5380,12 @@ var $;
 		}
 		Gap_before(){
 			const obj = new this.$.$mol_view();
-			(obj.style) = () => ({"paddingTop": (this?.gap_before())});
+			(obj.style) = () => ({"paddingTop": (this.gap_before())});
 			return obj;
 		}
 		Gap_after(){
 			const obj = new this.$.$mol_view();
-			(obj.style) = () => ({"paddingTop": (this?.gap_after())});
+			(obj.style) = () => ({"paddingTop": (this.gap_after())});
 			return obj;
 		}
 		view_window(){
@@ -5559,12 +5559,12 @@ var $;
 			return null;
 		}
 		title_content(){
-			return [(this?.Logo()), (this?.title())];
+			return [(this.Logo()), (this.title())];
 		}
 		Title(){
 			const obj = new this.$.$mol_view();
 			(obj.dom_name) = () => ("h1");
-			(obj.sub) = () => ((this?.title_content()));
+			(obj.sub) = () => ((this.title_content()));
 			return obj;
 		}
 		tools(){
@@ -5572,36 +5572,36 @@ var $;
 		}
 		Tools(){
 			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ((this?.tools()));
+			(obj.sub) = () => ((this.tools()));
 			return obj;
 		}
 		head(){
-			return [(this?.Title()), (this?.Tools())];
+			return [(this.Title()), (this.Tools())];
 		}
 		Head(){
 			const obj = new this.$.$mol_view();
 			(obj.minimal_height) = () => (64);
 			(obj.dom_name) = () => ("header");
-			(obj.sub) = () => ((this?.head()));
+			(obj.sub) = () => ((this.head()));
 			return obj;
 		}
 		body_scroll_top(next){
-			return (this?.Body()?.scroll_top(next));
+			return (this.Body().scroll_top(next));
 		}
 		body(){
 			return [];
 		}
 		Body_content(){
 			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ((this?.body()));
+			(obj.sub) = () => ((this.body()));
 			return obj;
 		}
 		body_content(){
-			return [(this?.Body_content())];
+			return [(this.Body_content())];
 		}
 		Body(){
 			const obj = new this.$.$mol_scroll();
-			(obj.sub) = () => ((this?.body_content()));
+			(obj.sub) = () => ((this.body_content()));
 			return obj;
 		}
 		foot(){
@@ -5610,20 +5610,20 @@ var $;
 		Foot(){
 			const obj = new this.$.$mol_view();
 			(obj.dom_name) = () => ("footer");
-			(obj.sub) = () => ((this?.foot()));
+			(obj.sub) = () => ((this.foot()));
 			return obj;
 		}
 		dom_name(){
 			return "article";
 		}
 		field(){
-			return {...(super.field()), "tabIndex": (this?.tabindex())};
+			return {...(super.field()), "tabIndex": (this.tabindex())};
 		}
 		sub(){
 			return [
-				(this?.Head()), 
-				(this?.Body()), 
-				(this?.Foot())
+				(this.Head()), 
+				(this.Body()), 
+				(this.Foot())
 			];
 		}
 	};
@@ -5780,7 +5780,7 @@ var $;
 			return 0;
 		}
 		sub(){
-			return [(this?.title())];
+			return [(this.title())];
 		}
 	};
 
@@ -5858,16 +5858,16 @@ var $;
 			return "";
 		}
 		sub(){
-			return (this?.parts());
+			return (this.parts());
 		}
 		Low(id){
 			const obj = new this.$.$mol_paragraph();
-			(obj.sub) = () => ([(this?.string(id))]);
+			(obj.sub) = () => ([(this.string(id))]);
 			return obj;
 		}
 		High(id){
 			const obj = new this.$.$mol_paragraph();
-			(obj.sub) = () => ([(this?.string(id))]);
+			(obj.sub) = () => ([(this.string(id))]);
 			return obj;
 		}
 	};
@@ -6222,7 +6222,7 @@ var $;
 			return "";
 		}
 		attr(){
-			return {...(super.attr()), "mol_text_code_token_type": (this?.type())};
+			return {...(super.attr()), "mol_text_code_token_type": (this.type())};
 		}
 	};
 	($.$mol_text_code_token_link) = class $mol_text_code_token_link extends ($.$mol_text_code_token) {
@@ -6238,7 +6238,7 @@ var $;
 		attr(){
 			return {
 				...(super.attr()), 
-				"href": (this?.uri()), 
+				"href": (this.uri()), 
 				"target": "_blank"
 			};
 		}
@@ -6339,21 +6339,21 @@ var $;
 		}
 		Numb(){
 			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ([(this?.numb())]);
+			(obj.sub) = () => ([(this.numb())]);
 			return obj;
 		}
 		Token(id){
 			const obj = new this.$.$mol_text_code_token();
-			(obj.type) = () => ((this?.token_type(id)));
-			(obj.haystack) = () => ((this?.token_text(id)));
-			(obj.needle) = () => ((this?.highlight()));
+			(obj.type) = () => ((this.token_type(id)));
+			(obj.haystack) = () => ((this.token_text(id)));
+			(obj.needle) = () => ((this.highlight()));
 			return obj;
 		}
 		Token_link(id){
 			const obj = new this.$.$mol_text_code_token_link();
-			(obj.haystack) = () => ((this?.token_text(id)));
-			(obj.needle) = () => ((this?.highlight()));
-			(obj.uri) = () => ((this?.token_uri(id)));
+			(obj.haystack) = () => ((this.token_text(id)));
+			(obj.needle) = () => ((this.highlight()));
+			(obj.uri) = () => ((this.token_uri(id)));
 			return obj;
 		}
 		find_pos(id){
@@ -6644,11 +6644,11 @@ var $;
 ;
 	($.$mol_button_copy) = class $mol_button_copy extends ($.$mol_button_minor) {
 		text(){
-			return (this?.title());
+			return (this.title());
 		}
 		text_blob(next){
 			if(next !== undefined) return next;
-			const obj = new this.$.$mol_blob([(this?.text())], {"type": "text/plain"});
+			const obj = new this.$.$mol_blob([(this.text())], {"type": "text/plain"});
 			return obj;
 		}
 		html(){
@@ -6656,7 +6656,7 @@ var $;
 		}
 		html_blob(next){
 			if(next !== undefined) return next;
-			const obj = new this.$.$mol_blob([(this?.html())], {"type": "text/html"});
+			const obj = new this.$.$mol_blob([(this.html())], {"type": "text/html"});
 			return obj;
 		}
 		Icon(){
@@ -6667,13 +6667,13 @@ var $;
 			return "";
 		}
 		blobs(){
-			return [(this?.text_blob()), (this?.html_blob())];
+			return [(this.text_blob()), (this.html_blob())];
 		}
 		data(){
 			return {};
 		}
 		sub(){
-			return [(this?.Icon()), (this?.title())];
+			return [(this.Icon()), (this.title())];
 		}
 	};
 	($mol_mem(($.$mol_button_copy.prototype), "text_blob"));
@@ -6760,21 +6760,21 @@ var $;
 		}
 		Row(id){
 			const obj = new this.$.$mol_text_code_row();
-			(obj.numb_showed) = () => ((this?.sidebar_showed()));
-			(obj.numb) = () => ((this?.row_numb(id)));
-			(obj.text) = () => ((this?.row_text(id)));
-			(obj.syntax) = () => ((this?.syntax()));
-			(obj.uri_resolve) = (id) => ((this?.uri_resolve(id)));
-			(obj.highlight) = () => ((this?.highlight()));
+			(obj.numb_showed) = () => ((this.sidebar_showed()));
+			(obj.numb) = () => ((this.row_numb(id)));
+			(obj.text) = () => ((this.row_text(id)));
+			(obj.syntax) = () => ((this.syntax()));
+			(obj.uri_resolve) = (id) => ((this.uri_resolve(id)));
+			(obj.highlight) = () => ((this.highlight()));
 			return obj;
 		}
 		rows(){
-			return [(this?.Row("0"))];
+			return [(this.Row("0"))];
 		}
 		Rows(){
 			const obj = new this.$.$mol_list();
-			(obj.render_visible_only) = () => ((this?.render_visible_only()));
-			(obj.rows) = () => ((this?.rows()));
+			(obj.render_visible_only) = () => ((this.render_visible_only()));
+			(obj.rows) = () => ((this.rows()));
 			return obj;
 		}
 		text_export(){
@@ -6783,11 +6783,11 @@ var $;
 		Copy(){
 			const obj = new this.$.$mol_button_copy();
 			(obj.hint) = () => ((this.$.$mol_locale.text("$mol_text_code_Copy_hint")));
-			(obj.text) = () => ((this?.text_export()));
+			(obj.text) = () => ((this.text_export()));
 			return obj;
 		}
 		attr(){
-			return {...(super.attr()), "mol_text_code_sidebar_showed": (this?.sidebar_showed())};
+			return {...(super.attr()), "mol_text_code_sidebar_showed": (this.sidebar_showed())};
 		}
 		text(){
 			return "";
@@ -6802,7 +6802,7 @@ var $;
 			return "";
 		}
 		sub(){
-			return [(this?.Rows()), (this?.Copy())];
+			return [(this.Rows()), (this.Copy())];
 		}
 	};
 	($mol_mem_key(($.$mol_text_code.prototype), "Row"));
@@ -6937,7 +6937,7 @@ var $;
 			return null;
 		}
 		event(){
-			return {...(super.event()), "keydown": (next) => (this?.keydown(next))};
+			return {...(super.event()), "keydown": (next) => (this.keydown(next))};
 		}
 		key(){
 			return {};
@@ -7005,13 +7005,13 @@ var $;
 			return "";
 		}
 		value_changed(next){
-			return (this?.value(next));
+			return (this.value(next));
 		}
 		hint(){
 			return "";
 		}
 		hint_visible(){
-			return (this?.hint());
+			return (this.hint());
 		}
 		spellcheck(){
 			return true;
@@ -7051,8 +7051,8 @@ var $;
 		}
 		Submit(){
 			const obj = new this.$.$mol_hotkey();
-			(obj.mod_ctrl) = () => ((this?.submit_with_ctrl()));
-			(obj.key) = () => ({"enter": (next) => (this?.submit(next))});
+			(obj.mod_ctrl) = () => ((this.submit_with_ctrl()));
+			(obj.key) = () => ({"enter": (next) => (this.submit(next))});
 			return obj;
 		}
 		dom_name(){
@@ -7072,34 +7072,34 @@ var $;
 			return [0, 0];
 		}
 		auto(){
-			return [(this?.selection_watcher()), (this?.error_report())];
+			return [(this.selection_watcher()), (this.error_report())];
 		}
 		field(){
 			return {
 				...(super.field()), 
-				"disabled": (this?.disabled()), 
-				"value": (this?.value_changed()), 
-				"placeholder": (this?.hint_visible()), 
-				"spellcheck": (this?.spellcheck()), 
-				"autocomplete": (this?.autocomplete_native()), 
-				"selectionEnd": (this?.selection_end()), 
-				"selectionStart": (this?.selection_start()), 
-				"inputMode": (this?.keyboard()), 
-				"enterkeyhint": (this?.enter())
+				"disabled": (this.disabled()), 
+				"value": (this.value_changed()), 
+				"placeholder": (this.hint_visible()), 
+				"spellcheck": (this.spellcheck()), 
+				"autocomplete": (this.autocomplete_native()), 
+				"selectionEnd": (this.selection_end()), 
+				"selectionStart": (this.selection_start()), 
+				"inputMode": (this.keyboard()), 
+				"enterkeyhint": (this.enter())
 			};
 		}
 		attr(){
 			return {
 				...(super.attr()), 
-				"maxlength": (this?.length_max()), 
-				"type": (this?.type())
+				"maxlength": (this.length_max()), 
+				"type": (this.type())
 			};
 		}
 		event(){
-			return {...(super.event()), "input": (next) => (this?.event_change(next))};
+			return {...(super.event()), "input": (next) => (this.event_change(next))};
 		}
 		plugins(){
-			return [(this?.Submit())];
+			return [(this.Submit())];
 		}
 	};
 	($mol_mem(($.$mol_string.prototype), "value"));
@@ -7253,7 +7253,7 @@ var $;
 			return [];
 		}
 		bring(){
-			return (this?.Edit()?.bring());
+			return (this.Edit().bring());
 		}
 		submit(next){
 			if(next !== undefined) return next;
@@ -7264,14 +7264,14 @@ var $;
 		}
 		Edit(){
 			const obj = new this.$.$mol_textarea_edit();
-			(obj.value) = (next) => ((this?.value(next)));
-			(obj.hint) = () => ((this?.hint()));
-			(obj.enabled) = () => ((this?.enabled()));
-			(obj.spellcheck) = () => ((this?.spellcheck()));
-			(obj.length_max) = () => ((this?.length_max()));
-			(obj.selection) = (next) => ((this?.selection(next)));
-			(obj.submit) = (next) => ((this?.submit(next)));
-			(obj.submit_with_ctrl) = () => ((this?.submit_with_ctrl()));
+			(obj.value) = (next) => ((this.value(next)));
+			(obj.hint) = () => ((this.hint()));
+			(obj.enabled) = () => ((this.enabled()));
+			(obj.spellcheck) = () => ((this.spellcheck()));
+			(obj.length_max) = () => ((this.length_max()));
+			(obj.selection) = (next) => ((this.selection(next)));
+			(obj.submit) = (next) => ((this.submit(next)));
+			(obj.submit_with_ctrl) = () => ((this.submit_with_ctrl()));
 			return obj;
 		}
 		row_numb(id){
@@ -7282,25 +7282,25 @@ var $;
 		}
 		View(){
 			const obj = new this.$.$mol_text_code();
-			(obj.text) = () => ((this?.value()));
+			(obj.text) = () => ((this.value()));
 			(obj.render_visible_only) = () => (false);
-			(obj.row_numb) = (id) => ((this?.row_numb(id)));
-			(obj.sidebar_showed) = () => ((this?.sidebar_showed()));
-			(obj.highlight) = () => ((this?.highlight()));
+			(obj.row_numb) = (id) => ((this.row_numb(id)));
+			(obj.sidebar_showed) = () => ((this.sidebar_showed()));
+			(obj.highlight) = () => ((this.highlight()));
 			return obj;
 		}
 		attr(){
 			return {
 				...(super.attr()), 
-				"mol_textarea_clickable": (this?.clickable()), 
-				"mol_textarea_sidebar_showed": (this?.sidebar_showed())
+				"mol_textarea_clickable": (this.clickable()), 
+				"mol_textarea_sidebar_showed": (this.sidebar_showed())
 			};
 		}
 		event(){
-			return {"keydown": (next) => (this?.press(next)), "pointermove": (next) => (this?.hover(next))};
+			return {"keydown": (next) => (this.press(next)), "pointermove": (next) => (this.hover(next))};
 		}
 		sub(){
-			return [(this?.Edit()), (this?.View())];
+			return [(this.Edit()), (this.View())];
 		}
 		symbols_alt(){
 			return {
@@ -7489,9 +7489,9 @@ var $;
 		}
 		Bubble(){
 			const obj = new this.$.$mol_pop_bubble();
-			(obj.align) = () => ((this?.align()));
-			(obj.content) = () => ((this?.bubble_content()));
-			(obj.height_max) = () => ((this?.height_max()));
+			(obj.align) = () => ((this.align()));
+			(obj.content) = () => ((this.bubble_content()));
+			(obj.height_max) = () => ((this.height_max()));
 			return obj;
 		}
 		showed(next){
@@ -7508,10 +7508,10 @@ var $;
 			return "vert";
 		}
 		sub(){
-			return [(this?.Anchor())];
+			return [(this.Anchor())];
 		}
 		sub_visible(){
-			return [(this?.Anchor()), (this?.Bubble())];
+			return [(this.Anchor()), (this.Bubble())];
 		}
 	};
 	($mol_mem(($.$mol_pop.prototype), "Bubble"));
@@ -7527,15 +7527,15 @@ var $;
 			return "";
 		}
 		sub(){
-			return (this?.content());
+			return (this.content());
 		}
 		style(){
-			return {...(super.style()), "maxHeight": (this?.height_max())};
+			return {...(super.style()), "maxHeight": (this.height_max())};
 		}
 		attr(){
 			return {
 				...(super.attr()), 
-				"mol_pop_align": (this?.align()), 
+				"mol_pop_align": (this.align()), 
 				"tabindex": 0
 			};
 		}
@@ -7658,7 +7658,7 @@ var $;
 			return null;
 		}
 		trigger_content(){
-			return [(this?.title())];
+			return [(this.title())];
 		}
 		hint(){
 			return "";
@@ -7667,18 +7667,18 @@ var $;
 			const obj = new this.$.$mol_check();
 			(obj.minimal_width) = () => (40);
 			(obj.minimal_height) = () => (40);
-			(obj.enabled) = () => ((this?.trigger_enabled()));
-			(obj.checked) = (next) => ((this?.showed(next)));
-			(obj.clicks) = (next) => ((this?.clicks(next)));
-			(obj.sub) = () => ((this?.trigger_content()));
-			(obj.hint) = () => ((this?.hint()));
+			(obj.enabled) = () => ((this.trigger_enabled()));
+			(obj.checked) = (next) => ((this.showed(next)));
+			(obj.clicks) = (next) => ((this.clicks(next)));
+			(obj.sub) = () => ((this.trigger_content()));
+			(obj.hint) = () => ((this.hint()));
 			return obj;
 		}
 		event(){
-			return {...(super.event()), "keydown": (next) => (this?.keydown(next))};
+			return {...(super.event()), "keydown": (next) => (this.keydown(next))};
 		}
 		Anchor(){
-			return (this?.Trigger());
+			return (this.Trigger());
 		}
 	};
 	($mol_mem(($.$mol_pick.prototype), "keydown"));
@@ -7772,7 +7772,7 @@ var $;
 			return null;
 		}
 		event(){
-			return {...(super.event()), "keydown": (next) => (this?.event_key(next))};
+			return {...(super.event()), "keydown": (next) => (this.event_key(next))};
 		}
 	};
 	($mol_mem(($.$mol_nav.prototype), "event_key"));
@@ -7909,7 +7909,7 @@ var $;
 		}
 		Hotkey(){
 			const obj = new this.$.$mol_hotkey();
-			(obj.key) = () => ({"escape": (next) => (this?.clear(next))});
+			(obj.key) = () => ({"escape": (next) => (this.clear(next))});
 			return obj;
 		}
 		nav_components(){
@@ -7921,8 +7921,8 @@ var $;
 		}
 		Nav(){
 			const obj = new this.$.$mol_nav();
-			(obj.keys_y) = () => ((this?.nav_components()));
-			(obj.current_y) = (next) => ((this?.nav_focused(next)));
+			(obj.keys_y) = () => ((this.nav_components()));
+			(obj.current_y) = (next) => ((this.nav_focused(next)));
 			return obj;
 		}
 		suggests_showed(next){
@@ -7950,16 +7950,16 @@ var $;
 			return "search";
 		}
 		bring(){
-			return (this?.Query()?.bring());
+			return (this.Query().bring());
 		}
 		Query(){
 			const obj = new this.$.$mol_string();
-			(obj.value) = (next) => ((this?.query(next)));
-			(obj.hint) = () => ((this?.hint()));
-			(obj.submit) = (next) => ((this?.submit(next)));
-			(obj.enabled) = () => ((this?.enabled()));
-			(obj.keyboard) = () => ((this?.keyboard()));
-			(obj.enter) = () => ((this?.enter()));
+			(obj.value) = (next) => ((this.query(next)));
+			(obj.hint) = () => ((this.hint()));
+			(obj.submit) = (next) => ((this.submit(next)));
+			(obj.enabled) = () => ((this.enabled()));
+			(obj.keyboard) = () => ((this.keyboard()));
+			(obj.enter) = () => ((this.enter()));
 			return obj;
 		}
 		Clear_icon(){
@@ -7969,19 +7969,19 @@ var $;
 		Clear(){
 			const obj = new this.$.$mol_button_minor();
 			(obj.hint) = () => ((this.$.$mol_locale.text("$mol_search_Clear_hint")));
-			(obj.click) = (next) => ((this?.clear(next)));
-			(obj.sub) = () => ([(this?.Clear_icon())]);
+			(obj.click) = (next) => ((this.clear(next)));
+			(obj.sub) = () => ([(this.Clear_icon())]);
 			return obj;
 		}
 		anchor_content(){
-			return [(this?.Query()), (this?.Clear())];
+			return [(this.Query()), (this.Clear())];
 		}
 		menu_items(){
 			return [];
 		}
 		Menu(){
 			const obj = new this.$.$mol_list();
-			(obj.rows) = () => ((this?.menu_items()));
+			(obj.rows) = () => ((this.menu_items()));
 			return obj;
 		}
 		suggest_select(id, next){
@@ -7993,12 +7993,12 @@ var $;
 		}
 		Suggest_label(id){
 			const obj = new this.$.$mol_dimmer();
-			(obj.haystack) = () => ((this?.suggest_label(id)));
-			(obj.needle) = () => ((this?.query()));
+			(obj.haystack) = () => ((this.suggest_label(id)));
+			(obj.needle) = () => ((this.query()));
 			return obj;
 		}
 		suggest_content(id){
-			return [(this?.Suggest_label(id))];
+			return [(this.Suggest_label(id))];
 		}
 		suggests(){
 			return [];
@@ -8006,28 +8006,28 @@ var $;
 		plugins(){
 			return [
 				...(super.plugins()), 
-				(this?.Hotkey()), 
-				(this?.Nav())
+				(this.Hotkey()), 
+				(this.Nav())
 			];
 		}
 		showed(next){
-			return (this?.suggests_showed(next));
+			return (this.suggests_showed(next));
 		}
 		align_hor(){
 			return "right";
 		}
 		Anchor(){
 			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ((this?.anchor_content()));
+			(obj.sub) = () => ((this.anchor_content()));
 			return obj;
 		}
 		bubble_content(){
-			return [(this?.Menu())];
+			return [(this.Menu())];
 		}
 		Suggest(id){
 			const obj = new this.$.$mol_button_minor();
-			(obj.click) = (next) => ((this?.suggest_select(id, next)));
-			(obj.sub) = () => ((this?.suggest_content(id)));
+			(obj.click) = (next) => ((this.suggest_select(id, next)));
+			(obj.sub) = () => ((this.suggest_content(id)));
 			return obj;
 		}
 	};
@@ -8162,12 +8162,12 @@ var $;
 		}
 		Option_label(id){
 			const obj = new this.$.$mol_dimmer();
-			(obj.haystack) = () => ((this?.option_label(id)));
-			(obj.needle) = () => ((this?.filter_pattern()));
+			(obj.haystack) = () => ((this.option_label(id)));
+			(obj.needle) = () => ((this.filter_pattern()));
 			return obj;
 		}
 		option_content(id){
-			return [(this?.Option_label(id))];
+			return [(this.Option_label(id))];
 		}
 		no_options_message(){
 			return (this.$.$mol_locale.text("$mol_select_no_options_message"));
@@ -8185,9 +8185,9 @@ var $;
 		}
 		Nav(){
 			const obj = new this.$.$mol_nav();
-			(obj.keys_y) = () => ((this?.nav_components()));
-			(obj.current_y) = (next) => ((this?.option_focused(next)));
-			(obj.cycle) = (next) => ((this?.nav_cycle(next)));
+			(obj.keys_y) = () => ((this.nav_components()));
+			(obj.current_y) = (next) => ((this.option_focused(next)));
+			(obj.cycle) = (next) => ((this.nav_cycle(next)));
 			return obj;
 		}
 		menu_content(){
@@ -8195,12 +8195,12 @@ var $;
 		}
 		Menu(){
 			const obj = new this.$.$mol_list();
-			(obj.rows) = () => ((this?.menu_content()));
+			(obj.rows) = () => ((this.menu_content()));
 			return obj;
 		}
 		Bubble_pane(){
 			const obj = new this.$.$mol_scroll();
-			(obj.sub) = () => ([(this?.Menu())]);
+			(obj.sub) = () => ([(this.Menu())]);
 			return obj;
 		}
 		filter_hint(){
@@ -8229,30 +8229,30 @@ var $;
 		}
 		Option_row(id){
 			const obj = new this.$.$mol_button_minor();
-			(obj.event_click) = (next) => ((this?.event_select(id, next)));
-			(obj.sub) = () => ((this?.option_content(id)));
+			(obj.event_click) = (next) => ((this.event_select(id, next)));
+			(obj.sub) = () => ((this.option_content(id)));
 			return obj;
 		}
 		No_options(){
 			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ([(this?.no_options_message())]);
+			(obj.sub) = () => ([(this.no_options_message())]);
 			return obj;
 		}
 		plugins(){
-			return [...(super.plugins()), (this?.Nav())];
+			return [...(super.plugins()), (this.Nav())];
 		}
 		hint(){
 			return (this.$.$mol_locale.text("$mol_select_hint"));
 		}
 		bubble_content(){
-			return [(this?.Filter()), (this?.Bubble_pane())];
+			return [(this.Filter()), (this.Bubble_pane())];
 		}
 		Filter(){
 			const obj = new this.$.$mol_search();
-			(obj.query) = (next) => ((this?.filter_pattern(next)));
-			(obj.hint) = () => ((this?.filter_hint()));
-			(obj.submit) = (next) => ((this?.submit(next)));
-			(obj.enabled) = () => ((this?.enabled()));
+			(obj.query) = (next) => ((this.filter_pattern(next)));
+			(obj.hint) = () => ((this.filter_hint()));
+			(obj.submit) = (next) => ((this.submit(next)));
+			(obj.enabled) = () => ((this.enabled()));
 			return obj;
 		}
 		Trigger_icon(){
@@ -8420,7 +8420,7 @@ var $;
 			return true;
 		}
 		drop_enabled(){
-			return (this?.enabled());
+			return (this.enabled());
 		}
 		event_select(id, next){
 			if(next !== undefined) return next;
@@ -8433,7 +8433,7 @@ var $;
 			return [];
 		}
 		options_pickable(){
-			return (this?.options());
+			return (this.options());
 		}
 		pick(next){
 			if(next !== undefined) return next;
@@ -8443,13 +8443,13 @@ var $;
 			return "";
 		}
 		pick_enabled(){
-			return (this?.enabled());
+			return (this.enabled());
 		}
 		pick_hint(){
 			return (this.$.$mol_locale.text("$mol_select_list_pick_hint"));
 		}
 		filter_pattern(next){
-			return (this?.Pick()?.filter_pattern(next));
+			return (this.Pick().filter_pattern(next));
 		}
 		Pick_icon(){
 			const obj = new this.$.$mol_icon_plus();
@@ -8457,14 +8457,14 @@ var $;
 		}
 		Pick(){
 			const obj = new this.$.$mol_select();
-			(obj.event_select) = (id, next) => ((this?.event_select(id, next)));
-			(obj.align_hor) = () => ((this?.align_hor()));
-			(obj.options) = () => ((this?.options_pickable()));
-			(obj.value) = (next) => ((this?.pick(next)));
-			(obj.option_label) = (id) => ((this?.option_title(id)));
-			(obj.trigger_enabled) = () => ((this?.pick_enabled()));
-			(obj.hint) = () => ((this?.pick_hint()));
-			(obj.Trigger_icon) = () => ((this?.Pick_icon()));
+			(obj.event_select) = (id, next) => ((this.event_select(id, next)));
+			(obj.align_hor) = () => ((this.align_hor()));
+			(obj.options) = () => ((this.options_pickable()));
+			(obj.value) = (next) => ((this.pick(next)));
+			(obj.option_label) = (id) => ((this.option_title(id)));
+			(obj.trigger_enabled) = () => ((this.pick_enabled()));
+			(obj.hint) = () => ((this.pick_hint()));
+			(obj.Trigger_icon) = () => ((this.Pick_icon()));
 			return obj;
 		}
 		value(next){
@@ -8475,18 +8475,18 @@ var $;
 			return {};
 		}
 		badges_list(){
-			return (this?.Badges());
+			return (this.Badges());
 		}
 		Badge(id){
 			const obj = new this.$.$mol_button_minor();
-			(obj.title) = () => ((this?.badge_title(id)));
-			(obj.click) = (next) => ((this?.remove(id, next)));
-			(obj.hint) = () => ((this?.badge_hint()));
-			(obj.enabled) = () => ((this?.drop_enabled()));
+			(obj.title) = () => ((this.badge_title(id)));
+			(obj.click) = (next) => ((this.remove(id, next)));
+			(obj.hint) = () => ((this.badge_hint()));
+			(obj.enabled) = () => ((this.drop_enabled()));
 			return obj;
 		}
 		sub(){
-			return [(this?.Pick()), ...(this.badges_list())];
+			return [(this.Pick()), ...(this.badges_list())];
 		}
 	};
 	($mol_mem_key(($.$mol_select_list.prototype), "remove"));
@@ -10103,8 +10103,8 @@ var $;
             ...(bidi && next) ? [prop.struct('next')] : [],
         ]);
     }
-    function call_method_name(child) {
-        return child.struct('?.[]', [
+    function call_method_name(child, optional) {
+        return child.struct(optional ? '?.[]' : '[]', [
             child.data(name_of.call(this, child))
         ]);
     }
@@ -10114,7 +10114,7 @@ var $;
         }
         const chain = [bind.struct('this')];
         for (const child of bind.kids) {
-            chain.push(call_method_name.call(this, child), args_of.call(this, child, bidi));
+            chain.push(call_method_name.call(this, child, chain.length > 1), args_of.call(this, child, bidi));
         }
         return bind.struct('()', chain);
     }
@@ -10173,11 +10173,11 @@ var $;
             ],
             '=': bind => [bind.struct('()', [
                     bind.struct('this'),
-                    ...bind.hack({ '': (method, belt) => [
-                            call_method_name.call(this, method),
+                    ...bind.hack({ '': (method, belt, ctx) => [
+                            call_method_name.call(this, method, (ctx.item_index++) > 0),
                             args_of.call(this, method),
                             ...method.hack(belt),
-                        ] }),
+                        ] }, { item_index: 0 }),
                 ])],
             '': (input, belt, context) => {
                 if (input.type[0] === '*') {
@@ -10454,7 +10454,7 @@ var $;
     }
     function type_enforce(name, a, b) {
         return name.struct('line', [
-            name.data(`type ${name.value.replace(/<.*>/g, '')}__${this.$mol_guid()} = $mol_type_enforce<`),
+            name.data(`type ${name.value.replace(/<.*>/g, '')} = $mol_type_enforce<`),
             name.struct('indent', [
                 a[0].struct('line', a),
                 a[0].data(','),
@@ -10467,10 +10467,12 @@ var $;
         const descr = $mol_view_tree2_classes(tree);
         const types = [];
         for (const klass of descr.kids) {
+            let assert_count = 0;
             const parent = this.$mol_view_tree2_child(klass);
             const props = this.$mol_view_tree2_class_props(klass);
             const aliases = [];
             const context = { objects: [] };
+            const klass_name = klass.type.slice(1);
             types.push(klass.struct('line', [
                 klass.data('export class '),
                 klass.data(klass.type),
@@ -10512,10 +10514,10 @@ var $;
                         const second_main = left_parts.key || left_parts.next ? main : left.struct('line', return_type.call(this, main, left));
                         const second_key = left_parts.next || left_parts.key ? left : right;
                         if (prop_parts.key) {
-                            types.push(type_enforce.call(this, method, parameters.call(this, main, prop, 0), parameters.call(this, second_main, second_key, 0)));
+                            types.push(type_enforce.call(this, method.data(`${method.type}_${klass_name}_${++assert_count}`), parameters.call(this, main, prop, 0), parameters.call(this, second_main, second_key, 0)));
                         }
                         if (prop_parts.next) {
-                            types.push(type_enforce.call(this, method, parameters.call(this, main, prop, prop_parts.key ? 1 : 0), parameters.call(this, second_main, second_key, (left_parts.next ? left_parts : right_parts).key ? 1 : 0)));
+                            types.push(type_enforce.call(this, method.data(`${method.type}_${klass_name}_${++assert_count}`), parameters.call(this, main, prop, prop_parts.key ? 1 : 0), parameters.call(this, second_main, second_key, (left_parts.next ? left_parts : right_parts).key ? 1 : 0)));
                         }
                         return return_type.call(this, left.struct('line', return_type.call(this, main, left)), name_of.call(this, right));
                     },
@@ -10583,7 +10585,7 @@ var $;
                                 }
                                 else
                                     continue;
-                                types.push(type_enforce.call(this, input.data(`${klass.type}_${prop.type.replace(/[\?\*]*/g, '')}`), result, array_type));
+                                types.push(type_enforce.call(this, input.data(`${klass.type}_${prop.type.replace(/[\?\*]*/g, '')}_${++assert_count}`), result, array_type));
                             }
                             return readonly_arr(input, array_type);
                         }
@@ -10596,7 +10598,7 @@ var $;
                                         result.unshift(kid.data(', '));
                                     return kid.struct('line', result);
                                 });
-                                types.push(type_enforce.call(this, first.data(input.type), [
+                                types.push(type_enforce.call(this, first.data(`${input.type}_${klass_name}_${++assert_count}`), [
                                     first.data('[ '),
                                     ...args,
                                     first.data(' ]'),
@@ -10612,7 +10614,7 @@ var $;
                                     const bind = this.$mol_view_tree2_child(over);
                                     if (bind.type === '=>')
                                         continue;
-                                    types.push(type_enforce.call(this, over.data(`${input.type}__${name.value}`), over.hack(belt), return_type.call(this, input.data(input.type), over)));
+                                    types.push(type_enforce.call(this, over.data(`${input.type}__${name.value}_${klass_name}_${++assert_count}`), over.hack(belt), return_type.call(this, input.data(input.type), over)));
                                 }
                             return [
                                 input.data(input.type),
@@ -11118,26 +11120,26 @@ var $;
 		Presets_list(){
 			const obj = new this.$.$mol_list();
 			(obj.rows) = () => ([
-				(this?.View2JS()), 
-				(this?.View2DTS()), 
-				(this?.View2L10n()), 
-				(this?.Json()), 
-				(this?.Xml()), 
-				(this?.XmlTree()), 
-				(this?.Js()), 
-				(this?.Wasm()), 
-				(this?.jack()), 
-				(this?.Mt()), 
-				(this?.Grammar()), 
-				(this?.Span())
+				(this.View2JS()), 
+				(this.View2DTS()), 
+				(this.View2L10n()), 
+				(this.Json()), 
+				(this.Xml()), 
+				(this.XmlTree()), 
+				(this.Js()), 
+				(this.Wasm()), 
+				(this.jack()), 
+				(this.Mt()), 
+				(this.Grammar()), 
+				(this.Span())
 			]);
 			return obj;
 		}
 		Presets(){
 			const obj = new this.$.$mol_page();
 			(obj.title) = () => ((this.$.$mol_locale.text("$hyoo_tree_Presets_title")));
-			(obj.tools) = () => ([(this?.Lights()), (this?.Github())]);
-			(obj.body) = () => ([(this?.Presets_list())]);
+			(obj.tools) = () => ([(this.Lights()), (this.Github())]);
+			(obj.body) = () => ([(this.Presets_list())]);
 			return obj;
 		}
 		source_tools(){
@@ -11148,27 +11150,27 @@ var $;
 		}
 		source(next){
 			if(next !== undefined) return next;
-			return (this?.source_default());
+			return (this.source_default());
 		}
 		source_hint(){
 			return (this.$.$mol_locale.text("$hyoo_tree_source_hint"));
 		}
 		Source_text(){
 			const obj = new this.$.$mol_textarea();
-			(obj.value) = (next) => ((this?.source(next)));
-			(obj.hint) = () => ((this?.source_hint()));
+			(obj.value) = (next) => ((this.source(next)));
+			(obj.hint) = () => ((this.source_hint()));
 			(obj.sidebar_showed) = () => (true);
 			return obj;
 		}
 		Source(){
 			const obj = new this.$.$mol_page();
 			(obj.title) = () => ((this.$.$mol_locale.text("$hyoo_tree_Source_title")));
-			(obj.tools) = () => ((this?.source_tools()));
-			(obj.body) = () => ([(this?.Source_text())]);
+			(obj.tools) = () => ((this.source_tools()));
+			(obj.body) = () => ([(this.Source_text())]);
 			return obj;
 		}
 		result_title(){
-			return (this?.Pipeline()?.title());
+			return (this.Pipeline().title());
 		}
 		transform_options(){
 			return [];
@@ -11178,9 +11180,9 @@ var $;
 		}
 		Pipeline(){
 			const obj = new this.$.$mol_select_list();
-			(obj.value) = (next) => ((this?.pipeline(next)));
-			(obj.options_pickable) = () => ((this?.transform_options()));
-			(obj.pick_hint) = () => ((this?.add_hint()));
+			(obj.value) = (next) => ((this.pipeline(next)));
+			(obj.options_pickable) = () => ((this.transform_options()));
+			(obj.pick_hint) = () => ((this.add_hint()));
 			return obj;
 		}
 		result_text(){
@@ -11189,14 +11191,14 @@ var $;
 		Result_text(){
 			const obj = new this.$.$mol_text_code();
 			(obj.sidebar_showed) = () => (true);
-			(obj.text) = () => ((this?.result_text()));
+			(obj.text) = () => ((this.result_text()));
 			return obj;
 		}
 		Result(){
 			const obj = new this.$.$mol_page();
-			(obj.title) = () => ((this?.result_title()));
-			(obj.head) = () => ([(this?.Pipeline())]);
-			(obj.body) = () => ([(this?.Result_text())]);
+			(obj.title) = () => ((this.result_title()));
+			(obj.head) = () => ([(this.Pipeline())]);
+			(obj.body) = () => ([(this.Result_text())]);
 			return obj;
 		}
 		transform_map(){
@@ -11235,20 +11237,20 @@ var $;
 			};
 		}
 		plugins(){
-			return [(this?.Theme())];
+			return [(this.Theme())];
 		}
 		pipeline(next){
 			if(next !== undefined) return next;
-			return (this?.pipeline_default());
+			return (this.pipeline_default());
 		}
 		Placeholder(){
 			return null;
 		}
 		pages(){
 			return [
-				(this?.Presets()), 
-				(this?.Source()), 
-				(this?.Result())
+				(this.Presets()), 
+				(this.Source()), 
+				(this.Result())
 			];
 		}
 	};
