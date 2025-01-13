@@ -8360,6 +8360,11 @@ var $;
 			(obj.rows) = () => ((this.menu_items()));
 			return obj;
 		}
+		Bubble_pane(){
+			const obj = new this.$.$mol_scroll();
+			(obj.sub) = () => ([(this.Menu())]);
+			return obj;
+		}
 		suggest_select(id, next){
 			if(next !== undefined) return next;
 			return null;
@@ -8398,7 +8403,7 @@ var $;
 			return obj;
 		}
 		bubble_content(){
-			return [(this.Menu())];
+			return [(this.Bubble_pane())];
 		}
 		Suggest(id){
 			const obj = new this.$.$mol_button_minor();
@@ -8418,6 +8423,7 @@ var $;
 	($mol_mem(($.$mol_search.prototype), "Clear_icon"));
 	($mol_mem(($.$mol_search.prototype), "Clear"));
 	($mol_mem(($.$mol_search.prototype), "Menu"));
+	($mol_mem(($.$mol_search.prototype), "Bubble_pane"));
 	($mol_mem_key(($.$mol_search.prototype), "suggest_select"));
 	($mol_mem_key(($.$mol_search.prototype), "Suggest_label"));
 	($mol_mem(($.$mol_search.prototype), "Anchor"));
@@ -9217,320 +9223,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_view_tree2_error extends Error {
-        spans;
-        constructor(message, spans) {
-            super(message);
-            this.spans = spans;
-        }
-        toJSON() {
-            return {
-                message: this.message,
-                spans: this.spans
-            };
-        }
-    }
-    $.$mol_view_tree2_error = $mol_view_tree2_error;
-    class $mol_view_tree2_error_suggestions {
-        suggestions;
-        constructor(suggestions) {
-            this.suggestions = suggestions;
-        }
-        toString() {
-            return this.suggestions.map(suggestion => `\`${suggestion}\``).join(', ');
-        }
-        toJSON() {
-            return this.suggestions;
-        }
-    }
-    $.$mol_view_tree2_error_suggestions = $mol_view_tree2_error_suggestions;
-    function $mol_view_tree2_error_str(strings, ...parts) {
-        const spans = [];
-        for (const part of parts) {
-            if (part instanceof $mol_span)
-                spans.push(part);
-            if (Array.isArray(part) && part.length > 0 && part[0] instanceof $mol_span)
-                spans.push(...part);
-        }
-        return new $mol_view_tree2_error(join(strings, parts), spans);
-    }
-    $.$mol_view_tree2_error_str = $mol_view_tree2_error_str;
-    function join(strings, objects) {
-        let result = '';
-        let obj_pos = 0;
-        let obj_len = objects.length;
-        for (const str of strings) {
-            result += str;
-            if (obj_pos < obj_len) {
-                const obj = objects[obj_pos++];
-                if (Array.isArray(obj))
-                    result += obj.map(item => `\`${item}\``).join(', ');
-                else
-                    result += `\`${String(obj)}\``;
-            }
-        }
-        return result;
-    }
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_view_tree2_child(tree) {
-        if (tree.kids.length === 0) {
-            return this.$mol_fail($mol_view_tree2_error_str `Required one child at ${tree.span}`);
-        }
-        if (tree.kids.length > 1) {
-            return this.$mol_fail($mol_view_tree2_error_str `Should be only one child at ${tree.span}`);
-        }
-        return tree.kids[0];
-    }
-    $.$mol_view_tree2_child = $mol_view_tree2_child;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_view_tree2_classes(defs) {
-        return defs.clone(defs.hack({
-            '-': () => []
-        }));
-    }
-    $.$mol_view_tree2_classes = $mol_view_tree2_classes;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_view_tree2_normalize(defs) {
-        return defs.clone($mol_view_tree2_classes(defs).kids.map(cl => cl.clone([
-            this.$mol_view_tree2_class_super(cl).clone(this.$mol_view_tree2_class_props(cl))
-        ])));
-    }
-    $.$mol_view_tree2_normalize = $mol_view_tree2_normalize;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const { begin, end, latin_only, or, optional, repeat_greedy } = $mol_regexp;
-    $.$mol_view_tree2_prop_signature = $mol_regexp.from([
-        begin,
-        { name: repeat_greedy(latin_only, 1) },
-        { key: optional(['*', repeat_greedy(latin_only, 0)]) },
-        { next: optional(['?', repeat_greedy(latin_only, 0)]) },
-        end,
-    ]);
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_view_tree2_prop_parts(prop) {
-        const groups = [...prop.type.matchAll($mol_view_tree2_prop_signature)][0]?.groups;
-        if (!groups) {
-            this.$mol_fail($mol_view_tree2_error_str `Required prop like some*? at ${prop.span}`);
-        }
-        return {
-            name: groups.name,
-            key: groups.key,
-            next: groups.next ? '?' : ''
-        };
-    }
-    $.$mol_view_tree2_prop_parts = $mol_view_tree2_prop_parts;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const regular_regex = /^\w+$/;
-    function $mol_view_tree2_prop_quote(name) {
-        if (regular_regex.test(name.value))
-            return name;
-        return name.data(JSON.stringify(name.value));
-    }
-    $.$mol_view_tree2_prop_quote = $mol_view_tree2_prop_quote;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const class_regex = /^[$A-Z][$\w<>\[\]()"'?|]+$/;
-    function $mol_view_tree2_class_match(klass) {
-        if (!klass?.type)
-            return false;
-        if (klass.type === 'NaN' || klass.type === 'Infinity')
-            return false;
-        return class_regex.test(klass.type);
-    }
-    $.$mol_view_tree2_class_match = $mol_view_tree2_class_match;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const err = $mol_view_tree2_error_str;
-    function $mol_view_tree2_class_super(klass) {
-        if (!$mol_view_tree2_class_match(klass))
-            return this.$mol_fail(err `Wrong class name at ${klass.span}`);
-        const superclass = klass.kids.length === 1 ? klass.kids[0] : undefined;
-        if (!superclass)
-            return this.$mol_fail(err `No super class at ${klass.span}`);
-        if (!$mol_view_tree2_class_match(superclass))
-            return this.$mol_fail(err `Wrong super class name ${JSON.stringify(superclass.type).replace(/(^"|"$)/g, "")} at ${superclass.span}`);
-        return superclass;
-    }
-    $.$mol_view_tree2_class_super = $mol_view_tree2_class_super;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const err = $mol_view_tree2_error_str;
-    function $mol_view_tree2_class_props(klass) {
-        let props = this.$mol_view_tree2_class_super(klass);
-        props = props.clone(props.hack({
-            '': (node, belt) => {
-                const normal = node.type.replace(/!\w+/, '*');
-                if (node.type === normal)
-                    return [node.clone(node.hack(belt))];
-                return [node.struct(normal, node.hack(belt))];
-            }
-        }));
-        const props_inner = {};
-        const add_inner = (prop) => {
-            const { name } = this.$mol_view_tree2_prop_parts(prop);
-            const prev = props_inner[name];
-            if (prev && prev.kids[0]?.toString() !== prop.kids[0]?.toString()) {
-                this.$mol_fail(err `Need an equal default values at ${prev.span} vs ${prop.span}`);
-            }
-            props_inner[name] = prop;
-        };
-        const upper = (operator, belt, context) => {
-            const prop = this.$mol_view_tree2_child(operator);
-            const defs = prop.hack(belt, { factory: prop });
-            if (defs.length)
-                add_inner(prop.clone(defs));
-            return [operator.clone([prop.clone([])])];
-        };
-        const props_root = props.hack({
-            '<=': upper,
-            '<=>': upper,
-            '^': (operator, belt, context) => {
-                if (operator.kids.length === 0)
-                    return [operator];
-                return upper(operator, belt, context);
-            },
-            '': (left, belt, context) => {
-                let right;
-                const operator = left.kids[0];
-                if (operator?.type === '=>' && context.factory) {
-                    right = operator.kids[0];
-                    if (!right)
-                        this.$mol_fail(err `Need a child ${operator.span}`);
-                    if (!context.factory)
-                        this.$mol_fail(err `Need a parent ${left.span}`);
-                    add_inner(right.clone([
-                        right.struct('=', [
-                            context.factory.struct(context.factory.type.replace(/\*.*/, '*'), [left.clone([])]),
-                        ]),
-                    ]));
-                }
-                if (right)
-                    context = { factory: right.clone([]) };
-                else if (operator && !context.factory && $mol_view_tree2_class_match(operator)) {
-                    context = { factory: left.clone([]) };
-                }
-                const hacked = left.clone(left.hack(belt, context));
-                return [hacked];
-            }
-        }, { factory: undefined });
-        for (const prop of props_root)
-            add_inner(prop);
-        return Object.values(props_inner);
-    }
-    $.$mol_view_tree2_class_props = $mol_view_tree2_class_props;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const err = $mol_view_tree2_error_str;
-    function $mol_view_tree2_value_type(val) {
-        switch (val.type) {
-            case 'true': return 'bool';
-            case 'false': return 'bool';
-            case 'null': return 'null';
-            case '*': return 'dict';
-            case '@': return 'locale';
-            case '': return 'string';
-            case '<=': return 'get';
-            case '<=>': return 'bind';
-            case '=>': return 'put';
-        }
-        const first_char = val.type && val.type[0];
-        if (first_char === '/')
-            return 'list';
-        if (Number(val.type).toString() == val.type)
-            return 'number';
-        if (/^[$A-Z]/.test(first_char))
-            return 'object';
-        return this.$mol_fail(err `Unknown value type ${val.type} at ${val.span}`);
-    }
-    $.$mol_view_tree2_value_type = $mol_view_tree2_value_type;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    const err = $mol_view_tree2_error_str;
-    function $mol_view_tree2_value(value) {
-        const type = value.type;
-        const kids = value.kids;
-        if (type === '') {
-            if (kids.length === 0)
-                return value.data(JSON.stringify(value.value));
-            return value.data(JSON.stringify(kids.map(node => node.value).join('\n')));
-        }
-        if (kids.length !== 0)
-            return this.$mol_fail(err `Kids are not allowed at ${value.span}, use ${example}`);
-        if (type === 'false' || type === 'true')
-            return value.data(type);
-        if (type === 'null')
-            return value.data(type);
-        if (Number(type).toString() === type.replace(/^\+/, ''))
-            return value.data(type);
-        return this.$mol_fail(err `Value ${value.toString()} not allowed at ${value.span}, use ${example}`);
-    }
-    $.$mol_view_tree2_value = $mol_view_tree2_value;
-    const example = new $mol_view_tree2_error_suggestions([
-        'false',
-        'true',
-        '123',
-        'null',
-        '\\some'
-    ]);
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_view_tree2_value_number(type) {
+    function $mol_tree2_js_is_number(type) {
         return type.match(/[\+\-]*NaN/) || !Number.isNaN(Number(type));
     }
-    $.$mol_view_tree2_value_number = $mol_view_tree2_value_number;
+    $.$mol_tree2_js_is_number = $mol_tree2_js_is_number;
 })($ || ($ = {}));
 
 ;
@@ -9738,7 +9434,7 @@ var $;
                     return [
                         input.data(input.type),
                     ];
-                if ($mol_view_tree2_value_number(input.type))
+                if ($mol_tree2_js_is_number(input.type))
                     return [
                         input.data(input.type)
                     ];
@@ -10456,6 +10152,254 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    class $mol_view_tree2_error extends Error {
+        spans;
+        constructor(message, spans) {
+            super(message);
+            this.spans = spans;
+        }
+        toJSON() {
+            return {
+                message: this.message,
+                spans: this.spans
+            };
+        }
+    }
+    $.$mol_view_tree2_error = $mol_view_tree2_error;
+    class $mol_view_tree2_error_suggestions {
+        suggestions;
+        constructor(suggestions) {
+            this.suggestions = suggestions;
+        }
+        toString() {
+            return this.suggestions.map(suggestion => `\`${suggestion}\``).join(', ');
+        }
+        toJSON() {
+            return this.suggestions;
+        }
+    }
+    $.$mol_view_tree2_error_suggestions = $mol_view_tree2_error_suggestions;
+    function $mol_view_tree2_error_str(strings, ...parts) {
+        const spans = [];
+        for (const part of parts) {
+            if (part instanceof $mol_span)
+                spans.push(part);
+            if (Array.isArray(part) && part.length > 0 && part[0] instanceof $mol_span)
+                spans.push(...part);
+        }
+        return new $mol_view_tree2_error(join(strings, parts), spans);
+    }
+    $.$mol_view_tree2_error_str = $mol_view_tree2_error_str;
+    function join(strings, objects) {
+        let result = '';
+        let obj_pos = 0;
+        let obj_len = objects.length;
+        for (const str of strings) {
+            result += str;
+            if (obj_pos < obj_len) {
+                const obj = objects[obj_pos++];
+                if (Array.isArray(obj))
+                    result += obj.map(item => `\`${item}\``).join(', ');
+                else
+                    result += `\`${String(obj)}\``;
+            }
+        }
+        return result;
+    }
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_view_tree2_child(tree) {
+        if (tree.kids.length === 0) {
+            return this.$mol_fail($mol_view_tree2_error_str `Required one child at ${tree.span}`);
+        }
+        if (tree.kids.length > 1) {
+            return this.$mol_fail($mol_view_tree2_error_str `Should be only one child at ${tree.span}`);
+        }
+        return tree.kids[0];
+    }
+    $.$mol_view_tree2_child = $mol_view_tree2_child;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_view_tree2_classes(defs) {
+        return defs.clone(defs.hack({
+            '-': () => []
+        }));
+    }
+    $.$mol_view_tree2_classes = $mol_view_tree2_classes;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_view_tree2_normalize(defs) {
+        return defs.clone($mol_view_tree2_classes(defs).kids.map(cl => cl.clone([
+            this.$mol_view_tree2_class_super(cl).clone(this.$mol_view_tree2_class_props(cl))
+        ])));
+    }
+    $.$mol_view_tree2_normalize = $mol_view_tree2_normalize;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    const { begin, end, latin_only, or, optional, repeat_greedy } = $mol_regexp;
+    $.$mol_view_tree2_prop_signature = $mol_regexp.from([
+        begin,
+        { name: repeat_greedy(latin_only, 1) },
+        { key: optional(['*', repeat_greedy(latin_only, 0)]) },
+        { next: optional(['?', repeat_greedy(latin_only, 0)]) },
+        end,
+    ]);
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_view_tree2_prop_parts(prop) {
+        const groups = [...prop.type.matchAll($mol_view_tree2_prop_signature)][0]?.groups;
+        if (!groups) {
+            this.$mol_fail($mol_view_tree2_error_str `Required prop like some*? at ${prop.span}`);
+        }
+        return {
+            name: groups.name,
+            key: groups.key,
+            next: groups.next ? '?' : ''
+        };
+    }
+    $.$mol_view_tree2_prop_parts = $mol_view_tree2_prop_parts;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    const regular_regex = /^\w+$/;
+    function $mol_view_tree2_prop_quote(name) {
+        if (regular_regex.test(name.value))
+            return name;
+        return name.data(JSON.stringify(name.value));
+    }
+    $.$mol_view_tree2_prop_quote = $mol_view_tree2_prop_quote;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    const class_regex = /^[$A-Z][$\w<>\[\]()"'?|]+$/;
+    function $mol_view_tree2_class_match(klass) {
+        if (!klass?.type)
+            return false;
+        if (klass.type === 'NaN' || klass.type === 'Infinity')
+            return false;
+        return class_regex.test(klass.type);
+    }
+    $.$mol_view_tree2_class_match = $mol_view_tree2_class_match;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    const err = $mol_view_tree2_error_str;
+    function $mol_view_tree2_class_super(klass) {
+        if (!$mol_view_tree2_class_match(klass))
+            return this.$mol_fail(err `Wrong class name at ${klass.span}`);
+        const superclass = klass.kids.length === 1 ? klass.kids[0] : undefined;
+        if (!superclass)
+            return this.$mol_fail(err `No super class at ${klass.span}`);
+        if (!$mol_view_tree2_class_match(superclass))
+            return this.$mol_fail(err `Wrong super class name ${JSON.stringify(superclass.type).replace(/(^"|"$)/g, "")} at ${superclass.span}`);
+        return superclass;
+    }
+    $.$mol_view_tree2_class_super = $mol_view_tree2_class_super;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    const err = $mol_view_tree2_error_str;
+    function $mol_view_tree2_class_props(klass) {
+        let props = this.$mol_view_tree2_class_super(klass);
+        props = props.clone(props.hack({
+            '': (node, belt) => {
+                const normal = node.type.replace(/!\w+/, '*');
+                if (node.type === normal)
+                    return [node.clone(node.hack(belt))];
+                return [node.struct(normal, node.hack(belt))];
+            }
+        }));
+        const props_inner = {};
+        const add_inner = (prop) => {
+            const { name } = this.$mol_view_tree2_prop_parts(prop);
+            const prev = props_inner[name];
+            if (prev && prev.kids[0]?.toString() !== prop.kids[0]?.toString()) {
+                this.$mol_fail(err `Need an equal default values at ${prev.span} vs ${prop.span}`);
+            }
+            props_inner[name] = prop;
+        };
+        const upper = (operator, belt, context) => {
+            const prop = this.$mol_view_tree2_child(operator);
+            const defs = prop.hack(belt, { factory: prop });
+            if (defs.length)
+                add_inner(prop.clone(defs));
+            return [operator.clone([prop.clone([])])];
+        };
+        const props_root = props.hack({
+            '<=': upper,
+            '<=>': upper,
+            '^': (operator, belt, context) => {
+                if (operator.kids.length === 0)
+                    return [operator];
+                return upper(operator, belt, context);
+            },
+            '': (left, belt, context) => {
+                let right;
+                const operator = left.kids[0];
+                if (operator?.type === '=>' && context.factory) {
+                    right = operator.kids[0];
+                    if (!right)
+                        this.$mol_fail(err `Need a child ${operator.span}`);
+                    if (!context.factory)
+                        this.$mol_fail(err `Need a parent ${left.span}`);
+                    add_inner(right.clone([
+                        right.struct('=', [
+                            context.factory.struct(context.factory.type.replace(/\*.*/, '*'), [left.clone([])]),
+                        ]),
+                    ]));
+                }
+                if (right)
+                    context = { factory: right.clone([]) };
+                else if (operator && !context.factory && $mol_view_tree2_class_match(operator)) {
+                    context = { factory: left.clone([]) };
+                }
+                const hacked = left.clone(left.hack(belt, context));
+                return [hacked];
+            }
+        }, { factory: undefined });
+        for (const prop of props_root)
+            add_inner(prop);
+        return Object.values(props_inner);
+    }
+    $.$mol_view_tree2_class_props = $mol_view_tree2_class_props;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     const err = $mol_view_tree2_error_str;
     function name_of(prop) {
         return this.$mol_view_tree2_prop_parts(prop).name;
@@ -10579,7 +10523,7 @@ var $;
                     return [
                         input.struct('[,]', input.hack(belt)),
                     ];
-                if (input.type && $mol_view_tree2_value_number(input.type))
+                if (input.type && $mol_tree2_js_is_number(input.type))
                     return [
                         input
                     ];
@@ -10816,7 +10760,7 @@ var $;
     }
     function primitive_type(input) {
         let type = 'string';
-        if (input.type && $mol_view_tree2_value_number(input.type))
+        if (input.type && $mol_tree2_js_is_number(input.type))
             type = 'number';
         if (input.type === 'true' || input.type === 'false')
             type = 'boolean';
@@ -12912,7 +12856,7 @@ var $;
                 .hack({
                 'bar': (input, belt) => [input.struct('777', input.hack(belt))],
             });
-            $mol_assert_equal(res.toString(), 'foo 777 xxx\n');
+            $mol_assert_equal(res.map(String), ['foo 777 xxx\n']);
         },
     });
 })($ || ($ = {}));
@@ -15398,189 +15342,6 @@ var $;
 
 ;
 "use strict";
-var $;
-(function ($_1) {
-    function get_parts(str) {
-        return $$.$mol_view_tree2_prop_parts($mol_tree2.struct(str));
-    }
-    $mol_test({
-        'wrong order'($) {
-            $mol_assert_fail(() => {
-                get_parts('some_bla?*');
-            }, 'Required prop like some*? at `?#1:1/0`');
-        },
-        'empty'($) {
-            $mol_assert_fail(() => {
-                get_parts('');
-            }, 'Required prop like some*? at `?#1:1/0`');
-        },
-        'prop in upper case'($) {
-            const parts = get_parts('Close_icon');
-            $mol_assert_equal(parts.name, 'Close_icon');
-            $mol_assert_equal(parts.key, '');
-            $mol_assert_equal(parts.next, '');
-        },
-        'prop with index'($) {
-            const parts = get_parts('some_bla*');
-            $mol_assert_equal(parts.name, 'some_bla');
-            $mol_assert_equal(parts.key, '*');
-            $mol_assert_equal(parts.next, '');
-        },
-        'prop with index and value'($) {
-            const parts = get_parts('some_bla*?');
-            $mol_assert_equal(parts.name, 'some_bla');
-            $mol_assert_equal(parts.key, '*');
-            $mol_assert_equal(parts.next, '?');
-        },
-        'legacy indexed'($) {
-            const parts = get_parts('Some*default');
-            $mol_assert_equal(parts.name, 'Some');
-            $mol_assert_equal(parts.key, '*default');
-            $mol_assert_equal(parts.next, '');
-        },
-        'legacy indexed value'($) {
-            const parts = get_parts('Some*k?v');
-            $mol_assert_equal(parts.name, 'Some');
-            $mol_assert_equal(parts.key, '*k');
-            $mol_assert_equal(parts.next, '?');
-        }
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($_1) {
-    var $$;
-    (function ($$) {
-        const d = '$';
-        const file_name = '/mol/view/tree2/class/props.test.ts';
-        function normalize($, src, dest) {
-            const mod = $.$mol_tree2_from_string(src, file_name);
-            const input = $.$mol_view_tree2_class_props(mod.kids[0]).join('');
-            const output = dest ? $$.$mol_tree2_from_string(dest, 'reference').toString() : '';
-            return { input, output };
-        }
-        $mol_test({
-            'dupes merge'($) {
-                const src = `
-				${d}my_test ${d}my_super
-					query? \\
-					Query $mol_string
-						value? <=> query? \\
-					Suggest_label ${d}mol_dimmer
-						needle <= query? \\
-						key * escape? <=> clear? null
-					Clear ${d}mol_button_minor
-						click?event <=> clear?event null
-			`;
-                const dest = `
-				query? \\
-				clear?event null
-				Query $mol_string value? <=> query?
-				Suggest_label $mol_dimmer
-					needle <= query?
-					key * escape? <=> clear?
-				Clear $mol_button_minor click?event <=> clear?event
-			`;
-                const res = normalize($, src, dest);
-                $mol_assert_equal(res.input, res.output);
-            },
-            'left and bidi common'($) {
-                const src = `
-				${d}my_test ${d}my_super
-					title @ \\title
-					sub2 /
-						<= Close_icon ${d}mol_icon_cross
-					sub /
-						<= Title ${d}mol_view
-							sub /
-								<= title
-						<= Close ${d}mol_button
-							title \\close
-							click?event <=> close?event null
-			`;
-                const dest = `
-				Close_icon ${d}mol_icon_cross
-				Title ${d}mol_view sub / <= title
-				close?event null
-				Close ${d}mol_button
-					title \\close
-					click?event <=> close?event
-				title @ \\title
-				sub2 / <= Close_icon
-				sub /
-					<= Title
-					<= Close
-			`;
-                const res = normalize($, src, dest);
-                $mol_assert_equal(res.input, res.output);
-            },
-            'right bind levels'($) {
-                const src = `
-				${d}my_test ${d}my_super
-					Dog ${d}mol_view_tree2_class_test_dog
-						Mouth => Dog_mouth
-							animation => dog_animation
-					plugins /
-						<= Human* ${d}mol_view_tree2_class_test_human
-							Mouth => Human_mouth
-								animation => human_animation
-									text => human_text
-			`;
-                const dest = `
-				Dog_mouth = Dog Mouth
-				dog_animation = Dog_mouth animation
-				Human_mouth = Human* Mouth
-				human_animation = Human_mouth animation
-				human_text = human_animation text
-				Human* $mol_view_tree2_class_test_human Mouth => Human_mouth animation => human_animation text => human_text
-				Dog $mol_view_tree2_class_test_dog Mouth => Dog_mouth animation => dog_animation
-				plugins / <= Human*
-			`;
-                const res = normalize($, src, dest);
-                $mol_assert_equal(res.input, res.output);
-            },
-            'good right bind dupes'($) {
-                const src = `
-				${d}my_test ${d}my_super
-					Suggest_label ${d}mol_dimmer
-						clear? => clear?
-					Clear ${d}mol_button_minor
-						click?e <=> clear?e
-			`;
-                const dest = `
-				clear? = Suggest_label clear?
-				Suggest_label $mol_dimmer clear? => clear?
-				Clear $mol_button_minor click?e <=> clear?e
-			`;
-                const res = normalize($, src, dest);
-                $mol_assert_equal(res.input, res.output);
-            },
-            'conflicting right bind dupes'($) {
-                const src = `
-				${d}my_test ${d}my_super
-					Suggest_label ${d}mol_dimmer
-						clear => clear
-					Clear ${d}mol_button_minor
-						click?event <=> clear?event null
-			`;
-                $mol_assert_fail(() => normalize($, src).input, `Need an equal default values at \`/mol/view/tree2/class/props.test.ts#4:16/5\` vs \`/mol/view/tree2/class/props.test.ts#6:23/11\`
-<=>
-/mol/view/tree2/class/props.test.ts#6:19/3
-click?event
-/mol/view/tree2/class/props.test.ts#6:7/11
-$mol_button_minor
-/mol/view/tree2/class/props.test.ts#5:12/17
-Clear
-/mol/view/tree2/class/props.test.ts#5:6/5`);
-            },
-        });
-    })($$ = $_1.$$ || ($_1.$$ = {}));
-})($ || ($ = {}));
-
-;
-"use strict";
 
 ;
 "use strict";
@@ -16152,6 +15913,189 @@ var $;
             $mol_assert_like(pair(), [1, 2]);
         },
     });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    function get_parts(str) {
+        return $$.$mol_view_tree2_prop_parts($mol_tree2.struct(str));
+    }
+    $mol_test({
+        'wrong order'($) {
+            $mol_assert_fail(() => {
+                get_parts('some_bla?*');
+            }, 'Required prop like some*? at `?#1:1/0`');
+        },
+        'empty'($) {
+            $mol_assert_fail(() => {
+                get_parts('');
+            }, 'Required prop like some*? at `?#1:1/0`');
+        },
+        'prop in upper case'($) {
+            const parts = get_parts('Close_icon');
+            $mol_assert_equal(parts.name, 'Close_icon');
+            $mol_assert_equal(parts.key, '');
+            $mol_assert_equal(parts.next, '');
+        },
+        'prop with index'($) {
+            const parts = get_parts('some_bla*');
+            $mol_assert_equal(parts.name, 'some_bla');
+            $mol_assert_equal(parts.key, '*');
+            $mol_assert_equal(parts.next, '');
+        },
+        'prop with index and value'($) {
+            const parts = get_parts('some_bla*?');
+            $mol_assert_equal(parts.name, 'some_bla');
+            $mol_assert_equal(parts.key, '*');
+            $mol_assert_equal(parts.next, '?');
+        },
+        'legacy indexed'($) {
+            const parts = get_parts('Some*default');
+            $mol_assert_equal(parts.name, 'Some');
+            $mol_assert_equal(parts.key, '*default');
+            $mol_assert_equal(parts.next, '');
+        },
+        'legacy indexed value'($) {
+            const parts = get_parts('Some*k?v');
+            $mol_assert_equal(parts.name, 'Some');
+            $mol_assert_equal(parts.key, '*k');
+            $mol_assert_equal(parts.next, '?');
+        }
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    var $$;
+    (function ($$) {
+        const d = '$';
+        const file_name = '/mol/view/tree2/class/props.test.ts';
+        function normalize($, src, dest) {
+            const mod = $.$mol_tree2_from_string(src, file_name);
+            const input = $.$mol_view_tree2_class_props(mod.kids[0]).join('');
+            const output = dest ? $$.$mol_tree2_from_string(dest, 'reference').toString() : '';
+            return { input, output };
+        }
+        $mol_test({
+            'dupes merge'($) {
+                const src = `
+				${d}my_test ${d}my_super
+					query? \\
+					Query $mol_string
+						value? <=> query? \\
+					Suggest_label ${d}mol_dimmer
+						needle <= query? \\
+						key * escape? <=> clear? null
+					Clear ${d}mol_button_minor
+						click?event <=> clear?event null
+			`;
+                const dest = `
+				query? \\
+				clear?event null
+				Query $mol_string value? <=> query?
+				Suggest_label $mol_dimmer
+					needle <= query?
+					key * escape? <=> clear?
+				Clear $mol_button_minor click?event <=> clear?event
+			`;
+                const res = normalize($, src, dest);
+                $mol_assert_equal(res.input, res.output);
+            },
+            'left and bidi common'($) {
+                const src = `
+				${d}my_test ${d}my_super
+					title @ \\title
+					sub2 /
+						<= Close_icon ${d}mol_icon_cross
+					sub /
+						<= Title ${d}mol_view
+							sub /
+								<= title
+						<= Close ${d}mol_button
+							title \\close
+							click?event <=> close?event null
+			`;
+                const dest = `
+				Close_icon ${d}mol_icon_cross
+				Title ${d}mol_view sub / <= title
+				close?event null
+				Close ${d}mol_button
+					title \\close
+					click?event <=> close?event
+				title @ \\title
+				sub2 / <= Close_icon
+				sub /
+					<= Title
+					<= Close
+			`;
+                const res = normalize($, src, dest);
+                $mol_assert_equal(res.input, res.output);
+            },
+            'right bind levels'($) {
+                const src = `
+				${d}my_test ${d}my_super
+					Dog ${d}mol_view_tree2_class_test_dog
+						Mouth => Dog_mouth
+							animation => dog_animation
+					plugins /
+						<= Human* ${d}mol_view_tree2_class_test_human
+							Mouth => Human_mouth
+								animation => human_animation
+									text => human_text
+			`;
+                const dest = `
+				Dog_mouth = Dog Mouth
+				dog_animation = Dog_mouth animation
+				Human_mouth = Human* Mouth
+				human_animation = Human_mouth animation
+				human_text = human_animation text
+				Human* $mol_view_tree2_class_test_human Mouth => Human_mouth animation => human_animation text => human_text
+				Dog $mol_view_tree2_class_test_dog Mouth => Dog_mouth animation => dog_animation
+				plugins / <= Human*
+			`;
+                const res = normalize($, src, dest);
+                $mol_assert_equal(res.input, res.output);
+            },
+            'good right bind dupes'($) {
+                const src = `
+				${d}my_test ${d}my_super
+					Suggest_label ${d}mol_dimmer
+						clear? => clear?
+					Clear ${d}mol_button_minor
+						click?e <=> clear?e
+			`;
+                const dest = `
+				clear? = Suggest_label clear?
+				Suggest_label $mol_dimmer clear? => clear?
+				Clear $mol_button_minor click?e <=> clear?e
+			`;
+                const res = normalize($, src, dest);
+                $mol_assert_equal(res.input, res.output);
+            },
+            'conflicting right bind dupes'($) {
+                const src = `
+				${d}my_test ${d}my_super
+					Suggest_label ${d}mol_dimmer
+						clear => clear
+					Clear ${d}mol_button_minor
+						click?event <=> clear?event null
+			`;
+                $mol_assert_fail(() => normalize($, src).input, `Need an equal default values at \`/mol/view/tree2/class/props.test.ts#4:16/5\` vs \`/mol/view/tree2/class/props.test.ts#6:23/11\`
+<=>
+/mol/view/tree2/class/props.test.ts#6:19/3
+click?event
+/mol/view/tree2/class/props.test.ts#6:7/11
+$mol_button_minor
+/mol/view/tree2/class/props.test.ts#5:12/17
+Clear
+/mol/view/tree2/class/props.test.ts#5:6/5`);
+            },
+        });
+    })($$ = $_1.$$ || ($_1.$$ = {}));
 })($ || ($ = {}));
 
 ;
