@@ -3751,32 +3751,6 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    let $hyoo_marked_line_content: $mol_regexp<{}>;
-    let $hyoo_marked_line: $mol_regexp<{
-        [x: string]: string;
-        readonly inline: string;
-        readonly code: string;
-        readonly embed: string;
-        readonly strong: string;
-        readonly emphasis: string;
-        readonly insertion: string;
-        readonly deletion: string;
-        readonly link: string;
-        readonly marker: string;
-        readonly uri: string;
-        readonly content: string;
-    }>;
-}
-
-declare namespace $ {
-    function $hyoo_marked_tree_from_line(this: $, code: string, span_entire?: $mol_span): $mol_tree2;
-}
-
-declare namespace $ {
-    function $hyoo_marked_tree_to_js(this: $, mt: $mol_tree2): $mol_tree2;
-}
-
-declare namespace $ {
     function $mol_json_from_string(str: string): any;
     function $mol_json_to_string(str: string): string;
 }
