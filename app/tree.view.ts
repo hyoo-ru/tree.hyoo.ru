@@ -1,6 +1,6 @@
 namespace $.$$ {
 
-	export class $hyoo_tree extends $.$hyoo_tree {
+	export class $hyoo_tree_app extends $.$hyoo_tree_app {
 
 		@ $mol_mem
 		pipeline( next?: string[] ) {
@@ -21,8 +21,24 @@ namespace $.$$ {
 		}
 		
 		@ $mol_mem
+		raw( next?: boolean ) {
+			return String( this.$.$mol_state_arg.value( 'raw' , next?.toString() ) ?? super.raw() ) === 'true'
+		}
+		
+		source_body(){
+			return this.raw()
+				? [ this.Source_text() ]
+				: [ this.Source_tree() ]
+		}
+		
+		@ $mol_mem
 		source( next? : string ) {
 			return this.$.$mol_state_arg.value( 'source' , next ) ?? super.source()
+		}
+		
+		@ $mol_mem
+		source_tree( next?: $mol_tree2 ) {
+			return this.$.$mol_tree2_from_string( this.source( next?.toString() ) )
 		}
 
 		@ $mol_mem_key

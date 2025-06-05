@@ -1,4 +1,4 @@
-name: $hyoo_tree
+name: $hyoo_tree_app
 
 on:
   workflow_dispatch:
@@ -17,8 +17,9 @@ jobs:
     - uses: hyoo-ru/mam_build@master2
       with:
         package: 'hyoo/tree'
+        module: 'app'
     
     - uses: hyoo-ru/gh-deploy@v4.4.1
       if: github.ref == 'refs/heads/master'
       with:
-        folder: 'hyoo/tree/-'
+        folder: 'hyoo/tree/app/-'

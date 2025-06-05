@@ -1,4 +1,4 @@
-$hyoo_tree $mol_book2
+$hyoo_tree_app $mol_book2
 	transform_map *
 		$mol_tree2_from_string *
 			input \text
@@ -148,8 +148,15 @@ $hyoo_tree $mol_book2
 							uri \#!source=foo%0A%09bar%0A%09%09%5Chttps%3A%2F%2Fgithub.com%2Fnin-jin%2Ftree.d%2Fwiki%2Fspan.tree%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_span_imprint~%24mol_tree2_span_reuse~%24mol_tree2_span_imprint
 		<= Source $mol_page
 			title @ \Tree sandbox
-			tools <= source_tools /$mol_view_content
-			body /
+			tools /
+				<= Raw $mol_check_icon
+					hint \Raw code edit
+					checked? <=> raw? true
+					Icon <= Raw_icon $mol_icon_pencil_box_outline
+				<= source_tools /$mol_view_content
+			body <= source_body /
+				<= Source_tree $hyoo_tree_edit
+					value? <=> source_tree? $mol_tree2
 				<= Source_text $mol_textarea
 					value?val <=> source?val <= source_default \
 					hint <= source_hint @ \view.tree source
