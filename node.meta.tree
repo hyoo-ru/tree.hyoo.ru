@@ -84,6 +84,6 @@
 	include \/mol/view/tree/test
 \/mol/view/tree2/to/js
 	include \/mol/view/tree2/to/js/test
-\/hyoo/tree
+\/hyoo/tree/app
 	include \/mol/offline/install
 	include \/mol/import

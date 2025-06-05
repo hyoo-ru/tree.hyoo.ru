@@ -177,6 +177,146 @@ $mol_page $mol_view
 			dom_name \footer
 			sub <= foot /$mol_view
 
+$mol_icon_pencil $mol_icon path \M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z
+
+$mol_icon_pencil_box $mol_icon path \M19,3A2,2 0 0,1 21,5V19C21,20.11 20.1,21 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H19M16.7,9.35C16.92,9.14 16.92,8.79 16.7,8.58L15.42,7.3C15.21,7.08 14.86,7.08 14.65,7.3L13.65,8.3L15.7,10.35L16.7,9.35M7,14.94V17H9.06L15.12,10.94L13.06,8.88L7,14.94Z
+
+$mol_icon_pencil_box_outline $mol_icon path \M19,19V5H5V19H19M19,3A2,2 0 0,1 21,5V19C21,20.11 20.1,21 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H19M16.7,9.35L15.7,10.35L13.65,8.3L14.65,7.3C14.86,7.08 15.21,7.08 15.42,7.3L16.7,8.58C16.92,8.79 16.92,9.14 16.7,9.35M7,14.94L13.06,8.88L15.12,10.94L9.06,17H7V14.94Z
+
+$mol_icon_menu $mol_icon path \M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z
+
+$mol_icon_menu_right $mol_icon path \M10,17L15,12L10,7V17Z
+
+$mol_hotkey $mol_plugin
+	event *
+		^
+		keydown?event <=> keydown?event null
+	key *
+	mod_ctrl false
+	mod_alt false
+	mod_shift false
+
+$mol_string $mol_view
+	dom_name \input
+	enabled true
+	minimal_height 40
+	autocomplete false
+	selection? /number
+		0
+		0
+	auto /
+		<= selection_watcher null
+		<= error_report null
+	field *
+		^
+		disabled <= disabled false
+		value <= value_changed? <=> value? \
+		placeholder <= hint_visible <= hint \
+		spellcheck <= spellcheck true
+		autocomplete <= autocomplete_native \
+		selectionEnd <= selection_end 0
+		selectionStart <= selection_start 0
+		inputMode <= keyboard \text
+		enterkeyhint <= enter \go
+	attr *
+		^
+		maxlength <= length_max +Infinity
+		type <= type? \text
+	event *
+		^
+		input?event <=> event_change?event null
+	plugins /
+		<= Submit $mol_hotkey
+			mod_ctrl <= submit_with_ctrl false
+			key * enter?event <=> submit?event null
+
+$mol_string_button $mol_string
+
+$mol_icon_plus $mol_icon path \M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z
+
+$mol_icon_delete $mol_icon path \M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z
+
+$mol_icon_delete_outline $mol_icon path \M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z
+
+$mol_pop $mol_view
+	showed? false
+	align_vert \
+	align_hor \
+	prefer \vert
+	sub /
+		<= Anchor null
+	sub_visible /
+		<= Anchor
+		<= Bubble $mol_pop_bubble
+			align <= align \bottom_center
+			content <= bubble_content /$mol_view_content
+			height_max <= height_max 9999
+
+$mol_pop_bubble $mol_view
+	sub <= content /$mol_view_content
+	style *
+		^
+		maxHeight <= height_max 9999
+	attr *
+		^
+		mol_pop_align <= align \
+		tabindex 0
+
+$mol_pick $mol_pop
+	event *
+		^
+		keydown?event <=> keydown?event null
+	Anchor <= Trigger $mol_check
+		minimal_width 40
+		minimal_height 40
+		enabled <= trigger_enabled true
+		checked? <=> showed?
+		clicks? <=> clicks? null
+		sub <= trigger_content /$mol_view_content
+			<= title
+		hint <= hint \
+
+$hyoo_tree_edit $mol_list
+	value? $mol_tree2
+	enabled true
+	rows <= list*0 /
+		<= Item*0 $mol_list rows /
+			<= Item_row* $mol_view sub <= item_row* /
+				<= Item_kind* $mol_check_icon
+					hint \Toggle kind
+					checked? <=> item_kind*? false
+					enabled <= enabled
+					sub /
+						<= Item_kind_icon* $mol_icon_menu_right
+				<= Item_type* $mol_string_button
+					hint \Type
+					value? <=> item_type*? \
+					enabled <= enabled
+				<= Item_value* $mol_string
+					hint \Value
+					value? <=> item_value*? \
+					enabled <= enabled
+				<= Item_born* $mol_button_minor
+					hint \Add item
+					click? <=> item_born*? null
+					enabled <= enabled
+					sub /
+						<= Item_born_icon* $mol_icon_plus
+				<= Item_delete* $mol_pick
+					hint \Delete
+					trigger_enabled <= enabled
+					trigger_content /
+						<= Item_delete_icon* $mol_icon_delete_outline
+					bubble_content /
+						<= Item_delete_options* $mol_list rows /
+							<= Item_delete_self* $mol_button_minor
+								click? <=> item_delete_self*? null
+								sub / \Disappear
+							<= Item_delete_tree* $mol_button_minor
+								click? <=> item_delete_tree*? null
+								sub / \Truncate
+			<= List* $mol_list rows <= list*
+
 $mol_stack $mol_view
 
 $mol_paragraph $mol_view
@@ -270,49 +410,6 @@ $mol_text_code $mol_stack
 			hint @ \Copy whole code
 			text <= text_export \
 
-$mol_hotkey $mol_plugin
-	event *
-		^
-		keydown?event <=> keydown?event null
-	key *
-	mod_ctrl false
-	mod_alt false
-	mod_shift false
-
-$mol_string $mol_view
-	dom_name \input
-	enabled true
-	minimal_height 40
-	autocomplete false
-	selection? /number
-		0
-		0
-	auto /
-		<= selection_watcher null
-		<= error_report null
-	field *
-		^
-		disabled <= disabled false
-		value <= value_changed? <=> value? \
-		placeholder <= hint_visible <= hint \
-		spellcheck <= spellcheck true
-		autocomplete <= autocomplete_native \
-		selectionEnd <= selection_end 0
-		selectionStart <= selection_start 0
-		inputMode <= keyboard \text
-		enterkeyhint <= enter \go
-	attr *
-		^
-		maxlength <= length_max +Infinity
-		type <= type? \text
-	event *
-		^
-		input?event <=> event_change?event null
-	plugins /
-		<= Submit $mol_hotkey
-			mod_ctrl <= submit_with_ctrl false
-			key * enter?event <=> submit?event null
-
 $mol_textarea $mol_stack
 	attr *
 		^
@@ -388,44 +485,6 @@ $mol_textarea_edit $mol_string
 		^
 		scrollTop 0
 
-$mol_pop $mol_view
-	showed? false
-	align_vert \
-	align_hor \
-	prefer \vert
-	sub /
-		<= Anchor null
-	sub_visible /
-		<= Anchor
-		<= Bubble $mol_pop_bubble
-			align <= align \bottom_center
-			content <= bubble_content /$mol_view_content
-			height_max <= height_max 9999
-
-$mol_pop_bubble $mol_view
-	sub <= content /$mol_view_content
-	style *
-		^
-		maxHeight <= height_max 9999
-	attr *
-		^
-		mol_pop_align <= align \
-		tabindex 0
-
-$mol_pick $mol_pop
-	event *
-		^
-		keydown?event <=> keydown?event null
-	Anchor <= Trigger $mol_check
-		minimal_width 40
-		minimal_height 40
-		enabled <= trigger_enabled true
-		checked? <=> showed?
-		clicks? <=> clicks? null
-		sub <= trigger_content /$mol_view_content
-			<= title
-		hint <= hint \
-
 $mol_nav $mol_plugin
 	cycle? false
 	-
@@ -473,6 +532,7 @@ $mol_search $mol_pop
 				bring => bring
 			<= Clear $mol_button_minor
 				hint @ \Clear
+				enabled <= enabled true
 				click?event <=> clear?event null
 				sub /
 					<= Clear_icon $mol_icon_close
@@ -524,8 +584,6 @@ $mol_select $mol_pick
 		enabled <= enabled true
 	Trigger_icon $mol_icon_dots_vertical
 
-$mol_icon_plus $mol_icon path \M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z
-
 $mol_select_list $mol_view
 	value? /string
 	dictionary *
@@ -548,7 +606,7 @@ $mol_select_list $mol_view
 			Trigger_icon <= Pick_icon $mol_icon_plus
 		^ badges_list
 
-$hyoo_tree $mol_book2
+$hyoo_tree_app $mol_book2
 	transform_map *
 		$mol_tree2_from_string *
 			input \text
@@ -698,8 +756,15 @@ $hyoo_tree $mol_book2
 							uri \#!source=foo%0A%09bar%0A%09%09%5Chttps%3A%2F%2Fgithub.com%2Fnin-jin%2Ftree.d%2Fwiki%2Fspan.tree%0A/pipeline=%24mol_tree2_from_string~%24mol_tree2_span_imprint~%24mol_tree2_span_reuse~%24mol_tree2_span_imprint
 		<= Source $mol_page
 			title @ \Tree sandbox
-			tools <= source_tools /$mol_view_content
-			body /
+			tools /
+				<= Raw $mol_check_icon
+					hint \Raw code edit
+					checked? <=> raw? true
+					Icon <= Raw_icon $mol_icon_pencil_box_outline
+				<= source_tools /$mol_view_content
+			body <= source_body /
+				<= Source_tree $hyoo_tree_edit
+					value? <=> source_tree? $mol_tree2
 				<= Source_text $mol_textarea
 					value?val <=> source?val <= source_default \
 					hint <= source_hint @ \view.tree source

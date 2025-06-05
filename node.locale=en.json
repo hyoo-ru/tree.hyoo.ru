@@ -1,8 +1,8 @@
 {
-	"$hyoo_tree_Presets_title": "Presets",
-	"$hyoo_tree_Source_title": "Tree sandbox",
-	"$hyoo_tree_add_hint": "Add step..",
-	"$hyoo_tree_source_hint": "view.tree source",
+	"$hyoo_tree_app_Presets_title": "Presets",
+	"$hyoo_tree_app_Source_title": "Tree sandbox",
+	"$hyoo_tree_app_add_hint": "Add step..",
+	"$hyoo_tree_app_source_hint": "view.tree source",
 	"$mol_lights_toggle_hint": "Toggle lights",
 	"$mol_link_source_hint": "Source code",
 	"$mol_search_Clear_hint": "Clear",
