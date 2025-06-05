@@ -2037,24 +2037,6 @@ declare namespace $ {
 
 declare namespace $ {
 
-	export class $mol_icon_menu extends $mol_icon {
-		path( ): string
-	}
-	
-}
-
-//# sourceMappingURL=menu.view.tree.d.ts.map
-declare namespace $ {
-
-	export class $mol_icon_menu_right extends $mol_icon {
-		path( ): string
-	}
-	
-}
-
-//# sourceMappingURL=right.view.tree.d.ts.map
-declare namespace $ {
-
 	export class $mol_hotkey extends $mol_plugin {
 		keydown( next?: any ): any
 		event( ): ({ 
@@ -2168,6 +2150,15 @@ declare namespace $ {
 }
 
 //# sourceMappingURL=button.view.tree.d.ts.map
+declare namespace $ {
+
+	export class $mol_icon_translate extends $mol_icon {
+		path( ): string
+	}
+	
+}
+
+//# sourceMappingURL=translate.view.tree.d.ts.map
 declare namespace $ {
 
 	export class $mol_icon_plus extends $mol_icon {
@@ -2335,55 +2326,55 @@ declare namespace $ {
 
 declare namespace $ {
 
-	type $mol_check_icon__hint_hyoo_tree_edit_1 = $mol_type_enforce<
-		string
-		,
-		ReturnType< $mol_check_icon['hint'] >
-	>
-	type $mol_check_icon__checked_hyoo_tree_edit_2 = $mol_type_enforce<
-		ReturnType< $hyoo_tree_edit['item_kind'] >
-		,
-		ReturnType< $mol_check_icon['checked'] >
-	>
-	type $mol_check_icon__enabled_hyoo_tree_edit_3 = $mol_type_enforce<
-		ReturnType< $hyoo_tree_edit['enabled'] >
-		,
-		ReturnType< $mol_check_icon['enabled'] >
-	>
-	type $mol_check_icon__sub_hyoo_tree_edit_4 = $mol_type_enforce<
-		readonly(any)[]
-		,
-		ReturnType< $mol_check_icon['sub'] >
-	>
-	type $mol_string_button__hint_hyoo_tree_edit_5 = $mol_type_enforce<
+	type $mol_string_button__hint_hyoo_tree_edit_1 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_string_button['hint'] >
 	>
-	type $mol_string_button__value_hyoo_tree_edit_6 = $mol_type_enforce<
+	type $mol_string_button__value_hyoo_tree_edit_2 = $mol_type_enforce<
 		ReturnType< $hyoo_tree_edit['item_type'] >
 		,
 		ReturnType< $mol_string_button['value'] >
 	>
-	type $mol_string_button__enabled_hyoo_tree_edit_7 = $mol_type_enforce<
+	type $mol_string_button__enabled_hyoo_tree_edit_3 = $mol_type_enforce<
 		ReturnType< $hyoo_tree_edit['enabled'] >
 		,
 		ReturnType< $mol_string_button['enabled'] >
 	>
-	type $mol_string__hint_hyoo_tree_edit_8 = $mol_type_enforce<
+	type $mol_string__hint_hyoo_tree_edit_4 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_string['hint'] >
 	>
-	type $mol_string__value_hyoo_tree_edit_9 = $mol_type_enforce<
+	type $mol_string__value_hyoo_tree_edit_5 = $mol_type_enforce<
 		ReturnType< $hyoo_tree_edit['item_value'] >
 		,
 		ReturnType< $mol_string['value'] >
 	>
-	type $mol_string__enabled_hyoo_tree_edit_10 = $mol_type_enforce<
+	type $mol_string__enabled_hyoo_tree_edit_6 = $mol_type_enforce<
 		ReturnType< $hyoo_tree_edit['enabled'] >
 		,
 		ReturnType< $mol_string['enabled'] >
+	>
+	type $mol_check_icon__hint_hyoo_tree_edit_7 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_check_icon['hint'] >
+	>
+	type $mol_check_icon__checked_hyoo_tree_edit_8 = $mol_type_enforce<
+		ReturnType< $hyoo_tree_edit['item_kind'] >
+		,
+		ReturnType< $mol_check_icon['checked'] >
+	>
+	type $mol_check_icon__enabled_hyoo_tree_edit_9 = $mol_type_enforce<
+		ReturnType< $hyoo_tree_edit['enabled'] >
+		,
+		ReturnType< $mol_check_icon['enabled'] >
+	>
+	type $mol_check_icon__sub_hyoo_tree_edit_10 = $mol_type_enforce<
+		readonly(any)[]
+		,
+		ReturnType< $mol_check_icon['sub'] >
 	>
 	type $mol_button_minor__hint_hyoo_tree_edit_11 = $mol_type_enforce<
 		string
@@ -2466,13 +2457,13 @@ declare namespace $ {
 		ReturnType< $mol_list['rows'] >
 	>
 	export class $hyoo_tree_edit extends $mol_list {
-		item_kind( id: any, next?: boolean ): boolean
-		Item_kind_icon( id: any): $mol_icon_menu_right
-		Item_kind( id: any): $mol_check_icon
 		item_type( id: any, next?: string ): string
 		Item_type( id: any): $mol_string_button
 		item_value( id: any, next?: string ): string
 		Item_value( id: any): $mol_string
+		item_kind( id: any, next?: boolean ): boolean
+		Item_kind_icon( id: any): $mol_icon_translate
+		Item_kind( id: any): $mol_check_icon
 		item_born( id: any, next?: any ): any
 		Item_born_icon( id: any): $mol_icon_plus
 		Item_born( id: any): $mol_button_minor

@@ -183,10 +183,6 @@ $mol_icon_pencil_box $mol_icon path \M19,3A2,2 0 0,1 21,5V19C21,20.11 20.1,21 19
 
 $mol_icon_pencil_box_outline $mol_icon path \M19,19V5H5V19H19M19,3A2,2 0 0,1 21,5V19C21,20.11 20.1,21 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H19M16.7,9.35L15.7,10.35L13.65,8.3L14.65,7.3C14.86,7.08 15.21,7.08 15.42,7.3L16.7,8.58C16.92,8.79 16.92,9.14 16.7,9.35M7,14.94L13.06,8.88L15.12,10.94L9.06,17H7V14.94Z
 
-$mol_icon_menu $mol_icon path \M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z
-
-$mol_icon_menu_right $mol_icon path \M10,17L15,12L10,7V17Z
-
 $mol_hotkey $mol_plugin
 	event *
 		^
@@ -231,6 +227,8 @@ $mol_string $mol_view
 			key * enter?event <=> submit?event null
 
 $mol_string_button $mol_string
+
+$mol_icon_translate $mol_icon path \M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07M18.5,10H16.5L12,22H14L15.12,19H19.87L21,22H23L18.5,10M15.88,17L17.5,12.67L19.12,17H15.88Z
 
 $mol_icon_plus $mol_icon path \M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z
 
@@ -282,12 +280,6 @@ $hyoo_tree_edit $mol_list
 	rows <= list*0 /
 		<= Item*0 $mol_list rows /
 			<= Item_row* $mol_view sub <= item_row* /
-				<= Item_kind* $mol_check_icon
-					hint \Toggle kind
-					checked? <=> item_kind*? false
-					enabled <= enabled
-					sub /
-						<= Item_kind_icon* $mol_icon_menu_right
 				<= Item_type* $mol_string_button
 					hint \Type
 					value? <=> item_type*? \
@@ -296,6 +288,12 @@ $hyoo_tree_edit $mol_list
 					hint \Value
 					value? <=> item_value*? \
 					enabled <= enabled
+				<= Item_kind* $mol_check_icon
+					hint \Toggle kind
+					checked? <=> item_kind*? false
+					enabled <= enabled
+					sub /
+						<= Item_kind_icon* $mol_icon_translate
 				<= Item_born* $mol_button_minor
 					hint \Add item
 					click? <=> item_born*? null

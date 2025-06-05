@@ -6222,28 +6222,6 @@ var $;
 })($ || ($ = {}));
 
 ;
-	($.$mol_icon_menu) = class $mol_icon_menu extends ($.$mol_icon) {
-		path(){
-			return "M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z";
-		}
-	};
-
-
-;
-"use strict";
-
-;
-	($.$mol_icon_menu_right) = class $mol_icon_menu_right extends ($.$mol_icon) {
-		path(){
-			return "M10,17L15,12L10,7V17Z";
-		}
-	};
-
-
-;
-"use strict";
-
-;
 	($.$mol_hotkey) = class $mol_hotkey extends ($.$mol_plugin) {
 		keydown(next){
 			if(next !== undefined) return next;
@@ -6547,6 +6525,17 @@ var $;
 "use strict";
 
 ;
+	($.$mol_icon_translate) = class $mol_icon_translate extends ($.$mol_icon) {
+		path(){
+			return "M12.87,15.07L10.33,12.56L10.36,12.53C12.1,10.59 13.34,8.36 14.07,6H17V4H10V2H8V4H1V6H12.17C11.5,7.92 10.44,9.75 9,11.35C8.07,10.32 7.3,9.19 6.69,8H4.69C5.42,9.63 6.42,11.17 7.67,12.56L2.58,17.58L4,19L9,14L12.11,17.11L12.87,15.07M18.5,10H16.5L12,22H14L15.12,19H19.87L21,22H23L18.5,10M15.88,17L17.5,12.67L19.12,17H15.88Z";
+		}
+	};
+
+
+;
+"use strict";
+
+;
 	($.$mol_icon_plus) = class $mol_icon_plus extends ($.$mol_icon) {
 		path(){
 			return "M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z";
@@ -6828,22 +6817,6 @@ var $;
 
 ;
 	($.$hyoo_tree_edit) = class $hyoo_tree_edit extends ($.$mol_list) {
-		item_kind(id, next){
-			if(next !== undefined) return next;
-			return false;
-		}
-		Item_kind_icon(id){
-			const obj = new this.$.$mol_icon_menu_right();
-			return obj;
-		}
-		Item_kind(id){
-			const obj = new this.$.$mol_check_icon();
-			(obj.hint) = () => ("Toggle kind");
-			(obj.checked) = (next) => ((this.item_kind(id, next)));
-			(obj.enabled) = () => ((this.enabled()));
-			(obj.sub) = () => ([(this.Item_kind_icon(id))]);
-			return obj;
-		}
 		item_type(id, next){
 			if(next !== undefined) return next;
 			return "";
@@ -6864,6 +6837,22 @@ var $;
 			(obj.hint) = () => ("Value");
 			(obj.value) = (next) => ((this.item_value(id, next)));
 			(obj.enabled) = () => ((this.enabled()));
+			return obj;
+		}
+		item_kind(id, next){
+			if(next !== undefined) return next;
+			return false;
+		}
+		Item_kind_icon(id){
+			const obj = new this.$.$mol_icon_translate();
+			return obj;
+		}
+		Item_kind(id){
+			const obj = new this.$.$mol_check_icon();
+			(obj.hint) = () => ("Toggle kind");
+			(obj.checked) = (next) => ((this.item_kind(id, next)));
+			(obj.enabled) = () => ((this.enabled()));
+			(obj.sub) = () => ([(this.Item_kind_icon(id))]);
 			return obj;
 		}
 		item_born(id, next){
@@ -6921,9 +6910,9 @@ var $;
 		}
 		item_row(id){
 			return [
-				(this.Item_kind(id)), 
 				(this.Item_type(id)), 
 				(this.Item_value(id)), 
+				(this.Item_kind(id)), 
 				(this.Item_born(id)), 
 				(this.Item_delete(id))
 			];
@@ -6958,13 +6947,13 @@ var $;
 			return (this.list("0"));
 		}
 	};
-	($mol_mem_key(($.$hyoo_tree_edit.prototype), "item_kind"));
-	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_kind_icon"));
-	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_kind"));
 	($mol_mem_key(($.$hyoo_tree_edit.prototype), "item_type"));
 	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_type"));
 	($mol_mem_key(($.$hyoo_tree_edit.prototype), "item_value"));
 	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_value"));
+	($mol_mem_key(($.$hyoo_tree_edit.prototype), "item_kind"));
+	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_kind_icon"));
+	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_kind"));
 	($mol_mem_key(($.$hyoo_tree_edit.prototype), "item_born"));
 	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_born_icon"));
 	($mol_mem_key(($.$hyoo_tree_edit.prototype), "Item_born"));
@@ -6999,10 +6988,10 @@ var $;
             }
             item_row(path) {
                 return [
-                    this.Item_kind(path),
                     ...this.item_type(path)
                         ? [this.Item_type(path)]
                         : [this.Item_value(path)],
+                    this.Item_kind(path),
                     this.Item_born(path),
                     this.Item_delete(path),
                 ];
@@ -7093,9 +7082,6 @@ var $;
                 },
                 border: {
                     radius: $mol_gap.round,
-                },
-                box: {
-                    shadow: [['inset', `1px`, '1px', 0, 0, $mol_theme.line]],
                 },
                 background: {
                     color: $mol_theme.card,
