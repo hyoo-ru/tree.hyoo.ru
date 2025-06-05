@@ -4,12 +4,6 @@ $hyoo_tree_edit $mol_list
 	rows <= list*0 /
 		<= Item*0 $mol_list rows /
 			<= Item_row* $mol_view sub <= item_row* /
-				<= Item_kind* $mol_check_icon
-					hint \Toggle kind
-					checked? <=> item_kind*? false
-					enabled <= enabled
-					sub /
-						<= Item_kind_icon* $mol_icon_menu_right
 				<= Item_type* $mol_string_button
 					hint \Type
 					value? <=> item_type*? \
@@ -18,6 +12,12 @@ $hyoo_tree_edit $mol_list
 					hint \Value
 					value? <=> item_value*? \
 					enabled <= enabled
+				<= Item_kind* $mol_check_icon
+					hint \Toggle kind
+					checked? <=> item_kind*? false
+					enabled <= enabled
+					sub /
+						<= Item_kind_icon* $mol_icon_translate
 				<= Item_born* $mol_button_minor
 					hint \Add item
 					click? <=> item_born*? null

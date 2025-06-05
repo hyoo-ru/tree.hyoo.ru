@@ -9,9 +9,6 @@ namespace $.$$ {
 			border: {
 				radius: $mol_gap.round,
 			},
-			box: {
-				shadow: [[ 'inset', `1px`, '1px', 0, 0, $mol_theme.line ]],
-			},
 			background: {
 				color: $mol_theme.card,
 			},

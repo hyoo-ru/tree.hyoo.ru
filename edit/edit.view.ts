@@ -13,10 +13,10 @@ namespace $.$$ {
 		@ $mol_mem_key
 		item_row( path: number[] ){
 			return [
-				this.Item_kind( path ),
 				... this.item_type( path )
-					? [ this.Item_type( path ) ]
-					: [ this.Item_value( path ) ], 
+				? [ this.Item_type( path ) ]
+				: [ this.Item_value( path ) ], 
+				this.Item_kind( path ),
 				this.Item_born( path ),
 				this.Item_delete( path ),
 			]
