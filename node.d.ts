@@ -4143,9 +4143,9 @@ declare namespace $ {
 
 declare namespace $ {
     class $mol_wasm_module extends $mol_object2 {
-        readonly buffer: Uint8Array;
+        readonly buffer: Uint8Array<ArrayBuffer>;
         native: WebAssembly.Module;
-        constructor(buffer: Uint8Array);
+        constructor(buffer: Uint8Array<ArrayBuffer>);
         instance<Imports extends {
             [mod in string]: {
                 [func in string]: WebAssembly.ImportValue;
