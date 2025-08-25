@@ -75,7 +75,7 @@ namespace $.$$ {
 		}
 		
 		@ $mol_mem_key
-		result( index: number ): string | $mol_tree2 | Uint8Array | $mol_wasm_module {
+		result( index: number ): string | $mol_tree2 | Uint8Array< ArrayBuffer > | $mol_wasm_module {
 			
 			const func = this.pipeline()[ index ]
 			if( !func ) return ''
