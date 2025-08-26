@@ -1984,6 +1984,17 @@ var $;
 ;
 "use strict";
 var $;
+(function ($) {
+    $mol_test({
+        'return result without errors'() {
+            $mol_assert_equal($mol_try(() => false), false);
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
 (function ($_1) {
     $mol_test_mocks.push($ => $.$mol_fail_log = () => false);
 })($ || ($ = {}));
@@ -5706,7 +5717,7 @@ var $;
 					test
 						case \\foo
 						case \\bar
-				`).hack(root), 'args[0] ≠ args[1]\n\\foo\n\n---\n\\bar\n\ntest\n?#2:6/4');
+				`).hack(root), 'Equality assertion failure\ntest\n?#2:6/4');
         },
         'jack test'($) {
             const tests = $.$mol_tree2_from_string(`
@@ -5853,17 +5864,6 @@ var $;
                 prefix: [],
                 suffix: [[1, 2], [3, 4], [5, 6]],
             });
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'return result without errors'() {
-            $mol_assert_equal($mol_try(() => false), false);
         },
     });
 })($ || ($ = {}));
