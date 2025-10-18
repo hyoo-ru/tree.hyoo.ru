@@ -12546,7 +12546,7 @@ var $;
 var $;
 (function ($) {
     function $mol_base64_encode(src) {
-        throw new Error('Not implemented');
+        return src.toBase64();
     }
     $.$mol_base64_encode = $mol_base64_encode;
 })($ || ($ = {}));
@@ -12558,12 +12558,13 @@ var $;
     function $mol_base64_encode_node(str) {
         if (!str)
             return '';
-        if (Buffer.isBuffer(str))
-            return str.toString('base64');
-        return Buffer.from(str).toString('base64');
+        const buf = Buffer.isBuffer(str) ? str : Buffer.from(str);
+        return buf.toString('base64');
     }
     $.$mol_base64_encode_node = $mol_base64_encode_node;
-    $.$mol_base64_encode = $mol_base64_encode_node;
+    if (!('toBase64' in Uint8Array.prototype)) {
+        $.$mol_base64_encode = $mol_base64_encode_node;
+    }
 })($ || ($ = {}));
 
 ;

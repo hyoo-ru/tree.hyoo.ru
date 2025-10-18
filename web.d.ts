@@ -1533,7 +1533,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_charset_decode(buffer: BufferSource, encoding?: $mol_charset_encoding): string;
+    function $mol_charset_decode(buffer: AllowSharedBufferSource, encoding?: $mol_charset_encoding): string;
 }
 
 declare var $node: any;
@@ -4187,11 +4187,11 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_base64_encode(src: string | Uint8Array<ArrayBuffer>): string;
+    function $mol_base64_encode(src: Uint8Array<ArrayBuffer>): string;
 }
 
 declare namespace $ {
-    function $mol_base64_encode_web(str: string | Uint8Array<ArrayBuffer>): string;
+    function $mol_base64_encode_web(str: Uint8Array<ArrayBuffer>): string;
 }
 
 declare namespace $ {
