@@ -287,7 +287,6 @@
     "$mol_import"
   ],
   "dependencies": {
-    "internal": "*",
     "jsdom": "*"
   }
 }
