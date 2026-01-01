@@ -189,6 +189,8 @@
     "$mol_icon_delete",
     "$mol_pick",
     "$mol_pop",
+    "$mol_follower",
+    "$mol_ghost",
     "$mol_textarea",
     "$mol_stack",
     "$mol_syntax2",
