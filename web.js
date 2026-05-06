@@ -30,6 +30,9 @@ $.$$ = $
 
 ;
 "use strict";
+// namespace $ {
+// 	$mol_report_bugsnag = '18acf016ed2a2a4cc4445daa9dd2dd3c'
+// }
 
 ;
 "use strict";
@@ -128,6 +131,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * CSS Units
+     * @see https://mol.hyoo.ru/#!section=docs/=xwq9q5_f966fg
+     */
     class $mol_style_unit extends $mol_decor {
         literal;
         constructor(value, literal) {
@@ -174,6 +181,10 @@ var $;
 var $;
 (function ($) {
     const { per } = $mol_style_unit;
+    /**
+     * CSS Functions
+     * @see https://mol.hyoo.ru/#!section=docs/=xwq9q5_f966fg
+     */
     class $mol_style_func extends $mol_decor {
         name;
         constructor(name, value) {
@@ -268,6 +279,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Create record of CSS variables. */
     function $mol_style_prop(prefix, keys) {
         const record = keys.reduce((rec, key) => {
             rec[key] = $mol_style_func.vary(`--${prefix}_${key}`);
@@ -282,6 +294,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Theme css variables
+     * @see https://mol.hyoo.ru/#!section=demos/demo=mol_textarea_demo
+     */
     $.$mol_theme = $mol_style_prop('mol_theme', [
         'back',
         'hover',
@@ -310,11 +326,18 @@ var $;
 
 ;
 "use strict";
+// namespace $ {
+// 	$mol_style_attach( '$mol_theme_lights', `:root { --mol_theme_back: oklch( ${ $$.$mol_lights() ? 92 : 20 }% .01 var(--mol_theme_hue) ) }` )
+// }
 
 ;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Gap in CSS
+     * @see https://page.hyoo.ru/#!=msdb74_bm7nsq
+     */
     $.$mol_gap = $mol_style_prop('mol_gap', [
         'page',
         'block',
@@ -446,6 +469,12 @@ var $;
         createDocumentFragment: () => $mol_dom_context.document.createDocumentFragment(),
     };
     $.$mol_jsx_frag = '';
+    /**
+     * JSX adapter that makes DOM tree.
+     * Generates global unique ids for every DOM-element by components tree with ids.
+     * Ensures all local ids are unique.
+     * Can reuse an existing nodes by GUIDs when used inside [`mol_jsx_attach`](https://github.com/hyoo-ru/mam_mol/tree/master/jsx/attach).
+     */
     function $mol_jsx(Elem, props, ...childNodes) {
         const id = props && props.id || '';
         const guid = id ? $.$mol_jsx_prefix ? $.$mol_jsx_prefix + '/' + id : id : $.$mol_jsx_prefix;
@@ -570,6 +599,11 @@ var $;
 var $;
 (function ($) {
     const instances = new WeakSet();
+    /**
+     * Proxy that delegates all to lazy returned target.
+     *
+     * 	$mol_delegate( Array.prototype , ()=> fetch_array() )
+     */
     function $mol_delegate(proto, target) {
         const proxy = new Proxy(proto, {
             get: (_, field) => {
@@ -663,7 +697,7 @@ var $;
 var $;
 (function ($) {
     function $mol_fail_hidden(error) {
-        throw error;
+        throw error; /// Use 'Never Pause Here' breakpoint in DevTools or simply blackbox this script
     }
     $.$mol_fail_hidden = $mol_fail_hidden;
 })($ || ($ = {}));
@@ -723,6 +757,9 @@ var $;
         [Symbol.dispose]() {
             this.destructor();
         }
+        //[ Symbol.toPrimitive ]( hint: string ) {
+        //	return hint === 'number' ? this.valueOf() : this.toString()
+        //}
         toString() {
             return this[Symbol.toStringTag] || this.constructor.name + '<>';
         }
@@ -754,6 +791,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Generates unique identifier. */
     function $mol_guid(length = 8, exists = () => false) {
         for (;;) {
             let id = Math.random().toString(36).substring(2, length + 2).toUpperCase();
@@ -769,11 +807,16 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Special status statuses. */
     let $mol_wire_cursor;
     (function ($mol_wire_cursor) {
+        /** Update required. */
         $mol_wire_cursor[$mol_wire_cursor["stale"] = -1] = "stale";
+        /** Some of (transitive) pub update required. */
         $mol_wire_cursor[$mol_wire_cursor["doubt"] = -2] = "doubt";
+        /** Actual state but may be dropped. */
         $mol_wire_cursor[$mol_wire_cursor["fresh"] = -3] = "fresh";
+        /** State will never be changed. */
         $mol_wire_cursor[$mol_wire_cursor["final"] = -4] = "final";
     })($mol_wire_cursor = $.$mol_wire_cursor || ($.$mol_wire_cursor = {}));
 })($ || ($ = {}));
@@ -782,6 +825,9 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Collects subscribers in compact array. 28B
+     */
     class $mol_wire_pub extends Object {
         constructor(id = `$mol_wire_pub:${$mol_guid()}`) {
             super();
@@ -789,10 +835,17 @@ var $;
         }
         [Symbol.toStringTag];
         data = [];
+        // Derived objects should be Arrays.
         static get [Symbol.species]() {
             return Array;
         }
-        sub_from = 0;
+        /**
+         * Index of first subscriber.
+         */
+        sub_from = 0; // 4B
+        /**
+         * All current subscribers.
+         */
         get sub_list() {
             const res = [];
             for (let i = this.sub_from; i < this.data.length; i += 2) {
@@ -800,14 +853,23 @@ var $;
             }
             return res;
         }
+        /**
+         * Has any subscribers or not.
+         */
         get sub_empty() {
             return this.sub_from === this.data.length;
         }
+        /**
+         * Subscribe subscriber to this publisher events and return position of subscriber that required to unsubscribe.
+         */
         sub_on(sub, pub_pos) {
             const pos = this.data.length;
             this.data.push(sub, pub_pos);
             return pos;
         }
+        /**
+         * Unsubscribe subscriber from this publisher events by subscriber position provided by `on(pub)`.
+         */
         sub_off(sub_pos) {
             if (!(sub_pos < this.data.length)) {
                 $mol_fail(new Error(`Wrong pos ${sub_pos}`));
@@ -820,21 +882,39 @@ var $;
             if (end === this.sub_from)
                 this.reap();
         }
+        /**
+         * Called when last sub was unsubscribed.
+         **/
         reap() { }
+        /**
+         * Autowire this publisher with current subscriber.
+         **/
         promote() {
             $mol_wire_auto()?.track_next(this);
         }
+        /**
+         * Enforce actualization. Should not throw errors.
+         */
         fresh() { }
+        /**
+         * Allow to put data to caches in the subtree.
+         */
         complete() { }
         get incompleted() {
             return false;
         }
+        /**
+         * Notify subscribers about self changes.
+         */
         emit(quant = $mol_wire_cursor.stale) {
             for (let i = this.sub_from; i < this.data.length; i += 2) {
                 ;
                 this.data[i].absorb(quant, this.data[i + 1]);
             }
         }
+        /**
+         * Moves peer from one position to another. Doesn't clear data at old position!
+         */
         peer_move(from_pos, to_pos) {
             const peer = this.data[from_pos];
             const self_pos = this.data[from_pos + 1];
@@ -842,6 +922,9 @@ var $;
             this.data[to_pos + 1] = self_pos;
             peer.peer_repos(self_pos, to_pos);
         }
+        /**
+         * Updates self position in the peer.
+         */
         peer_repos(peer_pos, self_pos) {
             this.data[peer_pos + 1] = self_pos;
         }
@@ -857,10 +940,16 @@ var $;
 var $;
 (function ($) {
     $.$mol_wire_auto_sub = null;
+    /**
+     * When fulfilled, all publishers are promoted to this subscriber on access to its.
+     */
     function $mol_wire_auto(next = $.$mol_wire_auto_sub) {
         return $.$mol_wire_auto_sub = next;
     }
     $.$mol_wire_auto = $mol_wire_auto;
+    /**
+     * Affection queue. Used to prevent accidental stack overflow on emit.
+     */
     $.$mol_wire_affected = [];
 })($ || ($ = {}));
 
@@ -868,6 +957,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    // https://docs.google.com/document/d/1FTascZXT9cxfetuPRT2eXPQKXui4nWFivUnS_335T3U/preview#
     $['devtoolsFormatters'] ||= [];
     function $mol_dev_format_register(config) {
         $['devtoolsFormatters'].push(config);
@@ -919,6 +1009,7 @@ var $;
                 return false;
             if (!val)
                 return false;
+            // if( Error.isError( val ) ) true
             if (val[$.$mol_dev_format_body])
                 return true;
             return false;
@@ -936,12 +1027,16 @@ var $;
                     return $.$mol_dev_format_accent($mol_dev_format_native(val), '💨', $mol_dev_format_native(error), '');
                 }
             }
+            // if( Error.isError( val ) ) {
+            // 	return $mol_dev_format_native( val )
+            // }
             return null;
         },
     });
     function $mol_dev_format_native(obj) {
         if (typeof obj === 'undefined')
             return $.$mol_dev_format_shade('undefined');
+        // if( ![ 'object', 'function', 'symbol' ].includes( typeof obj )  ) return obj
         return [
             'object',
             {
@@ -999,6 +1094,9 @@ var $;
         'margin-left': '13px'
     });
     class Stack extends Array {
+        // [ Symbol.toPrimitive ]() {
+        // 	return this.toString()
+        // }
         toString() {
             return this.join('\n');
         }
@@ -1021,6 +1119,7 @@ var $;
             this.method = call.getMethodName() ?? '';
             if (this.method === this.function)
                 this.method = '';
+            // const func = c.getFunction()
             this.pos = [call.getEnclosingLineNumber() ?? 0, call.getEnclosingColumnNumber() ?? 0];
             this.eval = call.getEvalOrigin() ?? '';
             this.source = call.getScriptNameOrSourceURL() ?? '';
@@ -1067,9 +1166,16 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Publisher that can auto collect other publishers. 32B
+     *
+     * 	P1 P2 P3 P4 S1 S2 S3
+     * 	^           ^
+     * 	pubs_from   subs_from
+     */
     class $mol_wire_pub_sub extends $mol_wire_pub {
-        pub_from = 0;
-        cursor = $mol_wire_cursor.stale;
+        pub_from = 0; // 4B
+        cursor = $mol_wire_cursor.stale; // 4B
         get temp() {
             return false;
         }
@@ -1187,10 +1293,27 @@ var $;
                 return;
             this.cursor = quant;
             this.emit($mol_wire_cursor.doubt);
+            // if( pos >= 0 && pos < this.sub_from - 2 ) {
+            // 	const pub = this.data[ pos ] as $mol_wire_pub
+            // 	if( pub instanceof $mol_wire_task ) return
+            // 	for(
+            // 		let cursor = this.pub_from;
+            // 		cursor < this.sub_from;
+            // 		cursor += 2
+            // 	) {
+            // 		const pub = this.data[ cursor ] as $mol_wire_pub
+            // 		if( pub instanceof $mol_wire_task ) {
+            // 			pub.destructor()
+            // 		}
+            // 	}
+            // }
         }
         [$mol_dev_format_head]() {
             return $mol_dev_format_native(this);
         }
+        /**
+         * Is subscribed to any publisher or not.
+         */
         get pub_empty() {
             return this.sub_from === this.pub_from;
         }
@@ -1246,6 +1369,13 @@ var $;
 var $;
 (function ($) {
     const wrappers = new WeakMap();
+    /**
+     * Suspendable task with support both sync/async api.
+     *
+     * 	A1 A2 A3 A4 P1 P2 P3 P4 S1 S2 S3
+     * 	^           ^           ^
+     * 	args_from   pubs_from   subs_from
+     **/
     class $mol_wire_fiber extends $mol_wire_pub_sub {
         task;
         host;
@@ -1266,6 +1396,7 @@ var $;
             });
         }
         static sync() {
+            // Sync whole fiber graph
             while (this.planning.size) {
                 for (const fiber of this.planning) {
                     this.planning.delete(fiber);
@@ -1276,6 +1407,7 @@ var $;
                     fiber.fresh();
                 }
             }
+            // Collect garbage
             while (this.reaping.size) {
                 const fibers = this.reaping;
                 this.reaping = new Set;
@@ -1427,6 +1559,10 @@ var $;
             this.cursor = $mol_wire_cursor.stale;
             this.fresh();
         }
+        /**
+         * Synchronous execution. Throws Promise when waits async task (SuspenseAPI provider).
+         * Should be called inside SuspenseAPI consumer (ie fiber).
+         */
         sync() {
             if (!$mol_wire_fiber.warm) {
                 return this.result();
@@ -1441,6 +1577,10 @@ var $;
             }
             return this.cache;
         }
+        /**
+         * Asynchronous execution.
+         * It's SuspenseAPI consumer. So SuspenseAPI providers can be called inside.
+         */
         async async_raw() {
             while (true) {
                 this.fresh();
@@ -1453,6 +1593,7 @@ var $;
                 if (!$mol_promise_like(this.cache))
                     return this.cache;
                 if (this.cursor === $mol_wire_cursor.final) {
+                    // never ends on destructed fiber
                     await new Promise(() => { });
                 }
             }
@@ -1500,6 +1641,7 @@ var $;
 var $;
 (function ($) {
     const TypedArray = Object.getPrototypeOf(Uint8Array);
+    /** Returns string key for any value. */
     function $mol_key(value) {
         primitives: {
             if (typeof value === 'bigint')
@@ -1507,9 +1649,9 @@ var $;
             if (typeof value === 'symbol')
                 return `Symbol(${value.description})`;
             if (!value)
-                return JSON.stringify(value);
+                return JSON.stringify(value); // 0, null, ""
             if (typeof value !== 'object' && typeof value !== 'function')
-                return JSON.stringify(value);
+                return JSON.stringify(value); // boolean, number, string
         }
         caching: {
             let key = $mol_key_store.get(value);
@@ -1593,6 +1735,10 @@ var $;
 var $;
 (function ($) {
     $.$mol_compare_deep_cache = new WeakMap();
+    /**
+     * Deeply compares two values. Returns true if equal.
+     * Define `Symbol.toPrimitive` to customize.
+     */
     function $mol_compare_deep(left, right) {
         if (Object.is(left, right))
             return true;
@@ -1732,6 +1878,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Log begin of collapsed group only when some logged inside, returns func to close group */
     function $mol_log3_area_lazy(event) {
         const self = this.$;
         const stack = self.$mol_log3_stack;
@@ -1788,6 +1935,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** One-shot fiber */
     class $mol_wire_task extends $mol_wire_fiber {
         static getter(task) {
             return function $mol_wire_task_get(host, args) {
@@ -1813,6 +1961,7 @@ var $;
                 }
                 const key = (host?.[Symbol.toStringTag] ?? host) + ('.' + task.name + '<#>');
                 const next = new $mol_wire_task(key, task, host, args);
+                // Disabled because non-idempotency is required for try-catch
                 if (existen?.temp) {
                     $$.$mol_log3_warn({
                         place: '$mol_wire_task',
@@ -1845,7 +1994,7 @@ var $;
                     try {
                         next[Symbol.toStringTag] = this[Symbol.toStringTag];
                     }
-                    catch {
+                    catch { // Promises throw in strict mode
                         Object.defineProperty(next, Symbol.toStringTag, { value: this[Symbol.toStringTag] });
                     }
                 }
@@ -1870,6 +2019,9 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Decorates method to fiber to ensure it is executed only once inside other fiber.
+     */
     function $mol_wire_method(host, field, descr) {
         if (!descr)
             descr = Reflect.getOwnPropertyDescriptor(host, field);
@@ -1939,6 +2091,7 @@ var $;
     let error;
     let result;
     let handler;
+    /// Debugger will stop at exceptions but exception will be returned normally
     function $mol_try_web(handler2) {
         handler = handler2;
         error = undefined;
@@ -1979,6 +2132,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Long-living fiber. */
     class $mol_wire_atom extends $mol_wire_fiber {
         static solo(host, task) {
             const field = task.name + '()';
@@ -2029,7 +2183,11 @@ var $;
             }
             $mol_wire_atom.watching.add(this);
         }
+        /**
+         * Update atom value through another temp fiber.
+         */
         resync(args) {
+            // enforce pulling tasks abort
             for (let cursor = this.pub_from; cursor < this.sub_from; cursor += 2) {
                 const pub = this.data[cursor];
                 if (pub && pub instanceof $mol_wire_task) {
@@ -2090,7 +2248,7 @@ var $;
                     try {
                         next[Symbol.toStringTag] = this[Symbol.toStringTag];
                     }
-                    catch {
+                    catch { // Promises throw in strict mode
                         Object.defineProperty(next, Symbol.toStringTag, { value: this[Symbol.toStringTag] });
                     }
                 }
@@ -2118,6 +2276,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Decorates solo object channel to [mol_wire_atom](../atom/atom.ts). */
     function $mol_wire_solo(host, field, descr) {
         if (!descr)
             descr = Reflect.getOwnPropertyDescriptor(host, field);
@@ -2156,6 +2315,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Reactive memoizing multiplexed property decorator. */
     function $mol_wire_plex(host, field, descr) {
         if (!descr)
             descr = Reflect.getOwnPropertyDescriptor(host, field);
@@ -2194,7 +2354,25 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Reactive memoizing solo property decorator from [mol_wire](../wire/README.md)
+     * @example
+     * '@' $mol_mem
+     * name(next?: string) {
+     * 	return next ?? 'default'
+     * }
+     * @see https://mol.hyoo.ru/#!section=docs/=qxmh6t_sinbmb
+     */
     $.$mol_mem = $mol_wire_solo;
+    /**
+     * Reactive memoizing multiplexed property decorator [mol_wire](../wire/README.md)
+     * @example
+     * '@' $mol_mem_key
+     * name(id: number, next?: string) {
+     *  return next ?? 'default'
+     * }
+     * @see https://mol.hyoo.ru/#!section=docs/=qxmh6t_sinbmb
+     */
     $.$mol_mem_key = $mol_wire_plex;
 })($ || ($ = {}));
 
@@ -2283,6 +2461,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+    * Key names code for hotkey
+    * @see [mol_hotkey](../../hotkey/hotkey.view.ts)
+    */
     let $mol_keyboard_code;
     (function ($mol_keyboard_code) {
         $mol_keyboard_code[$mol_keyboard_code["backspace"] = 8] = "backspace";
@@ -2531,6 +2713,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Run code without state changes */
     function $mol_wire_probe(task, def) {
         const warm = $mol_wire_fiber.warm;
         try {
@@ -2551,6 +2734,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Real-time refresh current atom.
+     * Don't use if possible. May reduce performance.
+     */
     function $mol_wire_watch() {
         const atom = $mol_wire_auto();
         if (atom instanceof $mol_wire_atom) {
@@ -2567,6 +2754,11 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Returns closure that returns constant value.
+     * @example
+     * const rnd = $mol_const( Math.random() )
+     */
     function $mol_const(value) {
         const getter = (() => value);
         getter['()'] = value;
@@ -2581,6 +2773,9 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Disable reaping of current subscriber
+     */
     function $mol_wire_solid() {
         let current = $mol_wire_auto();
         if (current.temp)
@@ -2684,6 +2879,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Convert a pseudo-synchronous (Suspense API) API to an explicit asynchronous one (for integrating with external systems). */
     function $mol_wire_async(obj) {
         let fiber;
         const temp = $mol_wire_task.getter(obj);
@@ -2743,6 +2939,7 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
 var $;
 (function ($) {
     function $mol_view_visible_width() {
@@ -2757,6 +2954,11 @@ var $;
         return suffix;
     }
     $.$mol_view_state_key = $mol_view_state_key;
+    /**
+     * The base class for all visual components. It provides the infrastructure for reactive lazy rendering, handling exceptions.
+     * @see https://mol.hyoo.ru/#!section=docs/=vv2nig_s5zr0f
+     */
+    /// Reactive statefull lazy ViewModel
     class $mol_view extends $mol_object {
         static Root(id) {
             return new this;
@@ -2821,16 +3023,22 @@ var $;
         state_key(suffix = '') {
             return this.$.$mol_view_state_key(suffix);
         }
+        /// Name of element that created when element not found in DOM
         dom_name() {
             return $mol_dom_qname(this.constructor.toString()) || 'div';
         }
+        /// NameSpace of element that created when element not found in DOM
         dom_name_space() { return 'http://www.w3.org/1999/xhtml'; }
+        /// Raw child views
         sub() {
             return [];
         }
+        /// Visible sub views with defined ambient context
+        /// Render all by default
         sub_visible() {
             return this.sub();
         }
+        /// Minimal width that used for lazy rendering
         minimal_width() {
             let min = 0;
             try {
@@ -2852,6 +3060,7 @@ var $;
         maximal_width() {
             return this.minimal_width();
         }
+        /// Minimal height that used for lazy rendering
         minimal_height() {
             let min = 0;
             try {
@@ -2871,11 +3080,11 @@ var $;
         view_rect() {
             if ($mol_wire_probe(() => this.view_rect()) === undefined) {
                 $mol_wire_watch();
-                return null;
+                return null; // don't touch DOM to prevent instant reflow
             }
             else {
                 const { width, height, left, right, top, bottom } = this.dom_node().getBoundingClientRect();
-                return { width, height, left, right, top, bottom };
+                return { width, height, left, right, top, bottom }; // pick to optimize compare
             }
         }
         dom_id() {
@@ -3065,6 +3274,7 @@ var $;
         [$mol_dev_format_head]() {
             return $mol_dev_format_span({}, $mol_dev_format_native(this));
         }
+        /** Deep search view by predicate. */
         *view_find(check, path = []) {
             if (path.length === 0 && check(this))
                 return yield [this];
@@ -3093,6 +3303,7 @@ var $;
                 $mol_fail_log(error);
             }
         }
+        /** Renders path of views to DOM. */
         force_render(path) {
             const kids = this.sub();
             const index = kids.findIndex(item => {
@@ -3107,6 +3318,7 @@ var $;
                 kids[index].force_render(path);
             }
         }
+        /** Renders view to DOM and scroll to it. */
         ensure_visible(view, align = "start") {
             const path = this.view_find(v => v === view).next().value;
             this.force_render(new Set(path));
@@ -3121,6 +3333,9 @@ var $;
             const win = this.$.$mol_dom_context;
             if (win.parent !== win.self && !win.document.hasFocus())
                 return;
+            // new this.$.$mol_after_frame( ()=> {
+            // 	this.dom_node().scrollIntoView({ block: 'start', inline: 'nearest' })
+            // } )
             new this.$.$mol_after_timeout(0, () => {
                 this.focused(true);
             });
@@ -3208,6 +3423,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Plugin is component without its own DOM element, but instead uses the owner DOM element */
     class $mol_plugin extends $mol_view {
         dom_node_external(next) {
             return next ?? $mol_owning_get(this).host.dom_node();
@@ -3426,6 +3642,11 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * CSS in TS.
+     * Statically typed CSS style sheets. Following samples show which CSS code are generated from TS code.
+     * @see https://mol.hyoo.ru/#!section=docs/=xwq9q5_f966fg
+     */
     function $mol_style_define(Component, config) {
         return $mol_style_attach(Component.name, $mol_style_sheet(Component, config));
     }
@@ -3435,12 +3656,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Scrolling pane.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_scroll_demo
+         */
         class $mol_scroll extends $.$mol_scroll {
             scroll_top(next, cache) {
                 const el = this.dom_node();
@@ -3490,6 +3716,7 @@ var $;
                 direction: 'column',
                 grow: 1,
                 shrink: 1,
+                // basis: 0,
             },
             outline: 'none',
             align: {
@@ -3507,6 +3734,7 @@ var $;
             contain: 'content',
             '>': {
                 $mol_view: {
+                    // transform: 'translateZ(0)', // enforce gpu scroll in all agents
                     gridArea: '1/1',
                 },
             },
@@ -3576,6 +3804,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Z-index values for layers
+     * https://page.hyoo.ru/#!=xthcpx_wqmiba
+     */
     $.$mol_layer = $mol_style_prop('mol_layer', [
         'hover',
         'focus',
@@ -3598,12 +3830,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Root component for adaptivity to various screen sizes. Implements booklet UX.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_book2_demo
+         */
         class $mol_book2 extends $.$mol_book2 {
             pages_deep() {
                 let result = [];
@@ -3646,6 +3883,7 @@ var $;
                             left: p.offsetLeft + p.offsetWidth - b.offsetWidth,
                             behavior: 'smooth',
                         });
+                        // new this.$.$mol_after_timeout( 1000, ()=> n.bring() )
                     });
                     break;
                 }
@@ -3700,6 +3938,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Decorates method to fiber to ensure it is executed only once inside other fiber from [mol_wire](../wire/README.md)
+     * @see https://mol.hyoo.ru/#!section=docs/=1fcpsq_1wh0h2
+     */
     $.$mol_action = $mol_wire_method;
 })($ || ($ = {}));
 
@@ -3707,6 +3949,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** State of arguments like `#foo=bar/xxx` or `?foo=bar&xxx` */
     class $mol_state_arg extends $mol_object {
         prefix;
         static href(next) {
@@ -3899,6 +4142,10 @@ var $;
         props[field] = get_val;
         return get_val;
     }
+    /**
+     * Convert asynchronous (promise-based) API to synchronous by wrapping function and method calls in a fiber.
+     * @see https://mol.hyoo.ru/#!section=docs/=1fcpsq_1wh0h2
+     */
     function $mol_wire_sync(obj) {
         return new Proxy(obj, {
             get(obj, field) {
@@ -4071,6 +4318,10 @@ var $;
             return false;
         return null;
     }
+    /**
+     * Switcher between light/dark themes (usually for `mol_theme_auto` plugin).
+     * @see https://mol.hyoo.ru/#!section=demos/demo=mol_lights_demo
+     */
     function $mol_lights(next) {
         const arg = parse(this.$mol_state_arg.value('mol_lights'));
         const base = this.$mol_media.match('(prefers-color-scheme: light)');
@@ -4093,12 +4344,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * The [plugin](../../plugin/readme.md) which defines theme based on [mol_lights](../../lights/readme.md).
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_lights_demo
+         */
         class $mol_theme_auto extends $.$mol_theme_auto {
             theme() {
                 return this.$.$mol_lights() ? this.light() : this.dark();
@@ -4131,6 +4387,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_button) = class $mol_button extends ($.$mol_view) {
@@ -4220,12 +4477,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Simple button.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_button_demo
+         */
         class $mol_button extends $.$mol_button {
             disabled() {
                 return !this.enabled();
@@ -4241,6 +4503,7 @@ var $;
                     this.status([null]);
                 }
                 catch (error) {
+                    // Calling actions from catch section, if throwing promise breaks idempotency
                     Promise.resolve().then(() => this.status([error]));
                     $mol_fail_hidden(error);
                 }
@@ -4310,6 +4573,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_button_minor) = class $mol_button_minor extends ($.$mol_button_typed) {};
 
@@ -4323,6 +4587,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_check) = class $mol_check extends ($.$mol_button_minor) {
@@ -4404,12 +4669,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Checkbox UI component. See Variants for more concrete implementations.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_check_box_demo
+         */
         class $mol_check extends $.$mol_check {
             click(next) {
                 const event = next ? $mol_dom_event.wrap(next) : null;
@@ -4449,6 +4719,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_svg) = class $mol_svg extends ($.$mol_view) {
 		dom_name(){
@@ -4473,6 +4744,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** State of time moment */
     class $mol_state_time extends $mol_object {
         static task(precision, reset) {
             if (precision) {
@@ -4499,12 +4771,14 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /** Base SVG component to display SVG images or icons. */
         class $mol_svg extends $.$mol_svg {
             computed_style() {
                 const win = this.$.$mol_dom_context;
@@ -4564,6 +4838,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_svg_path) = class $mol_svg_path extends ($.$mol_svg) {
 		geometry(){
@@ -4580,6 +4855,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_icon) = class $mol_icon extends ($.$mol_svg_root) {
@@ -4617,6 +4893,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_icon_brightness_4) = class $mol_icon_brightness_4 extends ($.$mol_icon) {
 		path(){
@@ -4627,6 +4904,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 "use strict";
@@ -4701,7 +4979,8 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    let buf = new Uint8Array(2 ** 12);
+    let buf = new Uint8Array(2 ** 12); // 4KB Mem Page
+    /** Temporary buffer. Recursive usage isn't supported. */
     function $mol_charset_buffer(size) {
         if (buf.byteLength < size)
             buf = new Uint8Array(size);
@@ -4723,19 +5002,19 @@ var $;
         let pos = from;
         for (let i = 0; i < str.length; i++) {
             let code = str.charCodeAt(i);
-            if (code < 0x80) {
+            if (code < 0x80) { // ASCII - 1 octet
                 buf[pos++] = code;
             }
-            else if (code < 0x800) {
+            else if (code < 0x800) { // 2 octet
                 buf[pos++] = 0xc0 | (code >> 6);
                 buf[pos++] = 0x80 | (code & 0x3f);
             }
-            else if (code < 0xd800 || code >= 0xe000) {
+            else if (code < 0xd800 || code >= 0xe000) { // 3 octet
                 buf[pos++] = 0xe0 | (code >> 12);
                 buf[pos++] = 0x80 | ((code >> 6) & 0x3f);
                 buf[pos++] = 0x80 | (code & 0x3f);
             }
-            else {
+            else { // surrogate pair
                 const point = ((code - 0xd800) << 10) + str.charCodeAt(++i) + 0x2400;
                 buf[pos++] = 0xf0 | (point >> 18);
                 buf[pos++] = 0x80 | ((point >> 12) & 0x3f);
@@ -4817,12 +5096,24 @@ var $;
         root() {
             const path = this.path();
             const base = this.constructor.base;
+            // Если путь выше или равен base или если parent такойже как и this - считаем это корнем
             return base.startsWith(path) || this == this.parent();
         }
         stat(next, virt) {
             const path = this.path();
             const parent = this.parent();
+            // Отслеживать проверку наличия родительской папки не стоит до корня диска
+            // Лучше ограничить mam-ом
             if (!this.root()) {
+                /*
+                Если parent папка удалилась, надо ресетнуть все объекты в ней на любой глубине.
+                Например, rm -rf с последующим git pull: parent папка может удалиться, потом создасться,
+                а текущая папка успеет только удалиться до момента выполнения stat.
+                Поэтому parent.exists() не запустит перевычисления, нужна именно parent.version()
+
+                Однако, parent.version() меняется не только при удалении, будет ложное срабатывание
+                С этим придется мириться, красивого решения пока нет.
+                */
                 parent.version();
             }
             parent.watcher();
@@ -4836,9 +5127,19 @@ var $;
             if (/([\/\\]\.|___$)/.test(path))
                 return;
             const file = this.relative(path.at(-1) === '/' ? path.slice(0, -1) : path);
+            // console.log(type, path)
+            // add (change): добавился файл - у parent надо обновить список sub, если он был заюзан
+            // change, unlink (rename): обновился или удалился файл - ресетим
+            // addDir (change), добавилась папка, у parent обновляем список директорий в sub
+            // дочерние ресетим
+            // unlinkDir (rename), удалилась папка, ресетим ее
+            // stat у всех дочерних обновится сам, т.к. связан с parent.version()
             this.changed.add(file);
             if (!this.watching)
                 return;
+            // throttle, пока события поступают не сбрасываем.
+            // аналог awaitWriteFinish из chokidar
+            // интервалы между change-сообщениями модифицируемого файла должны быть меньше watch_debounce
             this.frame?.destructor();
             this.frame = new this.$.$mol_after_timeout(this.watch_debounce(), () => {
                 if (!this.watching)
@@ -4847,8 +5148,16 @@ var $;
                 $mol_wire_async(this).flush();
             });
         }
+        /**
+         * Должно быть больше, чем время между событиями от вотчера при записи внешним процессом.
+         * Иначе запуск ресетов паралельно с изменением может привести к неконсистентности.
+         */
         static watch_debounce() { return 500; }
         static flush() {
+            // Пока flush работает, вотчер сюда не заходит, но может добавлять новые изменения
+            // на каждом перезапуске они применятся
+            // Пока run выполняется, изменения накапливаются, в конце run вызывается flush
+            // Пока применяются изменения, run должен ожидать конца flush
             for (const file of this.changed) {
                 const parent = file.parent();
                 try {
@@ -4863,16 +5172,32 @@ var $;
             }
             this.changed.clear();
             this.watching = true;
+            // this.watch_wd?.destructor()
+            // this.watch_wd = null
         }
         static watching = true;
         static lock = new $mol_lock;
         static watch_off(path) {
             this.watching = false;
+            // run должен ожидать конца flush
             this.flush();
             this.watching = false;
+            /*
+            watch запаздывает и событие может прилететь через 3 сек после окончания сайд эффекта
+            поэтому добавляем папку, которую меняет side_effect
+            Когда дойдет до выполнения flush, он ресетнет ее
+            
+            Иначе будут лишние срабатывания
+            Например, удалили hyoo/board, watch ресетит и exists начинает отдавать false, срабатывает git clone
+            Сразу после него событие addDir еще не успело прийти,
+            на следующем перезапуске вызывается git pull, т.к.
+            с точки зрения реактивной системы hyoo/board еще не существует.
+            */
             this.changed.add(this.absolute(path));
         }
+        // protected static watch_wd = null as null | $mol_after_timeout
         static unwatched(side_effect, affected_dir) {
+            // ждем, пока выполнится предыдущий unwatched
             const unlock = this.lock.grab();
             this.watch_off(affected_dir);
             try {
@@ -4895,6 +5220,7 @@ var $;
         modified() { return this.stat()?.mtime ?? null; }
         version() {
             const next = this.stat()?.mtime.getTime().toString(36).toUpperCase() ?? '';
+            // console.log('version', next, this.path())
             return next;
         }
         info(path) { return null; }
@@ -4912,15 +5238,19 @@ var $;
         writable(opts) {
             return new WritableStream;
         }
+        // open( ... modes: readonly $mol_file_mode[] ) { return 0 }
         buffer(next) {
+            // Если версия пустая - возвращаем пустой буфер
             let readed = new Uint8Array();
             if (next === undefined) {
+                // Если меняется версия файла, буфер надо перечитать
                 if (this.version())
                     readed = this.read();
             }
             const prev = $mol_mem_cached(() => this.buffer());
             const changed = prev === undefined || !$mol_compare_array(prev, next ?? readed);
             if (prev !== undefined && changed) {
+                // Логируем, если повторно читаем/пишем и буфер поменялся
                 this.$.$mol_log3_rise({
                     place: `$mol_file_node.buffer()`,
                     message: 'Changed',
@@ -4929,6 +5259,11 @@ var $;
             }
             if (next === undefined)
                 return changed ? readed : prev;
+            // Если буфер при записи не поменялся и файл не удаляли перед этим - не записываем новую версию.
+            // Если записывать, это приведет к смене mtime и вотчер снова триггернется, даже если содержимое файла не поменялось.
+            // В этом алгоритме есть изъян.
+            // Если файл записали, потом отключили вотчер, кто-то из вне его поменял, потом включили вотчер, снова записали тот же буфер,
+            // то буфер не запишется на диск, т.к. кэш не консистентен с диском.
             if (!changed && this.exists())
                 return prev;
             this.parent().exists(true);
@@ -4964,13 +5299,21 @@ var $;
             }
             return null;
         }
+        // static watch_root = ''
+        // static watcher_warned = false
         watcher() {
+            // const constructor = this.constructor as typeof $mol_file_base
+            // if (! constructor.watcher_warned) {
+            // 	console.warn(`${constructor}.watcher() not implemented`)
+            // 	constructor.watcher_warned = true
+            // }
             return {
                 destructor() { }
             };
         }
         exists(next) {
             const exists = Boolean(this.stat());
+            // console.log('exists current', exists, 'next', next, this.path())
             if (next === undefined)
                 return exists;
             if (next === exists)
@@ -4996,6 +5339,10 @@ var $;
             return match ? match[1].substring(1) : '';
         }
         text(next, virt) {
+            // Если записываем text, и вотчер ресетнул записанный файл,
+            // то надо снова его обновить, вызвать логику, которая делала пуш в text.
+            // Например файл удалили, потом снова создали, версия поменялась - перезаписываем
+            // Если использовать version, то вновь созданный файл, через вотчер запустит свое пересоздание
             if (next !== undefined)
                 this.exists();
             return this.text_int(next, virt);
@@ -5020,6 +5367,7 @@ var $;
             if (this.type() !== 'dir')
                 return [];
             this.version();
+            // Если дочерний file удалился, список надо обновить
             return this.kids().filter(file => file.exists());
         }
         resolve(path) {
@@ -5229,6 +5577,7 @@ var $;
                     ])
                 ].map(frame_normalize).join('\n')
             });
+            // в nodejs, что б не дублировалось cause в консоли
             Object.defineProperty(this, 'cause', {
                 get: () => cause
             });
@@ -5381,6 +5730,7 @@ var $;
             });
             return Object.assign(promise, {
                 destructor: () => {
+                    // Abort of done request breaks response parsing
                     if (!done && !controller.signal.aborted)
                         controller.abort();
                 },
@@ -5458,10 +5808,12 @@ var $;
             let res = this.path() + '/' + path;
             while (true) {
                 let prev = res;
+                // foo/../ -> /
                 res = res.replace(/\/[^\/.]+\/\.\.\//, '/');
                 if (prev === res)
                     break;
             }
+            // http://localhost/.. -> http://localhost
             res = res.replace(/\/\.\.\/?$/, '');
             if (res === this.path())
                 return this;
@@ -5577,8 +5929,13 @@ var $;
 (function ($) {
     class $mol_file_web extends $mol_file_webdav {
         static base = new URL('.', $mol_dom_context.document?.currentScript?.['src'] ?? globalThis.location.href).toString();
+        // Вотчер выключен, версия всегда будет одна
+        // Если пустая строка - будет считаться, что файла нет
         version() { return '1'; }
+        // Ворнинги подавляем, иначе в каждом приложении, загружающим локали, будет ворнинг
+        // override watcher() { return { destructor() {} }}
         info() {
+            // Директории не поддерживаются
             try {
                 const response = this.fetch({ method: 'HEAD' });
                 const headers = response.headers();
@@ -5612,6 +5969,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Localisation in $mol framework
+     * @see https://mol.hyoo.ru/#!section=docs/=s5aqnb_odub8l
+     */
     class $mol_locale extends $mol_object {
         static lang_default() {
             return 'en';
@@ -5701,12 +6062,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Toggle for Switcher between light/dark themes (usually for `mol_theme_auto` plugin).
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_lights_demo
+         */
         class $mol_lights_toggle extends $.$mol_lights_toggle {
             lights(next) {
                 return this.$.$mol_lights(next);
@@ -5788,12 +6154,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Dynamic hyperlink. It can add, change or remove parameters. A link that leads to the current page has [mol_link_current] attribute set to true.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_link_demo
+         */
         class $mol_link extends $.$mol_link {
             uri_toggle() {
                 return this.current() ? this.uri_off() : this.uri();
@@ -5927,6 +6298,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_icon_script_text) = class $mol_icon_script_text extends ($.$mol_icon) {
 		path(){
@@ -5937,6 +6309,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_link_source) = class $mol_link_source extends ($.$mol_link) {
@@ -5956,6 +6329,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_list) = class $mol_list extends ($.$mol_view) {
@@ -6029,12 +6403,18 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * The list of rows with lazy/virtual rendering support based on `minimal_height` of rows.
+         * `mol_list` should contain only components that inherits `mol_view`. You should not place raw strings or numbers in list.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_list_demo
+         */
         class $mol_list extends $.$mol_list {
             sub() {
                 const rows = this.rows();
@@ -6076,9 +6456,11 @@ var $;
                 const gap_after = $mol_mem_cached(() => this.gap_after()) ?? 0;
                 let top = Math.ceil(rect?.top ?? 0) + gap_before;
                 let bottom = Math.ceil(rect?.bottom ?? 0) - gap_after;
+                // change nothing when already covers all limits
                 if (top <= limit_top && bottom >= limit_bottom) {
                     return [min2, max2];
                 }
+                // jumps when fully over limits
                 if (anchoring && ((bottom < limit_top) || (top > limit_bottom))) {
                     min = 0;
                     top = Math.ceil(rect?.top ?? 0);
@@ -6095,18 +6477,22 @@ var $;
                 }
                 let top2 = top;
                 let bottom2 = bottom;
+                // force recalc min when overlapse top limit
                 if (anchoring && (top < limit_top) && (bottom < limit_bottom) && (max < kids.length)) {
                     min2 = max;
                     top2 = bottom;
                 }
+                // force recalc max when overlapse bottom limit
                 if ((bottom > limit_bottom) && (top > limit_top) && (min > 0)) {
                     max2 = min;
                     bottom2 = top;
                 }
+                // extend min to cover top limit
                 while (anchoring && ((top2 > limit_top) && (min2 > 0))) {
                     --min2;
                     top2 -= this.item_height_min(min2);
                 }
+                // extend max to cover bottom limit
                 while (bottom2 < limit_bottom && max2 < kids.length) {
                     bottom2 += this.item_height_min(max2);
                     ++max2;
@@ -6299,6 +6685,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
@@ -6319,6 +6706,8 @@ var $;
             maxHeight: per(100),
             boxSizing: 'border-box',
             color: $mol_theme.text,
+            // backdropFilter: blur( `3px` ), enforces layering
+            // zIndex: 0 ,
             ':focus': {
                 outline: 'none',
             },
@@ -6443,6 +6832,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_icon_pencil_box) = class $mol_icon_pencil_box extends ($.$mol_icon) {
 		path(){
@@ -6453,6 +6843,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_icon_pencil_box_outline) = class $mol_icon_pencil_box_outline extends ($.$mol_icon) {
@@ -6465,10 +6856,12 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
+    /** Position in any resource. */
     class $mol_span extends $mol_object2 {
         uri;
         source;
@@ -6484,13 +6877,17 @@ var $;
             this.length = length;
             this[Symbol.toStringTag] = this.uri + ('#' + this.row + ':' + this.col + '/' + this.length);
         }
+        /** Span for begin of unknown resource */
         static unknown = $mol_span.begin('?');
+        /** Makes new span for begin of resource. */
         static begin(uri, source = '') {
             return new $mol_span(uri, source, 1, 1, 0);
         }
+        /** Makes new span for end of resource. */
         static end(uri, source) {
             return new $mol_span(uri, source, 1, source.length + 1, 0);
         }
+        /** Makes new span for entire resource. */
         static entire(uri, source) {
             return new $mol_span(uri, source, 1, 1, source.length);
         }
@@ -6505,15 +6902,19 @@ var $;
                 length: this.length
             };
         }
+        /** Makes new error for this span. */
         error(message, Class = Error) {
             return new Class(`${message} (${this})`);
         }
+        /** Makes new span for same uri. */
         span(row, col, length) {
             return new $mol_span(this.uri, this.source, row, col, length);
         }
+        /** Makes new span after end of this. */
         after(length = 0) {
             return new $mol_span(this.uri, this.source, this.row, this.col + this.length, length);
         }
+        /** Makes new span between begin and end. */
         slice(begin, end = -1) {
             let len = this.length;
             if (begin < 0)
@@ -6536,6 +6937,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Syntax error with cordinates and source line snippet. */
     class $mol_error_syntax extends SyntaxError {
         reason;
         line;
@@ -6554,6 +6956,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Parses tree format from string. */
     function $mol_tree2_from_string(str, uri = '?') {
         const span = $mol_span.entire(uri, str);
         var root = $mol_tree2.list([], span);
@@ -6563,6 +6966,7 @@ var $;
             var indent = 0;
             var line_start = pos;
             row++;
+            // read indent
             while (str.length > pos && str[pos] == '\t') {
                 indent++;
                 pos++;
@@ -6571,8 +6975,10 @@ var $;
                 min_indent = indent;
             }
             indent -= min_indent;
+            // invalid tab size
             if (indent < 0 || indent >= stack.length) {
                 const sp = span.span(row, 1, pos - line_start);
+                // skip error line
                 while (str.length > pos && str[pos] != '\n') {
                     pos++;
                 }
@@ -6587,7 +6993,9 @@ var $;
             }
             stack.length = indent + 1;
             var parent = stack[indent];
+            // parse types
             while (str.length > pos && str[pos] != '\\' && str[pos] != '\n') {
+                // type can not contain space and tab
                 var error_start = pos;
                 while (str.length > pos && (str[pos] == ' ' || str[pos] == '\t')) {
                     pos++;
@@ -6599,6 +7007,7 @@ var $;
                     const sp = span.span(row, error_start - line_start + 1, pos - error_start);
                     this.$mol_fail(new this.$mol_error_syntax(`Wrong nodes separator`, str.substring(line_start, line_end), sp));
                 }
+                // read type
                 var type_start = pos;
                 while (str.length > pos &&
                     str[pos] != '\\' &&
@@ -6613,10 +7022,12 @@ var $;
                     parent_kids.push(next);
                     parent = next;
                 }
+                // read one space if exists
                 if (str.length > pos && str[pos] == ' ') {
                     pos++;
                 }
             }
+            // read data
             if (str.length > pos && str[pos] == '\\') {
                 var data_start = pos;
                 while (str.length > pos && str[pos] != '\n') {
@@ -6627,6 +7038,7 @@ var $;
                 parent_kids.push(next);
                 parent = next;
             }
+            // now must be end of text
             if (str.length === pos && stack.length > 0) {
                 const sp = span.span(row, pos - line_start + 1, 1);
                 this.$mol_fail(new this.$mol_error_syntax(`Unexpected EOF, LF required`, str.substring(line_start, str.length), sp));
@@ -6643,6 +7055,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Serializes tree to string in tree format. */
     function $mol_tree2_to_string(tree) {
         let output = [];
         function dump(tree, prefix = '') {
@@ -6676,12 +7089,25 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Abstract Syntax Tree with human readable serialization.
+     * Avoid direct instantiation. Use static factories instead.
+     * @see https://github.com/nin-jin/tree.d
+     */
     class $mol_tree2 extends Object {
         type;
         value;
         kids;
         span;
-        constructor(type, value, kids, span) {
+        constructor(
+        /** Type of structural node, `value` should be empty */
+        type, 
+        /** Content of data node, `type` should be empty */
+        value, 
+        /** Child nodes */
+        kids, 
+        /** Position in most far source resource */
+        span) {
             super();
             this.type = type;
             this.value = value;
@@ -6689,12 +7115,15 @@ var $;
             this.span = span;
             this[Symbol.toStringTag] = type || '\\' + value;
         }
+        /** Makes collection node. */
         static list(kids, span = $mol_span.unknown) {
             return new $mol_tree2('', '', kids, span);
         }
+        /** Makes new derived collection node. */
         list(kids) {
             return $mol_tree2.list(kids, this.span);
         }
+        /** Makes data node for any string. */
         static data(value, kids = [], span = $mol_span.unknown) {
             const chunks = value.split('\n');
             if (chunks.length > 1) {
@@ -6708,21 +7137,26 @@ var $;
             }
             return new $mol_tree2('', value, kids, span);
         }
+        /** Makes new derived data node. */
         data(value, kids = []) {
             return $mol_tree2.data(value, kids, this.span);
         }
+        /** Makes struct node. */
         static struct(type, kids = [], span = $mol_span.unknown) {
             if (/[ \n\t\\]/.test(type)) {
                 $$.$mol_fail(span.error(`Wrong type ${JSON.stringify(type)}`));
             }
             return new $mol_tree2(type, '', kids, span);
         }
+        /** Makes new derived structural node. */
         struct(type, kids = []) {
             return $mol_tree2.struct(type, kids, this.span);
         }
+        /** Makes new derived node with different kids id defined. */
         clone(kids, span = this.span) {
             return new $mol_tree2(this.type, this.value, kids, span);
         }
+        /** Returns multiline text content. */
         text() {
             var values = [];
             for (var kid of this.kids) {
@@ -6732,15 +7166,20 @@ var $;
             }
             return this.value + values.join('\n');
         }
+        /** Parses tree format. */
+        /** @deprecated Use $mol_tree2_from_string */
         static fromString(str, uri = 'unknown') {
             return $$.$mol_tree2_from_string(str, uri);
         }
+        /** Serializes to tree format. */
         toString() {
             return $$.$mol_tree2_to_string(this);
         }
+        /** Makes new tree with node overrided by path. */
         insert(value, ...path) {
             return this.update($mol_maybe(value), ...path)[0];
         }
+        /** Makes new tree with node overrided by path. */
         update(value, ...path) {
             if (path.length === 0)
                 return value;
@@ -6773,6 +7212,7 @@ var $;
                 return [this.clone(kids)];
             }
         }
+        /** Query nodes by path. */
         select(...path) {
             let next = [this];
             for (const type of path) {
@@ -6799,6 +7239,7 @@ var $;
             }
             return this.list(next);
         }
+        /** Filter kids by path or value. */
         filter(path, value) {
             const sub = this.kids.filter(item => {
                 var found = item.select(...path);
@@ -6826,9 +7267,11 @@ var $;
                 $mol_fail_hidden(error);
             }
         }
+        /** Transform tree through context with transformers */
         hack(belt, context = {}) {
             return [].concat(...this.kids.map(child => child.hack_self(belt, context)));
         }
+        /** Makes Error with node coordinates. */
         error(message, Class = Error) {
             return this.span.error(`${message}\n${this.clone([])}`, Class);
         }
@@ -6870,12 +7313,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Plugin which adds handlers for keyboard keys.
+         * @see [mol_keyboard_code](../keyboard/code/code.ts)
+         */
         class $mol_hotkey extends $.$mol_hotkey {
             key() {
                 return super.key();
@@ -7025,12 +7473,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * An input field for entering single line text.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_string_demo
+         */
         class $mol_string extends $.$mol_string {
             event_change(next) {
                 if (!next)
@@ -7145,6 +7598,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_icon_translate) = class $mol_icon_translate extends ($.$mol_icon) {
 		path(){
@@ -7155,6 +7609,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_icon_plus) = class $mol_icon_plus extends ($.$mol_icon) {
@@ -7167,6 +7622,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_icon_delete) = class $mol_icon_delete extends ($.$mol_icon) {
 		path(){
@@ -7178,6 +7634,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_icon_delete_outline) = class $mol_icon_delete_outline extends ($.$mol_icon) {
 		path(){
@@ -7188,6 +7645,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_ghost) = class $mol_ghost extends ($.$mol_view) {
@@ -7202,12 +7660,16 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Mixin view logic to DOM node of another component.
+         */
         class $mol_ghost extends $.$mol_ghost {
             dom_node_external(next) {
                 return this.Sub().dom_node(next);
@@ -7277,12 +7739,16 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Marker on top of another component with tracking of its position.
+         */
         class $mol_follower extends $.$mol_follower {
             pos() {
                 const self_rect = this.view_rect();
@@ -7418,12 +7884,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * `Bubble` that can be shown anchored to `Anchor` element.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_pop_demo
+         */
         class $mol_pop extends $.$mol_pop {
             showed(next = false) {
                 this.focused();
@@ -7585,12 +8056,18 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Pop-up display and hide by mouse click, also hide by unfocus.
+         * Based on [mol_pop](https://mol.hyoo.ru/#!section=demos/demo=mol_pop_demo) component.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_pick_demo
+         */
         class $mol_pick extends $.$mol_pick {
             keydown(event) {
                 if (!this.trigger_enabled())
@@ -7774,6 +8251,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
@@ -7888,6 +8366,18 @@ var $;
                     color: $mol_theme.card,
                 },
             },
+            // Item_type: {
+            // 	flex: {
+            // 		basis: `10rem`,
+            // 		shrink: 0,
+            // 	},
+            // },
+            // Item_value: {
+            // 	flex: {
+            // 		basis: `30rem`,
+            // 		grow: 0,
+            // 	},
+            // },
         });
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
@@ -7906,10 +8396,12 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
+    /** Creates lexer by dictionary of lexems. Lexem that started first wins. Then lexem that declared earlier wins. Use regexp capture to take parts of token. */
     class $mol_syntax2 {
         lexems;
         constructor(lexems) {
@@ -7981,6 +8473,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 "use strict";
@@ -8086,8 +8579,10 @@ var $;
 var $;
 (function ($) {
     let x = /x/[Symbol.matchAll];
+    /** Type safe reguar expression builder */
     class $mol_regexp extends RegExp {
         groups;
+        /** Prefer to use $mol_regexp.from */
         constructor(source, flags = 'gsu', groups = []) {
             super(source, flags);
             this.groups = groups;
@@ -8107,12 +8602,14 @@ var $;
                 this.lastIndex = index;
             }
         }
+        /** Parses input and returns found capture groups or null */
         [Symbol.match](str) {
             const res = [...this[Symbol.matchAll](str)].filter(r => r.groups).map(r => r[0]);
             if (!res.length)
                 return null;
             return res;
         }
+        /** Splits string by regexp edges */
         [Symbol.split](str) {
             const res = [];
             let token_last = null;
@@ -8167,12 +8664,14 @@ var $;
         get native() {
             return new RegExp(this.source, this.flags);
         }
+        /** Makes regexp that greedy repeats this pattern with delimiter */
         static separated(chunk, sep) {
             return $mol_regexp.from([
                 $mol_regexp.repeat_greedy([[chunk], sep], 0),
                 chunk,
             ]);
         }
+        /** Makes regexp that non-greedy repeats this pattern from min to max count */
         static repeat(source, min = 0, max = Number.POSITIVE_INFINITY) {
             const regexp = $mol_regexp.from(source);
             const upper = Number.isFinite(max) ? max : '';
@@ -8188,6 +8687,7 @@ var $;
             };
             return regexp2;
         }
+        /** Makes regexp that greedy repeats this pattern from min to max count */
         static repeat_greedy(source, min = 0, max = Number.POSITIVE_INFINITY) {
             const regexp = $mol_regexp.from(source);
             const upper = Number.isFinite(max) ? max : '';
@@ -8203,6 +8703,7 @@ var $;
             };
             return regexp2;
         }
+        /** Makes regexp that match any of options */
         static vary(sources, flags = 'gsu') {
             const groups = [];
             const chunks = sources.map(source => {
@@ -8212,17 +8713,21 @@ var $;
             });
             return new $mol_regexp(`(?:${chunks.join('|')})`, flags, groups);
         }
+        /** Makes regexp that allow absent of this pattern */
         static optional(source) {
             return $mol_regexp.repeat_greedy(source, 0, 1);
         }
+        /** Makes regexp that look ahead for pattern */
         static force_after(source) {
             const regexp = $mol_regexp.from(source);
             return new $mol_regexp(`(?=${regexp.source})`, regexp.flags, regexp.groups);
         }
+        /** Makes regexp that look ahead for pattern */
         static forbid_after(source) {
             const regexp = $mol_regexp.from(source);
             return new $mol_regexp(`(?!${regexp.source})`, regexp.flags, regexp.groups);
         }
+        /** Converts some js values to regexp */
         static from(source, { ignoreCase, multiline } = {
             ignoreCase: false,
             multiline: false,
@@ -8323,9 +8828,11 @@ var $;
                 return regexp;
             }
         }
+        /** Makes regexp which includes only unicode category */
         static unicode_only(...category) {
             return new $mol_regexp(`\\p{${category.join('=')}}`);
         }
+        /** Makes regexp which excludes unicode category */
         static unicode_except(...category) {
             return new $mol_regexp(`\\P{${category.join('=')}}`);
         }
@@ -8366,12 +8873,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Output text with dimmed mismatched substrings.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_dimmer_demo
+         */
         class $mol_dimmer extends $.$mol_dimmer {
             parts() {
                 const needle = this.needle();
@@ -8448,6 +8960,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 "use strict";
@@ -8588,6 +9101,8 @@ var $;
         'code': /```(.+?)```|;;(.+?);;|`(.+?)`/,
         'insert': /\+\+(.+?)\+\+/,
         'delete': /~~(.+?)~~|--(.+?)--/,
+        // 'remark' : /(\()(.+?)(\))/ ,
+        // 'quote' : /(")(.+?)(")/ ,
         'embed': /""(?:(.*?)\\)?(.*?)""/,
         'link': /\\\\(?:(.*?)\\)?(.*?)\\\\/,
         'image-link': /!\[([^\[\]]*?)\]\((.*?)\)/,
@@ -8617,6 +9132,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
@@ -8633,6 +9149,7 @@ var $;
             tokens(path) {
                 const tokens = [];
                 const text = (path.length > 0)
+                    // @FIXME: this logic compatible only with `string`
                     ? this.tokens(path.slice(0, path.length - 1))[path[path.length - 1]].found.slice(1, -1)
                     : this.text();
                 this.syntax().tokenize(text, (name, found, chunks) => {
@@ -8766,6 +9283,7 @@ var $;
 
 ;
 "use strict";
+// @ts-ignore
 var $node = $node || {};
 
 ;
@@ -8786,6 +9304,7 @@ var $;
 ;
 "use strict";
 
+
 ;
 	($.$mol_icon_clipboard_outline) = class $mol_icon_clipboard_outline extends ($.$mol_icon) {
 		path(){
@@ -8796,6 +9315,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_button_copy) = class $mol_button_copy extends ($.$mol_button_minor) {
@@ -8856,12 +9376,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Button copy text() value to clipboard
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_button_demo
+         */
         class $mol_button_copy extends $.$mol_button_copy {
             data() {
                 return Object.fromEntries(this.blobs().map(blob => [blob.type, blob]));
@@ -8976,12 +9501,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Code visualizer.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_text_code_demo
+         */
         class $mol_text_code extends $.$mol_text_code {
             render_visible_only() {
                 return this.$.$mol_support_css_overflow_anchor();
@@ -9268,12 +9798,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * An input field for entering multiline text.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_textarea_demo
+         */
         class $mol_textarea extends $.$mol_textarea {
             indent_inc() {
                 let text = this.value();
@@ -9439,12 +9974,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Plugin which can navigate in list of items
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_nav_demo
+         */
         class $mol_nav extends $.$mol_nav {
             event_key(event) {
                 if (!event)
@@ -9549,6 +10089,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_search) = class $mol_search extends ($.$mol_pop) {
@@ -9707,12 +10248,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Search input with suggest and clear button.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_search_demo
+         */
         class $mol_search extends $.$mol_search {
             anchor_content() {
                 return [
@@ -9802,6 +10348,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 	($.$mol_select) = class $mol_select extends ($.$mol_pick) {
@@ -9956,12 +10503,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Allow user to select value from various options and displays current value.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_select_demo_colors
+         */
         class $mol_select extends $.$mol_select {
             filter_pattern(next) {
                 this.focused();
@@ -10150,12 +10702,17 @@ var $;
 ;
 "use strict";
 
+
 ;
 "use strict";
 var $;
 (function ($) {
     var $$;
     (function ($$) {
+        /**
+         * Allow user to select value from various options and displays current value.
+         * @see https://mol.hyoo.ru/#!section=demos/demo=mol_select_demo_colors
+         */
         class $mol_select_list extends $.$mol_select_list {
             value(val) {
                 return super.value(val);
@@ -10320,6 +10877,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Makes JSON from json.tree. */
     function $mol_tree2_to_json(tree) {
         if (!tree.type) {
             if (tree.kids.every(kid => !kid.type))
@@ -10754,14 +11312,18 @@ var $;
                 ];
             },
             '': (input, belt) => {
+                // string
                 if (!input.type)
                     return [
                         input.data(JSON.stringify(input.text())),
                     ];
+                // variable
                 if (/^[\w$#][\w0-9$]*$/i.test(input.type))
                     return [
                         input.data(input.type),
+                        // ... input.hack( context ),
                     ];
+                // number
                 if ($mol_tree2_js_is_number(input.type))
                     return [
                         input.data(input.type)
@@ -11096,6 +11658,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** [LEB128](https://wikipedia.org/wiki/LEB128) implementation. */
     function $mol_leb128_encode(val) {
         const length = Math.max(1, Math.ceil(Math.log2(val) / 7));
         const bytes = new Uint8Array(length);
@@ -11106,6 +11669,7 @@ var $;
         return bytes;
     }
     $.$mol_leb128_encode = $mol_leb128_encode;
+    /** [LEB128](https://wikipedia.org/wiki/LEB128) implementation. */
     function $mol_leb128_decode(bytes) {
         let val = 0;
         for (let i = 0; i < bytes.length; ++i) {
@@ -11120,6 +11684,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    // https://webassembly.github.io/spec/core/binary/modules.html#binary-section
     let $mol_wasm_bin_section;
     (function ($mol_wasm_bin_section) {
         $mol_wasm_bin_section[$mol_wasm_bin_section["custom"] = 0] = "custom";
@@ -11135,6 +11700,7 @@ var $;
         $mol_wasm_bin_section[$mol_wasm_bin_section["code"] = 10] = "code";
         $mol_wasm_bin_section[$mol_wasm_bin_section["data"] = 11] = "data";
     })($mol_wasm_bin_section = $.$mol_wasm_bin_section || ($.$mol_wasm_bin_section = {}));
+    // https://webassembly.github.io/spec/core/binary/modules.html#binary-importsec
     let $mol_wasm_bin_external;
     (function ($mol_wasm_bin_external) {
         $mol_wasm_bin_external[$mol_wasm_bin_external["func"] = 0] = "func";
@@ -11142,6 +11708,7 @@ var $;
         $mol_wasm_bin_external[$mol_wasm_bin_external["mem"] = 2] = "mem";
         $mol_wasm_bin_external[$mol_wasm_bin_external["global"] = 3] = "global";
     })($mol_wasm_bin_external = $.$mol_wasm_bin_external || ($.$mol_wasm_bin_external = {}));
+    // https://webassembly.github.io/spec/core/binary/conventions.html#grammar
     let $mol_wasm_bin_valtype;
     (function ($mol_wasm_bin_valtype) {
         $mol_wasm_bin_valtype[$mol_wasm_bin_valtype["i32"] = 127] = "i32";
@@ -11149,8 +11716,10 @@ var $;
         $mol_wasm_bin_valtype[$mol_wasm_bin_valtype["f32"] = 125] = "f32";
         $mol_wasm_bin_valtype[$mol_wasm_bin_valtype["f64"] = 124] = "f64";
     })($mol_wasm_bin_valtype = $.$mol_wasm_bin_valtype || ($.$mol_wasm_bin_valtype = {}));
+    // https://webassembly.github.io/spec/core/binary/instructions.html
     let $mol_wasm_bin_instr;
     (function ($mol_wasm_bin_instr) {
+        // #control-instructions
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["block"] = 2] = "block";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["loop"] = 3] = "loop";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["if"] = 4] = "if";
@@ -11160,22 +11729,27 @@ var $;
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["br_table"] = 14] = "br_table";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["call"] = 16] = "call";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["call_indirect"] = 17] = "call_indirect";
+        // #reference-instructions
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["ref.null"] = 208] = "ref.null";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["ref.is_null"] = 209] = "ref.is_null";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["ref.func"] = 210] = "ref.func";
+        // #parametric-instructions
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["drop"] = 26] = "drop";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["select"] = 27] = "select";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["select2"] = 28] = "select2";
+        // #memory-instructions
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["memory.size"] = 63] = "memory.size";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["memory.grow"] = 64] = "memory.grow";
         $mol_wasm_bin_instr[$mol_wasm_bin_instr["mem"] = 252] = "mem";
     })($mol_wasm_bin_instr = $.$mol_wasm_bin_instr || ($.$mol_wasm_bin_instr = {}));
     let $mol_wasm_bin_instr_nullary;
     (function ($mol_wasm_bin_instr_nullary) {
+        // #control-instructions
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["unreachable"] = 0] = "unreachable";
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["nop"] = 1] = "nop";
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["end"] = 11] = "end";
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["return"] = 15] = "return";
+        // #numeric-instructions
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["i32.eqz"] = 69] = "i32.eqz";
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["i32.eq"] = 70] = "i32.eq";
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["i32.ne"] = 71] = "i32.ne";
@@ -11246,16 +11820,20 @@ var $;
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["i64.shr_u"] = 136] = "i64.shr_u";
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["i64.rotl"] = 137] = "i64.rotl";
         $mol_wasm_bin_instr_nullary[$mol_wasm_bin_instr_nullary["i64.rotr"] = 138] = "i64.rotr";
+        // @fixme other from spec
     })($mol_wasm_bin_instr_nullary = $.$mol_wasm_bin_instr_nullary || ($.$mol_wasm_bin_instr_nullary = {}));
     let $mol_wasm_bin_instr_unary;
     (function ($mol_wasm_bin_instr_unary) {
+        // #variable-instructions
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["local.get"] = 32] = "local.get";
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["local.set"] = 33] = "local.set";
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["local.tee"] = 34] = "local.tee";
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["global.get"] = 35] = "global.get";
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["global.set"] = 36] = "global.set";
+        // #table-instructions
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["table.get"] = 37] = "table.get";
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["table.set"] = 38] = "table.set";
+        // #numeric-instructions
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["i32.const"] = 65] = "i32.const";
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["i64.const"] = 66] = "i64.const";
         $mol_wasm_bin_instr_unary[$mol_wasm_bin_instr_unary["f32.const"] = 67] = "f32.const";
@@ -11263,6 +11841,7 @@ var $;
     })($mol_wasm_bin_instr_unary = $.$mol_wasm_bin_instr_unary || ($.$mol_wasm_bin_instr_unary = {}));
     let $mol_wasm_bin_instr_binary;
     (function ($mol_wasm_bin_instr_binary) {
+        // #memory-instructions
         $mol_wasm_bin_instr_binary[$mol_wasm_bin_instr_binary["i32.load"] = 40] = "i32.load";
         $mol_wasm_bin_instr_binary[$mol_wasm_bin_instr_binary["i64.load"] = 41] = "i64.load";
         $mol_wasm_bin_instr_binary[$mol_wasm_bin_instr_binary["f32.load"] = 42] = "f32.load";
@@ -11287,8 +11866,10 @@ var $;
         $mol_wasm_bin_instr_binary[$mol_wasm_bin_instr_binary["i64.store16"] = 61] = "i64.store16";
         $mol_wasm_bin_instr_binary[$mol_wasm_bin_instr_binary["i64.store32"] = 62] = "i64.store32";
     })($mol_wasm_bin_instr_binary = $.$mol_wasm_bin_instr_binary || ($.$mol_wasm_bin_instr_binary = {}));
+    // https://webassembly.github.io/spec/core/binary/instructions.html
     let $mol_wasm_bin_instr_mem;
     (function ($mol_wasm_bin_instr_mem) {
+        // #numeric-instructions
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["i32.trunc_sat_f32_s"] = 0] = "i32.trunc_sat_f32_s";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["i32.trunc_sat_f32_u"] = 1] = "i32.trunc_sat_f32_u";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["i32.trunc_sat_f64_s"] = 2] = "i32.trunc_sat_f64_s";
@@ -11297,10 +11878,12 @@ var $;
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["i64.trunc_sat_f32_u"] = 5] = "i64.trunc_sat_f32_u";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["i64.trunc_sat_f64_s"] = 6] = "i64.trunc_sat_f64_s";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["i64.trunc_sat_f64_u"] = 7] = "i64.trunc_sat_f64_u";
+        // #memory-instructions
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["memory.init"] = 8] = "memory.init";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["data.drop"] = 9] = "data.drop";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["memory.copy"] = 10] = "memory.copy";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["memory.fill"] = 11] = "memory.fill";
+        // #table-instructions
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["table.init"] = 12] = "table.init";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["elem.drop"] = 13] = "elem.drop";
         $mol_wasm_bin_instr_mem[$mol_wasm_bin_instr_mem["table.copy"] = 14] = "table.copy";
@@ -11438,6 +12021,7 @@ var $;
             const section = [];
             for (const func of funcs.kids) {
                 const body = [];
+                // locals
                 body.push(...int(0, func.span));
                 for (const expr of func.kids[0].kids) {
                     if (typeof $mol_wasm_bin_instr_unary[expr.type] === 'number') {
@@ -11450,6 +12034,7 @@ var $;
                     }
                     $mol_fail(expr.error('Unknown wasm instruction'));
                 }
+                // end
                 body.push(...bytes([$mol_wasm_bin_instr_nullary.end], func.span));
                 section.push(...dyn(body, func.span));
             }
@@ -11649,13 +12234,23 @@ var $;
 var $;
 (function ($) {
     const err = $mol_view_tree2_error_str;
+    const is_writable = (input) => input.type.includes('?');
     function $mol_view_tree2_class_props(klass) {
         let props = this.$mol_view_tree2_class_super(klass);
+        // ! syntax to * and ?val syntax to ?
         props = props.clone(props.hack({
             '': (node, belt) => {
-                const normal = node.type.replace(/!\w+/, '*');
+                const next = node.type.indexOf('?');
+                const id = node.type.indexOf('!');
+                let normal = node.type;
+                const ch = node.type[id + 1];
+                if (id !== -1 && ch?.toUpperCase() !== ch?.toLowerCase())
+                    normal = `${normal.substring(0, id)}*${next === -1 ? '' : '?'}`;
+                else if (next !== -1)
+                    normal = normal.substring(0, next + 1);
                 if (node.type === normal)
                     return [node.clone(node.hack(belt))];
+                console.warn(`Syntax ${node.type} is deprecated. Use ${normal} instead`);
                 return [node.struct(normal, node.hack(belt))];
             }
         }));
@@ -11692,11 +12287,25 @@ var $;
                         this.$mol_fail(err `Need a child ${operator.span}`);
                     if (!context.factory)
                         this.$mol_fail(err `Need a parent ${left.span}`);
+                    if (is_writable(left) !== is_writable(right))
+                        this.$mol_fail(err `Left and right operands are not compatible at ${operator.span}`);
                     add_inner(right.clone([
                         right.struct('=', [
                             context.factory.struct(context.factory.type.replace(/\*.*/, '*'), [left.clone([])]),
                         ]),
                     ]));
+                }
+                else if (operator?.type === "<=>") {
+                    const right = operator.kids[0];
+                    if (!right)
+                        this.$mol_fail(err `Need a child ${operator.span}`);
+                    if (!is_writable(left))
+                        this.$mol_fail(err `Expected writable at ${left.span}`);
+                    if (!is_writable(right))
+                        this.$mol_fail(err `Expected writable at ${right.span}`);
+                }
+                else if (context.factory && operator?.type === "<=" && is_writable(left)) {
+                    this.$mol_fail(err `Expected readonly at ${left.span}`);
                 }
                 if (right)
                     context = { factory: right.clone([]) };
@@ -11801,12 +12410,14 @@ var $;
             '=>': bind => [],
             '^': (ref, belt, context) => [
                 ref.struct('...', [
+                    // prop ^ foo
                     ref.kids[0]?.type
                         ? ref.struct('()', [
                             ref.struct('this'),
                             ref.struct('[]', [ref.data(name_of.call(this, ref.kids[0]))]),
                             args_of.call(this, ref.kids[0])
                         ])
+                        // Having $having foo / ^
                         : context.chain
                             ? ref.struct('()', [
                                 ref.struct('this'),
@@ -11818,6 +12429,7 @@ var $;
                                 ref.struct('(,)', [ref.struct('obj')]),
                                 ...context.chain.slice(1).map(field => ref.struct('[]', [ref.data(field)]))
                             ])
+                            // prop ^
                             : ref.struct('()', [
                                 ref.struct('super'),
                                 ref.struct('[]', [ref.data(name)]),
@@ -12157,6 +12769,7 @@ var $;
                         const left_parts = this.$mol_view_tree2_prop_parts(left);
                         const right_parts = this.$mol_view_tree2_prop_parts(right);
                         let conflict;
+                        // if (left_parts.next && right_parts.next) conflict = 'next'
                         if (left_parts.key && right_parts.key)
                             conflict = 'key';
                         if (conflict) {
@@ -12281,7 +12894,7 @@ var $;
                 }, context);
                 return prop.struct('indent', [
                     prop.struct('line', [
-                        channel_signature.call(this, prop, ...val),
+                        channel_signature.call(this, prop, ...val), // Parameter, not Return
                         prop.data(': '),
                         ...val,
                     ])
@@ -12482,18 +13095,34 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Argument must be Truthy
+     * @deprecated use $mol_assert_equal instead
+     */
     function $mol_assert_ok(value) {
         if (value)
             return;
         $mol_fail(new Error(`${value} ≠ true`));
     }
     $.$mol_assert_ok = $mol_assert_ok;
+    /**
+     * Argument must be Falsy
+     * @deprecated use $mol_assert_equal instead
+     */
     function $mol_assert_not(value) {
         if (!value)
             return;
         $mol_fail(new Error(`${value} ≠ false`));
     }
     $.$mol_assert_not = $mol_assert_not;
+    /**
+     * Handler must throw an error.
+     * @example
+     * $mol_assert_fail( ()=>{ throw new Error( 'Parse error' ) } ) // Passes because throws error
+     * $mol_assert_fail( ()=>{ throw new Error( 'Parse error' ) } , 'Parse error' ) // Passes because throws right message
+     * $mol_assert_fail( ()=>{ throw new Error( 'Parse error' ) } , Error ) // Passes because throws right class
+     * @see https://mol.hyoo.ru/#!section=docs/=9q9dv3_fgxjsf
+     */
     function $mol_assert_fail(handler, ErrorRight) {
         const fail = $.$mol_fail;
         try {
@@ -12516,10 +13145,18 @@ var $;
         $mol_fail(new Error('Not failed', { cause: { expect: ErrorRight } }));
     }
     $.$mol_assert_fail = $mol_assert_fail;
+    /** @deprecated Use $mol_assert_equal */
     function $mol_assert_like(...args) {
         $mol_assert_equal(...args);
     }
     $.$mol_assert_like = $mol_assert_like;
+    /**
+     * All arguments must not be structural equal to each other.
+     * @example
+     * $mol_assert_unique( 1 , 2 , 3 ) // Passes
+     * $mol_assert_unique( 1 , 1 , 2 ) // Fails because 1 === 1
+     * @see https://mol.hyoo.ru/#!section=docs/=9q9dv3_fgxjsf
+     */
     function $mol_assert_unique(...args) {
         for (let i = 0; i < args.length; ++i) {
             for (let j = 0; j < args.length; ++j) {
@@ -12532,6 +13169,13 @@ var $;
         }
     }
     $.$mol_assert_unique = $mol_assert_unique;
+    /**
+     * All arguments must be structural equal each other.
+     * @example
+     * $mol_assert_like( [1] , [1] , [1] ) // Passes
+     * $mol_assert_like( [1] , [1] , [2] ) // Fails because 1 !== 2
+     * @see https://mol.hyoo.ru/#!section=docs/=9q9dv3_fgxjsf
+     */
     function $mol_assert_equal(...args) {
         for (let i = 1; i < args.length; ++i) {
             if ($mol_compare_deep(args[0], args[i]))
@@ -13037,6 +13681,7 @@ var $;
     const blacklist = new Set([
         '//cse.google.com/adsense/search/async-ads.js'
     ]);
+    /** Installs service worker proxy, which caches all requests and respond from cache on http errors. */
     function $mol_offline_web() {
         if (typeof window === 'undefined') {
             self.addEventListener('install', (event) => {
@@ -13044,6 +13689,7 @@ var $;
                 self.skipWaiting();
             });
             self.addEventListener('activate', (event) => {
+                // caches.delete( '$mol_offline' )
                 ;
                 self.clients.claim();
                 $$.$mol_log3_done({
@@ -13053,6 +13699,7 @@ var $;
             });
             self.addEventListener('fetch', (event) => {
                 const request = event.request;
+                // console.log( 'FETCH', request.mode, request.cache, request.url )
                 if (blacklist.has(request.url.replace(/^https?:/, ''))) {
                     return event.respondWith(new Response(null, {
                         status: 418,
@@ -13074,11 +13721,15 @@ var $;
                     return response.clone();
                 });
                 const enrich = (response) => {
+                    // console.log( 'ENRICH', response.status, response.url )
                     if (!response.status)
                         return response;
                     const headers = new Headers(response.headers);
                     headers.set("$mol_offline", "");
-                    headers.set("Origin-Agent-Cluster", "?1");
+                    headers.set("Origin-Agent-Cluster", "?1"); // prevent thread sharing
+                    // headers.set( "Cross-Origin-Embedder-Policy", "credentialless" )
+                    // headers.set( "Cross-Origin-Resource-Policy", "cross-origin" )
+                    // headers.set( "Cross-Origin-Opener-Policy", "same-origin" )
                     return new Response(response.body, {
                         status: response.status,
                         statusText: response.statusText,
@@ -13152,6 +13803,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Dynamic sources import. */
     class $mol_import extends $mol_object2 {
         static module(uri) {
             $mol_wire_solid();
@@ -13203,6 +13855,7 @@ var $;
 
 ;
 "use strict";
+
 
 ;
 "use strict";

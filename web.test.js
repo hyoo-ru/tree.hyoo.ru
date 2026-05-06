@@ -10,6 +10,12 @@ function require( path ){ return $node[ path ] };
 
 ;
 "use strict";
+
+;
+"use strict";
+
+;
+"use strict";
 var $;
 (function ($_1) {
     function $mol_test(set) {
@@ -144,6 +150,8 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
+/** @jsxFrag $mol_jsx_frag */
 var $;
 (function ($) {
     $mol_test({
@@ -316,9 +324,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($_1) {
     $mol_test_mocks.push($ => {
@@ -433,6 +438,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /// @todo right orderinng
     $.$mol_after_mock_queue = [];
     function $mol_after_mock_warp() {
         const queue = $.$mol_after_mock_queue.splice(0);
@@ -565,6 +571,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Lazy computed lists with native Array interface. $mol_range2_array is mutable but all derived ranges are immutable. */
     function $mol_range2(item = index => index, size = () => Number.POSITIVE_INFINITY) {
         const source = typeof item === 'function' ? new $mol_range2_array() : item;
         if (typeof item !== 'function') {
@@ -613,6 +620,7 @@ var $;
     }
     $.$mol_range2 = $mol_range2;
     class $mol_range2_array extends Array {
+        // Lazy
         concat(...tail) {
             if (tail.length === 0)
                 return this;
@@ -624,6 +632,7 @@ var $;
             }
             return $mol_range2(index => index < this.length ? this[index] : tail[0][index - this.length], () => this.length + tail[0].length);
         }
+        // Lazy
         filter(check, context) {
             const filtered = [];
             let cursor = -1;
@@ -636,13 +645,16 @@ var $;
                 return filtered[index];
             }, () => cursor < this.length ? Number.POSITIVE_INFINITY : filtered.length);
         }
+        // Diligent
         forEach(proceed, context) {
             for (let [key, value] of this.entries())
                 proceed.call(context, value, key, this);
         }
+        // Lazy
         map(proceed, context) {
             return $mol_range2(index => proceed.call(context, this[index], index, this), () => this.length);
         }
+        // Diligent
         reduce(merge, result) {
             let index = 0;
             if (arguments.length === 1) {
@@ -653,12 +665,15 @@ var $;
             }
             return result;
         }
+        // Lazy
         toReversed() {
             return $mol_range2(index => this[this.length - 1 - index], () => this.length);
         }
+        // Lazy
         slice(from = 0, to = this.length) {
             return $mol_range2(index => this[from + index], () => Math.min(to, this.length) - from);
         }
+        // Lazy
         some(check, context) {
             for (let index = 0; index < this.length; ++index) {
                 if (check.call(context, this[index], index, this))
@@ -851,6 +866,7 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
 var $;
 (function ($) {
     $mol_test({
@@ -912,6 +928,7 @@ var $;
             const obj3_copy = { test: 3, obj2: obj2_copy };
             obj1.obj3 = obj3;
             obj1_copy.obj3 = obj3_copy;
+            // warmup cache
             $mol_assert_not($mol_compare_deep(obj1, {}));
             $mol_assert_not($mol_compare_deep(obj2, {}));
             $mol_assert_not($mol_compare_deep(obj3, {}));
@@ -1190,6 +1207,7 @@ var $;
 var $;
 (function ($_1) {
     $mol_test({
+        // https://github.com/nin-jin/slides/tree/master/reactivity#component-states
         'Cached channel'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1247,6 +1265,7 @@ var $;
             $mol_assert_equal(App.value(5), 21);
             $mol_assert_equal(App.value(), 21);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-consistency
         'Auto recalculation of cached values'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1274,6 +1293,7 @@ var $;
             App.xxx(5);
             $mol_assert_equal(App.zzz(), 7);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-reasonability
         'Skip recalculation when actually no dependency changes'($) {
             const log = [];
             class App extends $mol_object2 {
@@ -1307,6 +1327,7 @@ var $;
             App.zzz();
             $mol_assert_like(log, ['zzz', 'yyy', 'xxx', 'xxx', 'yyy']);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#flow-auto
         'Flow: Auto'($) {
             class App extends $mol_object2 {
                 static get $() { return $; }
@@ -1344,6 +1365,7 @@ var $;
             $mol_assert_equal(App.result(), 23);
             $mol_assert_equal(App.counter, 4);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#dupes-equality
         'Dupes: Equality'($) {
             let counter = 0;
             class App extends $mol_object2 {
@@ -1367,6 +1389,7 @@ var $;
             App.foo({ numbs: [2] });
             $mol_assert_like(App.bar(), { numbs: [2], count: 2 });
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#cycle-fail
         'Cycle: Fail'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1391,6 +1414,29 @@ var $;
             ], App, "test", null);
             App.test();
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
+        // 'Update deps on push'( $ ) {
+        // 	class App extends $mol_object2 {
+        // 		static $ = $
+        // 		@ $mol_wire_solo
+        // 		static left( next = false ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static right( next = false ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static res( next?: boolean ) {
+        // 			return this.left( next ) && this.right()
+        // 		}
+        // 	}
+        // 	$mol_assert_equal( App.res(), false )
+        // 	$mol_assert_equal( App.res( true ), false )
+        // 	$mol_assert_equal( App.right( true ), true )
+        // 	$mol_assert_equal( App.res(), true )
+        // } ,
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
         'Different order of pull and push'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1402,7 +1448,7 @@ var $;
                 }
                 static slow(next) {
                     if (next !== undefined)
-                        this.slow();
+                        this.slow(); // enforce pull before push
                     return this.store(next);
                 }
             }
@@ -1421,6 +1467,7 @@ var $;
             App.store(777);
             $mol_assert_equal(App.fast(), App.slow(), 777);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
         'Actions inside invariant'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1460,6 +1507,7 @@ var $;
                 static toggle() {
                     const prev = this.checked();
                     $mol_assert_unique(this.checked(!prev), prev);
+                    // $mol_assert_equal( this.checked() , prev )
                 }
                 static res() {
                     return this.checked();
@@ -1484,6 +1532,39 @@ var $;
             ], App, "test", null);
             await $mol_wire_async(App).test();
         },
+        // // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
+        // 'Stable order of multiple root'( $ ) {
+        // 	class App extends $mol_object2 {
+        // 		static $ = $
+        // 		static counter = 0
+        // 		@ $mol_wire_solo
+        // 		static left_trigger( next = 0 ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static left_root() {
+        // 			this.left_trigger()
+        // 			return ++ this.counter
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static right_trigger( next = 0 ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static right_root() {
+        // 			this.right_trigger()
+        // 			return ++ this.counter
+        // 		}
+        // 	}
+        // 	$mol_assert_equal( App.left_root(), 1 )
+        // 	$mol_assert_equal( App.right_root(), 2 )
+        // 	App.right_trigger( 1 )
+        // 	App.left_trigger( 1 )
+        // 	$mol_wire_fiber.sync()
+        // 	$mol_assert_equal( App.right_root(), 4 )
+        // 	$mol_assert_equal( App.left_root(), 3 )
+        // } ,
+        // https://github.com/nin-jin/slides/tree/master/reactivity#error-store
         'Restore after error'($) {
             class App extends $mol_object2 {
                 static get $() { return $; }
@@ -1581,6 +1662,7 @@ var $;
             App.showing(true);
             $mol_assert_unique(App.render(), details);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
         async 'Hold pubs while wait async task'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1796,6 +1878,7 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
 var $;
 (function ($) {
     $mol_test({
@@ -1881,6 +1964,12 @@ var $;
         'return result without errors'() {
             $mol_assert_equal($mol_try(() => false), false);
         },
+        //'return error if thrown'() {
+        //	
+        //	const error = new Error( '$mol_try test error' )
+        //	$mol_assert_equal( $mol_try( ()=> { throw error } ) , error )
+        //	
+        //} ,
     });
 })($ || ($ = {}));
 
@@ -1895,6 +1984,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Watch and logs reactive states. Logger automatically added to test bundle which is adding to `test.html`. */
     class $mol_wire_log extends $mol_object2 {
         static watch(task) {
             return task;
@@ -2135,6 +2225,9 @@ var $;
         },
     });
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -3528,6 +3621,11 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Combines list of unary functions/classes to one function.
+     *
+     * 	const reparse = $mol_data_pipe( JSON.stringify , JSON.parse )
+     **/
     function $mol_data_pipe(...funcs) {
         return $mol_data_setup(function (input) {
             let value = input;
@@ -3544,6 +3642,14 @@ var $;
 var $;
 (function ($) {
     $mol_test({
+        // @todo enable on strict
+        // 'no functions'() {
+        // 	const stringify = $mol_data_pipe()
+        // 	type Type = $mol_type_assert<
+        // 		typeof stringify,
+        // 		( input : never )=> never
+        // 	>
+        // },
         'single function'() {
             const stringify = $mol_data_pipe((input) => input.toString());
             $mol_assert_equal(stringify(5), '5');
@@ -4108,12 +4214,12 @@ var $;
 			`;
                 const dest = `
 				query? \\
-				clear?event null
+				clear? null
 				Query $mol_string value? <=> query?
 				Suggest_label $mol_dimmer
 					needle <= query?
 					key * escape? <=> clear?
-				Clear $mol_button_minor click?event <=> clear?event
+				Clear $mol_button_minor click? <=> clear?
 			`;
                 const res = normalize($, src, dest);
                 $mol_assert_equal(res.input, res.output);
@@ -4135,10 +4241,10 @@ var $;
                 const dest = `
 				Close_icon ${d}mol_icon_cross
 				Title ${d}mol_view sub / <= title
-				close?event null
+				close? null
 				Close ${d}mol_button
 					title \\close
-					click?event <=> close?event
+					click? <=> close?
 				title @ \\title
 				sub2 / <= Close_icon
 				sub /
@@ -4184,7 +4290,7 @@ var $;
                 const dest = `
 				clear? = Suggest_label clear?
 				Suggest_label $mol_dimmer clear? => clear?
-				Clear $mol_button_minor click?e <=> clear?e
+				Clear $mol_button_minor click? <=> clear?
 			`;
                 const res = normalize($, src, dest);
                 $mol_assert_equal(res.input, res.output);
@@ -4200,7 +4306,7 @@ var $;
                 $mol_assert_fail(() => normalize($, src).input, `Need an equal default values at \`/mol/view/tree2/class/props.test.ts#4:16/5\` vs \`/mol/view/tree2/class/props.test.ts#6:23/11\`
 <=>
 /mol/view/tree2/class/props.test.ts#6:19/3
-click?event
+click?
 /mol/view/tree2/class/props.test.ts#6:7/11
 $mol_button_minor
 /mol/view/tree2/class/props.test.ts#5:12/17
@@ -4809,7 +4915,7 @@ Clear
 		indexed(id, next){
 			if(next !== undefined) return next;
 			const obj = new this.$.$mol_view_tree2_to_js_test_ex_bidi_indexed_second_level_bar();
-			(obj.expanded) = () => ((this.owner(id, next)));
+			(obj.expanded) = (next) => ((this.owner(id, next)));
 			return obj;
 		}
 	};
@@ -4969,98 +5075,130 @@ var $;
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
+
 ;
 "use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
 
 ;
 "use strict";
@@ -5097,44 +5235,58 @@ var $;
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
-;
-"use strict";
 
 ;
 "use strict";
 
+
 ;
 "use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+
 
 ;
 "use strict";
@@ -5223,13 +5375,13 @@ var $;
                 $mol_view_tree2_to_js_test_run(`
 					Foo $mol_view
 						a!? $mol_view
-							expanded <=> cell_test_expanded!? null
+							expanded? <=> cell_test_expanded!? null
 				`);
-            }, `Required prop like some*? at \`.view.tree#4:21/20\`
+            }, `Required prop like some*? at \`.view.tree#4:22/20\`
 <=>
-.view.tree#4:17/3
-expanded
-.view.tree#4:8/8
+.view.tree#4:18/3
+expanded?
+.view.tree#4:8/9
 $mol_view
 .view.tree#3:11/9
 a!?
@@ -5263,7 +5415,9 @@ var $;
         'Left bind read only'($) {
             const _foo = $mol_view_tree2_to_js_test_ex_left_read_only_foo;
             const foo = _foo.make({ $ });
-            $mol_assert_like(foo.bar1(), foo.bar1(2), foo.bar1(), foo.bar2(), 1);
+            $mol_assert_like(foo.bar1(), 
+            // @ts-ignore
+            foo.bar1(2), foo.bar1(), foo.bar2(), 1);
             $mol_assert_like(foo.bar2(2), foo.bar1(), 2);
         },
         'Left bind second level index'($) {
@@ -5290,7 +5444,11 @@ var $;
             const foo = _foo.make({ $ });
             $mol_assert_equal(foo.d(), foo.c(), foo.b(), foo.a(), 0);
             $mol_assert_equal(foo.d(1), foo.c(), foo.b(), foo.a(), 1);
-            $mol_assert_equal(foo.a(2), foo.b(2), foo.c(), foo.d(), 1);
+            $mol_assert_equal(
+            // @ts-ignore
+            foo.a(2), 
+            // @ts-ignore
+            foo.b(2), foo.c(), foo.d(), 1);
             $mol_assert_equal(foo.c(2), foo.b(), foo.a(), 2);
             $mol_assert_equal(foo.d(1), 1);
             $mol_assert_equal(foo.d(3), foo.c(), foo.b(), foo.a(), 3);
@@ -5326,6 +5484,10 @@ var $;
         'Array of array or object'($) {
             const _foo = $mol_view_tree2_to_js_test_ex_array_of_array_or_object_foo;
             const foo = _foo.make({ $ });
+            // type a1 = $mol_type_assert<
+            // 	ReturnType<typeof foo.complex>,
+            // 	readonly (readonly(number | string)[] | Record<string, number | string>)[]
+            // >
             $mol_assert_like(foo.complex(), ['1', [true], ['1', 21], { a: 1, str: 'some' }]);
         },
         'Array inheritance'($) {
@@ -5417,7 +5579,9 @@ var $;
         'simple mutable and read only channels'($) {
             const _foo = $mol_view_tree2_to_js_test_ex_simple_mutable_and_read_only_foo;
             const foo = _foo.make({ $ });
-            $mol_assert_equal(foo.readonly(), foo.readonly(1), foo.readonly(), null);
+            $mol_assert_equal(foo.readonly(), 
+            // @ts-ignore
+            foo.readonly(1), foo.readonly(), null);
             $mol_assert_equal(foo.mutable(), null);
             $mol_assert_equal(foo.mutable(2), foo.mutable(), 2);
         },
@@ -5813,9 +5977,11 @@ var $;
 			`);
             const res = tests.hack({
                 ...$mol_jack.meta,
+                // Should processed
                 'one': input => [input.struct('ONE')],
                 'two': input => [input.struct('TWO')],
                 'three': input => [input.struct('THREE')],
+                // Shouldn't processed
                 'ONE': input => [input.struct('XXX')],
                 'TWO': input => [input.struct('XXX')],
                 'THREE': input => [input.struct('XXX')],
