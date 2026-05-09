@@ -12166,7 +12166,7 @@ var $;
                     normal = normal.substring(0, next + 1);
                 if (node.type === normal)
                     return [node.clone(node.hack(belt))];
-                console.warn(`Syntax ${node.type} is deprecated. Use ${normal} instead`);
+                console.warn(`Syntax ${node.type} at ${node.span} is deprecated. Use ${normal} instead`);
                 return [node.struct(normal, node.hack(belt))];
             }
         }));
