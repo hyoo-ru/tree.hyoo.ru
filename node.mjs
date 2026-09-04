@@ -7602,22 +7602,27 @@ var $;
                 const el = this.dom_node();
                 const from = el.selectionStart;
                 const to = el.selectionEnd;
-                try {
-                    el.value = this.value_changed(el.value);
-                }
-                catch (error) {
-                    const el = this.dom_node();
-                    if (error instanceof Error) {
-                        el.setCustomValidity(error.message);
-                        el.reportValidity();
-                    }
-                    $mol_fail_hidden(error);
-                }
+                el.value = this.value_changed(el.value);
                 if (to === null)
                     return;
                 el.selectionEnd = to;
                 el.selectionStart = from;
                 this.selection_change(next);
+            }
+            value_changed(next) {
+                const el = this.dom_node();
+                try {
+                    el.setCustomValidity('');
+                    return this.value(next);
+                }
+                catch (error) {
+                    $mol_fail_log(error);
+                    if (error instanceof Error) {
+                        el.setCustomValidity(error.message);
+                        el.reportValidity();
+                    }
+                    return next ?? $mol_mem_cached(() => this.value_changed()) ?? '';
+                }
             }
             error_report() {
                 try {
@@ -7678,6 +7683,9 @@ var $;
         __decorate([
             $mol_action
         ], $mol_string.prototype, "event_change", null);
+        __decorate([
+            $mol_mem
+        ], $mol_string.prototype, "value_changed", null);
         __decorate([
             $mol_mem
         ], $mol_string.prototype, "error_report", null);
@@ -10476,6 +10484,9 @@ var $;
 			if(next !== undefined) return next;
 			return null;
 		}
+		option_hint(id){
+			return null;
+		}
 		option_label(id){
 			return "";
 		}
@@ -10551,6 +10562,7 @@ var $;
 			const obj = new this.$.$mol_button_minor();
 			(obj.enabled) = () => ((this.enabled()));
 			(obj.event_click) = (next) => ((this.event_select(id, next)));
+			(obj.hint) = () => ((this.option_hint(id)));
 			(obj.sub) = () => ((this.option_content(id)));
 			return obj;
 		}
@@ -10653,6 +10665,9 @@ var $;
             option_label(id) {
                 const value = this.dictionary()[id];
                 return (value == null ? id : value) || this.option_label_default();
+            }
+            option_hint(id) {
+                return id;
             }
             option_rows() {
                 return this.options_filtered().map((option) => this.Option_row(option));
@@ -12760,12 +12775,15 @@ var $;
         return result;
     }
     function primitive_type(input) {
-        let type = 'string';
-        if (input.type && $mol_tree2_js_is_number(input.type))
-            type = 'number';
+        if (!input.type)
+            return input.data('string');
         if (input.type === 'true' || input.type === 'false')
-            type = 'boolean';
-        return input.data(type);
+            return input.data('boolean');
+        if ($mol_tree2_js_is_number(input.type))
+            return input.data('number');
+        if (/^[+-]?[\d_]+n$/.test(input.type))
+            return input.data('bigint');
+        return $mol_fail(new Error('Wrong primitive type', { cause: { type: input.type } }));
     }
     function readonly_arr(input, infered) {
         return [
