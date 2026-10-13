@@ -4302,7 +4302,16 @@ var $;
         }
         static estimate() {
             $mol_state_time.now(1000);
-            return $mol_wire_sync(this.native() ?? {}).estimate();
+            try {
+                return $mol_wire_sync(this.native() ?? {}).estimate();
+            }
+            catch (error) {
+                $mol_fail_log(error);
+                return {
+                    usage: 0,
+                    quota: 0,
+                };
+            }
         }
         static total() {
             return this.estimate().quota ?? 0;
@@ -13712,7 +13721,7 @@ var $;
 		Source(){
 			const obj = new this.$.$mol_page();
 			(obj.title) = () => ((this.$.$mol_locale.text("$hyoo_tree_app_Source_title")));
-			(obj.tools) = () => ([(this.Raw()), (this.source_tools())]);
+			(obj.tools) = () => ([(this.Raw()), ...(this.source_tools())]);
 			(obj.body) = () => ((this.source_body()));
 			return obj;
 		}
