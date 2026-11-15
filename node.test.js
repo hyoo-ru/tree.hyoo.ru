@@ -13077,7 +13077,7 @@ var $;
 var $;
 (function ($) {
     const { optional, slash_back, char_any, char_except, repeat } = $mol_regexp;
-    $.$hyoo_marked_line_content = repeat(char_except('\r\n'), 1);
+    $.$hyoo_marked_line_content = repeat(char_except('\r\n'), 0);
     const uri = repeat(char_except(slash_back));
     const content = { content: $.$hyoo_marked_line_content };
     const strong = $mol_regexp.from([{ marker: '**' }, content, '**']);
